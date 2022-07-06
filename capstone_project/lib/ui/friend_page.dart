@@ -1,0 +1,22 @@
+import 'package:flutter/material.dart';
+
+class FriendsPage extends StatefulWidget {
+  const FriendsPage({Key? key}) : super(key: key);
+
+  @override
+  State<FriendsPage> createState() => _FriendsPageState();
+}
+
+class _FriendsPageState extends State<FriendsPage> {
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Text(
+          '好友頁面',
+          style: TextStyle(fontSize: 30),
+        ),
+      ),
+    );
+  }
+}
