@@ -1,3 +1,4 @@
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/ui/activity_page.dart';
 import 'package:capstone_project/ui/friend_page.dart';
 import 'package:capstone_project/ui/map_page.dart';
@@ -13,17 +14,14 @@ class MyBottomBar extends StatefulWidget {
 }
 
 class _MyBottomBarState extends State<MyBottomBar> {
-  // 指目前是哪一個 btn 被按到
   int _selectedIndex = 2;
-  // 這是要在 body 中呈現的畫面
   final List<Widget> pages = [
     const MapPage(),
     const RoutePage(),
     const ProfilePageOne(),
     const ActivityPage(),
-    const FriendsPage()
+    const FriendPage()
   ];
-  // 按 btn 的 function
   void _onItemTapped(int idx) {
     setState(() {
       _selectedIndex = idx;
@@ -36,18 +34,17 @@ class _MyBottomBarState extends State<MyBottomBar> {
       body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.indigo.shade400,
-        currentIndex: _selectedIndex, // 指目前被點到的 btn index
-        selectedItemColor: Colors.white, // 目前被點到的 btn 要呈現的顏色
-        unselectedItemColor: Colors.blueGrey.shade200,
-        onTap: _onItemTapped, // 被點到的 btn 要執行的 function
-        // 四個 btn (item)
+        backgroundColor: PrimaryDarkGreen,
+        currentIndex: _selectedIndex, 
+        selectedItemColor: PrimaryLightYellow, 
+        unselectedItemColor: PrimaryLightGreen,
+        onTap: _onItemTapped, 
+        
         items: const [
           BottomNavigationBarItem(
               icon: Icon(
                 Icons.map,
               ),
-              // label：btn icon 要呈現的小字
               label: '地圖'),
           BottomNavigationBarItem(
               icon: Icon(
@@ -63,7 +60,7 @@ class _MyBottomBarState extends State<MyBottomBar> {
               icon: Icon(
                 Icons.hiking,
               ),
-              label: '活動列表'),
+              label: '活動'),
           BottomNavigationBarItem(
               icon: Icon(
                 Icons.people_outline_outlined,

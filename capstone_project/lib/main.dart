@@ -1,4 +1,5 @@
 import 'package:capstone_project/bottom_bar.dart';
+import 'package:capstone_project/ui/login_page.dart';
 import 'package:flutter/material.dart';
 // import 'package:my_mountain_app/profile_page_one.dart';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MyBottomBar(),
+      home: LoginPage(),
     );
   }
 }

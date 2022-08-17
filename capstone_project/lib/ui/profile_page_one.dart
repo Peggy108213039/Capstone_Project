@@ -1,13 +1,19 @@
+//import 'dart:html';
+import 'package:capstone_project/constants.dart';
+import 'package:capstone_project/components/default_icons.dart';
+import 'package:capstone_project/ui/notification_page.dart';
+import 'package:capstone_project/ui/setting_page.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePageOne extends StatefulWidget {
   const ProfilePageOne({Key? key}) : super(key: key);
-
+  
   @override
   State<ProfilePageOne> createState() => _ProfilePageOneState();
 }
 
 class _ProfilePageOneState extends State<ProfilePageOne> {
+
   @override
   Widget build(BuildContext context) {
     // 去抓使用者手機螢幕的長、寬
@@ -17,7 +23,9 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
       fit: StackFit.expand,
       children: [
         Container(
-          decoration: const BoxDecoration(
+          color: PrimaryMiddleGreen
+          /*decoration: const BoxDecoration(
+            color: PrimaryDarkGreen
             // 漸層色
             gradient: LinearGradient(
                 colors: [
@@ -27,31 +35,52 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                 // 漸層色的方向
                 begin: FractionalOffset.topCenter,
                 end: FractionalOffset.bottomCenter),
-          ),
+            
+          ),*/
         ),
         Scaffold(
           backgroundColor: Colors.transparent,
           body: SingleChildScrollView(
             child: Padding(
-              // horizontal：水平間距, vertical：垂直間距
               padding: EdgeInsets.symmetric(
                   horizontal: (width * 0.035), vertical: (height * 0.05)),
               child: Column(
                 children: [
-                  // Row1：鈴鐺 icon & 設定icon
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Icon(
-                        Icons.notifications_active_outlined,
-                        color: Colors.white,
-                        size: 30.0,
-                      ),
-                      Icon(
-                        Icons.settings,
-                        color: Colors.white,
-                        size: 30.0,
-                      )
+                    children: <Widget>[
+                      DefNotificationIcon(enable: true),
+                      DefSettingIcon(enable: true,),
+                      // IconButton(
+                      //   onPressed: (){
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //         builder: (context) => NotificationPage(),
+                      //       ),
+                      //     );
+                      //   },
+                      //   icon: const Icon(
+                      //     Icons.notifications_active_outlined,
+                      //     color: PrimaryLightYellow,
+                      //     size: 30.0,
+                      //   ),
+                      // ),
+                      // IconButton(
+                      //   onPressed: (){
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //         builder: (context) => SettingPage(),
+                      //       ),
+                      //     );
+                      //   },
+                      //   icon: const Icon(
+                      //     Icons.settings,
+                      //     color: PrimaryLightYellow,
+                      //     size: 30.0,
+                      //   )
+                      // )
                     ],
                   ),
                   // 間隔
@@ -85,7 +114,7 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                                     const Text(
                                       '測試帳號',
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: PrimaryLightYellow,
                                         fontSize: 35.0,
                                         // fontFamily: 'popFonts'
                                       ),
@@ -96,7 +125,7 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                                     const Text(
                                       '@demo1',
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: PrimaryLightYellow,
                                         fontSize: 25.0,
                                         // fontFamily: 'popFonts'
                                       ),
@@ -116,10 +145,8 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                                   width: innerWidth * 0.6,
                                   height: innerWidth * 0.6,
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(
-                                        width: 1,
-                                        color: Colors.indigo.shade400),
+                                    color: PrimaryLightYellow,
+                                    border: Border.all(width: 1),
                                     shape: BoxShape.circle,
                                     image: const DecorationImage(
                                       fit: BoxFit.fill,
@@ -150,7 +177,7 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                               width * 0.1, height * 0.5 * 0.1),
                           topRight: const Radius.circular(10.0),
                           bottomLeft: const Radius.circular(10.0)),
-                      color: Colors.white,
+                      color: PrimaryLightGreen,
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -162,7 +189,7 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                           Text(
                             '我的累積紀錄',
                             style: TextStyle(
-                              color: Colors.grey.shade600,
+                              color: PrimaryLightYellow,
                               fontSize: 22,
                               // fontFamily: 'popFonts'
                             ),
@@ -178,13 +205,13 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                                 children: [
                                   const Text('10 km',
                                       style: TextStyle(
-                                          color: Color.fromARGB(255, 8, 45, 70),
+                                          color: PrimaryLightYellow,
                                           // fontFamily: 'popFonts',
                                           fontSize: 25)),
                                   SizedBox(height: (height * 0.01)),
                                   Text('距離',
                                       style: TextStyle(
-                                          color: Colors.grey.shade500,
+                                          color: PrimaryLightYellow,
                                           // fontFamily: 'popFonts',
                                           fontSize: 21))
                                 ],
@@ -196,49 +223,51 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                                   height: (height * 0.1),
                                   width: 4.5,
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(100),
-                                      color: const Color.fromARGB(
-                                          255, 213, 213, 213)),
+                                    borderRadius: BorderRadius.circular(100),
+                                    color: PrimaryLightYellow
+                                  ),
                                 ),
                               ),
                               Column(
                                 children: [
                                   const Text('6',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 8, 45, 70),
-                                          // fontFamily: 'popFonts',
-                                          fontSize: 25)),
+                                    style: TextStyle(
+                                      color: PrimaryLightYellow,
+                                      // fontFamily: 'popFonts',
+                                      fontSize: 25
+                                    )
+                                  ),
                                   SizedBox(height: (height * 0.01)),
                                   Text('軌跡',
                                       style: TextStyle(
-                                          color: Colors.grey.shade500,
+                                          color: PrimaryLightYellow,
                                           // fontFamily: 'popFonts',
                                           fontSize: 21))
                                 ],
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 25, vertical: 8),
+                                  horizontal: 25, vertical: 8),
                                 child: Container(
                                   height: (height * 0.1),
                                   width: 4.5,
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(100),
-                                      color: const Color.fromARGB(
-                                          255, 213, 213, 213)),
+                                    borderRadius: BorderRadius.circular(100),
+                                    color: PrimaryLightYellow
+                                  ),
                                 ),
                               ),
                               Column(
                                 children: [
                                   const Text('3',
                                       style: TextStyle(
-                                          color: Color.fromARGB(255, 8, 45, 70),
+                                          color: PrimaryLightYellow,
                                           // fontFamily: 'popFonts',
                                           fontSize: 25)),
                                   SizedBox(height: (height * 0.01)),
                                   Text('活動',
                                       style: TextStyle(
-                                          color: Colors.grey.shade500,
+                                          color: PrimaryLightYellow,
                                           // fontFamily: 'popFonts',
                                           fontSize: 21))
                                 ],
