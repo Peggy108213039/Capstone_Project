@@ -1,7 +1,7 @@
-import 'package:capstone_project/ui/activity_page.dart';
-import 'package:capstone_project/ui/friend_page.dart';
-import 'package:capstone_project/ui/map_page.dart';
-import 'package:capstone_project/ui/profile_page_one.dart';
+import 'package:capstone_project/ui/activity/activity_page.dart';
+import 'package:capstone_project/ui/friend/friend_page.dart';
+import 'package:capstone_project/ui/map/map_page.dart';
+import 'package:capstone_project/ui/profile_page.dart';
 import 'package:capstone_project/ui/route_page.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +19,7 @@ class _MyBottomBarState extends State<MyBottomBar> {
   final List<Widget> pages = [
     const MapPage(),
     const RoutePage(),
-    const ProfilePageOne(),
+    const ProfilePage(),
     const ActivityPage(),
     const FriendsPage()
   ];

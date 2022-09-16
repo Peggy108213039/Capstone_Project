@@ -1,60 +1,64 @@
 import 'package:flutter/material.dart';
+// basic setting
+import 'package:capstone_project/constants.dart';
+import 'package:capstone_project/components/default_icons.dart';
+import 'package:capstone_project/services/http_service.dart';
+import 'package:capstone_project/services/sqlite_helper.dart';
 
-class ProfilePageOne extends StatefulWidget {
-  const ProfilePageOne({Key? key}) : super(key: key);
-
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({Key? key}) : super(key: key);
+  
   @override
-  State<ProfilePageOne> createState() => _ProfilePageOneState();
+  State<ProfilePage> createState() => _ProfilePageOneState();
 }
 
-class _ProfilePageOneState extends State<ProfilePageOne> {
+class _ProfilePageOneState extends State<ProfilePage> {
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+  GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
+  String userName  = UserData.userName.toString(); // catch & print userinfo table
+  String userAccount = UserData.userAccount;
+  String accDistance = UserData.totalDistance.toString(); 
+  String accTrack = UserData.totalTrack.toString();
+  String accActivity = UserData.totalActivity.toString();
+  
   @override
   Widget build(BuildContext context) {
-    // 去抓使用者手機螢幕的長、寬
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Stack(
       fit: StackFit.expand,
       children: [
         Container(
-          decoration: const BoxDecoration(
-            // 漸層色
+          color: PrimaryMiddleGreen
+          /*decoration: const BoxDecoration(
+            color: PrimaryDarkGreen
+            // 漸層 direction
             gradient: LinearGradient(
                 colors: [
                   Color.fromRGBO(92, 107, 192, 1),
                   Color.fromARGB(255, 6, 42, 66),
                 ],
-                // 漸層色的方向
+                // 漸層start to end range
                 begin: FractionalOffset.topCenter,
                 end: FractionalOffset.bottomCenter),
-          ),
+            
+          ),*/
         ),
         Scaffold(
           backgroundColor: Colors.transparent,
           body: SingleChildScrollView(
             child: Padding(
-              // horizontal：水平間距, vertical：垂直間距
               padding: EdgeInsets.symmetric(
                   horizontal: (width * 0.035), vertical: (height * 0.05)),
               child: Column(
                 children: [
-                  // Row1：鈴鐺 icon & 設定icon
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Icon(
-                        Icons.notifications_active_outlined,
-                        color: Colors.white,
-                        size: 30.0,
-                      ),
-                      Icon(
-                        Icons.settings,
-                        color: Colors.white,
-                        size: 30.0,
-                      )
+                    children: const <Widget>[
+                      DefNotificationIcon(enable: true),
+                      DefSettingIcon(enable: true,),
                     ],
                   ),
-                  // 間隔
                   SizedBox(
                     height: (height * 0.025),
                   ),
@@ -63,12 +67,10 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                     height: height * 0.45,
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        // 抓這個 Container 的大小
                         double innerHeight = constraints.maxHeight;
                         double innerWidth = constraints.maxWidth;
                         // Stack
                         return Stack(
-                          // 擴展跟 Stack 一樣的大小
                           fit: StackFit.expand,
                           children: [
                             Positioned(
@@ -81,11 +83,11 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                                 height: innerHeight * 0.3,
                                 width: innerWidth,
                                 child: Column(
-                                  children: [
-                                    const Text(
-                                      '測試帳號',
-                                      style: TextStyle(
-                                        color: Colors.white,
+                                  children: [ 
+                                    Text( // 使用者名稱
+                                      userName,
+                                      style: const TextStyle(
+                                        color: PrimaryLightYellow,
                                         fontSize: 35.0,
                                         // fontFamily: 'popFonts'
                                       ),
@@ -93,10 +95,10 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                                     SizedBox(
                                       height: (height * 0.025),
                                     ),
-                                    const Text(
-                                      '@demo1',
-                                      style: TextStyle(
-                                        color: Colors.white,
+                                    Text( // 使用者帳號
+                                      "@" + userAccount,
+                                      style: const TextStyle(
+                                        color: PrimaryLightYellow,
                                         fontSize: 25.0,
                                         // fontFamily: 'popFonts'
                                       ),
@@ -105,21 +107,17 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                                 ),
                               ),
                             ),
-                            // 放頭貼
                             Positioned(
                               top: innerHeight * 0.05,
                               left: 0,
                               right: 0,
                               child: Center(
                                 child: Container(
-                                  // Container 的大小
                                   width: innerWidth * 0.6,
                                   height: innerWidth * 0.6,
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(
-                                        width: 1,
-                                        color: Colors.indigo.shade400),
+                                    color: PrimaryLightYellow,
+                                    border: Border.all(width: 1),
                                     shape: BoxShape.circle,
                                     image: const DecorationImage(
                                       fit: BoxFit.fill,
@@ -138,7 +136,6 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                   SizedBox(
                     height: (height * 0.025),
                   ),
-                  // 累積紀錄
                   Container(
                     height: height * 0.2,
                     width: width,
@@ -150,7 +147,7 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                               width * 0.1, height * 0.5 * 0.1),
                           topRight: const Radius.circular(10.0),
                           bottomLeft: const Radius.circular(10.0)),
-                      color: Colors.white,
+                      color: PrimaryLightGreen,
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -159,10 +156,10 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                           SizedBox(
                             height: (height * 0.01),
                           ),
-                          Text(
-                            '我的累積紀錄',
+                          const Text(
+                            '累積紀錄',
                             style: TextStyle(
-                              color: Colors.grey.shade600,
+                              color: PrimaryLightYellow,
                               fontSize: 22,
                               // fontFamily: 'popFonts'
                             ),
@@ -171,20 +168,19 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                             thickness: 3,
                           ),
                           Row(
-                            // 主軸方向的對齊方式，置中對齊
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Column(
                                 children: [
-                                  const Text('10 km',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 8, 45, 70),
+                                  Text(accDistance,
+                                      style:const  TextStyle(
+                                          color: PrimaryLightYellow,
                                           // fontFamily: 'popFonts',
                                           fontSize: 25)),
                                   SizedBox(height: (height * 0.01)),
-                                  Text('距離',
+                                  const Text('距離',
                                       style: TextStyle(
-                                          color: Colors.grey.shade500,
+                                          color: PrimaryLightYellow,
                                           // fontFamily: 'popFonts',
                                           fontSize: 21))
                                 ],
@@ -196,49 +192,50 @@ class _ProfilePageOneState extends State<ProfilePageOne> {
                                   height: (height * 0.1),
                                   width: 4.5,
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(100),
-                                      color: const Color.fromARGB(
-                                          255, 213, 213, 213)),
+                                    borderRadius: BorderRadius.circular(100),
+                                    color: PrimaryLightYellow
+                                  ),
                                 ),
                               ),
                               Column(
                                 children: [
-                                  const Text('6',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 8, 45, 70),
-                                          // fontFamily: 'popFonts',
-                                          fontSize: 25)),
+                                  Text(accTrack,
+                                    style: const TextStyle(
+                                      color: PrimaryLightYellow,
+                                      // fontFamily: 'popFonts',
+                                      fontSize: 25
+                                    )
+                                  ),
                                   SizedBox(height: (height * 0.01)),
-                                  Text('軌跡',
+                                  const Text('路徑',
                                       style: TextStyle(
-                                          color: Colors.grey.shade500,
+                                          color: PrimaryLightYellow,
                                           // fontFamily: 'popFonts',
                                           fontSize: 21))
                                 ],
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 25, vertical: 8),
+                                  horizontal: 25, vertical: 8),
                                 child: Container(
                                   height: (height * 0.1),
                                   width: 4.5,
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(100),
-                                      color: const Color.fromARGB(
-                                          255, 213, 213, 213)),
+                                    borderRadius: BorderRadius.circular(100),
+                                    color: PrimaryLightYellow
+                                  ),
                                 ),
                               ),
-                              Column(
-                                children: [
-                                  const Text('3',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 8, 45, 70),
-                                          // fontFamily: 'popFonts',
-                                          fontSize: 25)),
+                              Column( children: [
+                                  Text(accActivity,
+                                    style: const TextStyle(
+                                        color: PrimaryLightYellow,
+                                        // fontFamily: 'popFonts',
+                                        fontSize: 25)),
                                   SizedBox(height: (height * 0.01)),
-                                  Text('活動',
+                                  const Text('活動',
                                       style: TextStyle(
-                                          color: Colors.grey.shade500,
+                                          color: PrimaryLightYellow,
                                           // fontFamily: 'popFonts',
                                           fontSize: 21))
                                 ],
