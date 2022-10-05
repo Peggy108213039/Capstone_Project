@@ -615,5 +615,4 @@ windows/
 .flutter-plugins
 .flutter-plugins-dependencies
 pubspec.lock
-capstone_project/android/.gradle
 build/
