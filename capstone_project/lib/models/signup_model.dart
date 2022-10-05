@@ -1,16 +1,16 @@
 // let sql="INSERT INTO `member`(`name`, `account`, `password`, `email`, `phone`) VALUES (?,?,?,?,?)";
 // let param=[req.body.name,req.body.account,req.body.password,req.body.email,req.body.phone];
 class SignUpResponseModel {
-  int uID;
+  String uID;
   String account;
   String name;
   String password;
   String email;
-  int phone;
-  int totalDiatance;
-  int totalTime;
-  int totalActivity;
-  int totalTrack;
+  String phone;
+  // String totalDiatance;
+  // String totalTime;
+  // String totalActivity;
+  // String totalTrack;
   String result;
 
   SignUpResponseModel({
@@ -20,10 +20,10 @@ class SignUpResponseModel {
     required this.password,
     required this.email,
     required this.phone,
-    required this.totalDiatance,
-    required this.totalTime,
-    required this.totalActivity,
-    required this.totalTrack,
+    // required this.totalDiatance,
+    // required this.totalTime,
+    // required this.totalActivity,
+    // required this.totalTrack,
     required this.result});
 
   /// `toJson` is the convention for a class to declare support for serialization
@@ -31,16 +31,16 @@ class SignUpResponseModel {
   /// helper method `_$UserToJson`.
   factory SignUpResponseModel.fromJson(Map<String, dynamic> json) {
     return SignUpResponseModel(
-      uID: json["uID"] ?? "", // if null then return ""
+      uID: json["uID"] ?? "" , // if null then return ""
       account: json["account"] ?? "",
       name: json["name"] ?? "",
       password: json["password"] ?? "",
       email: json["email"] ?? "",
       phone: json["phone"] ?? "",
-      totalDiatance: json["total_distance"],
-      totalTime: json["total_time"],
-      totalActivity: json["total_activity"],
-      totalTrack: json["total_track"],
+      // totalDiatance: json["total_distance"],
+      // totalTime: json["total_time"],
+      // totalActivity: json["total_activity"],
+      // totalTrack: json["total_track"],
       result: json["result"] ?? "",
     );
   }

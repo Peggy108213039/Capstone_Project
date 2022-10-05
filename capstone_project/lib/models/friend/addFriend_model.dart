@@ -15,11 +15,11 @@ class AddFriendResponseModel {
 }
 class AddFriendRequestModel{
   String uID1;
-  String uID2;
+  String account;
 
   AddFriendRequestModel({
     required this.uID1,
-    required this.uID2,
+    required this.account,
   });
 
   /// `toJson` is the convention for a class to declare support for serialization
@@ -28,7 +28,7 @@ class AddFriendRequestModel{
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = {
       'uID1': uID1,
-      'uID2': uID2,
+      'account': account,
     };
 
     return map;

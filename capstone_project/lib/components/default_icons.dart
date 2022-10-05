@@ -1,5 +1,5 @@
-import 'package:capstone_project/ui/aboutuser/setting_page.dart';
-import 'package:capstone_project/ui/notification_page.dart';
+import 'package:capstone_project/ui/setting/setting_page.dart';
+import 'package:capstone_project/ui/notification/notification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/constants.dart';
 //import 'package:my_capstone_project_ver3/size_config.dart';
@@ -128,6 +128,5 @@ class DefSettingIcon extends StatelessWidget {
         )
       );
     }
-    
   }
 }

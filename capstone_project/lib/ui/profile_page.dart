@@ -112,7 +112,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
                               left: 0,
                               right: 0,
                               child: Center(
-                                child: Container(
+                                child: Container( // 大頭貼
                                   width: innerWidth * 0.6,
                                   height: innerWidth * 0.6,
                                   decoration: BoxDecoration(

@@ -1,6 +1,5 @@
-import 'package:capstone_project/bottom_bar.dart';
 import 'package:flutter/material.dart';
-// import 'package:my_mountain_app/profile_page_one.dart';
+import 'package:capstone_project/ui/login_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,9 +11,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MyBottomBar(),
+      theme: ThemeData(platform: TargetPlatform.iOS),
+      //home: SocketPage(),
+      home: const LoginPage()
     );
   }
 }

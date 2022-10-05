@@ -1,9 +1,13 @@
+import 'dart:collection';
+
+import 'package:capstone_project/models/userInfo/selectInfo_model.dart';
+import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:capstone_project/models/login_model.dart';
 import 'package:capstone_project/models/signup_model.dart';
-import 'package:capstone_project/models/updateInfo_model.dart';
+import 'package:capstone_project/models/userInfo/updateInfo_model.dart';
 import 'package:capstone_project/models/activity/addActivity_model.dart';
 import 'package:capstone_project/models/activity/finishActivity_model.dart';
 import 'package:capstone_project/models/activity/startActivity_model.dart';
@@ -27,12 +31,12 @@ class UserData { // 存放使用者資料
 
   UserData(
     String getToken,
-    int getUid, 
-    String getUserAccount, 
-    String getUserName, 
-    String getPassword, 
-    String getUserEmail, 
-    int getUserPhone, 
+    int getUid,
+    String getUserAccount,
+    String getUserName,
+    String getPassword,
+    String getUserEmail,
+    int getUserPhone,
     int getTotalDiatance,
     int getTotalTime,
     int getTotalActivity,
@@ -59,11 +63,11 @@ class APIService {
     if (tmpResponse.result != "Login fail"){
       UserData(
         response.headers['set-cookie']!,
-        tmpResponse.uID, 
-        tmpResponse.account, 
-        tmpResponse.name, 
-        tmpResponse.password, 
-        tmpResponse.email, 
+        tmpResponse.uID,
+        tmpResponse.account,
+        tmpResponse.name,
+        tmpResponse.password,
+        tmpResponse.email,
         tmpResponse.phone,
         tmpResponse.totalDiatance,
         tmpResponse.totalTime,
@@ -71,8 +75,8 @@ class APIService {
         tmpResponse.totalTrack,
       );
       print("登入成功");
+      selectFriend(SelectFriendRequestModel(uID1: tmpResponse.uID.toString()));
       //await FlutterSession().set("token", UserData.token);
-      //print(response.headers['set-cookie']);
       return true;
       // 如果 server 回傳 json 格式則應該像下行寫，才能把 server response 的 json 資料抓出來用
       // return LoginResponseModel.fromJson(json.decode(response.body));
@@ -87,22 +91,18 @@ class APIService {
     String url = "http://163.22.17.247:3000/api/signup_member";
     final response = await http.post(Uri.parse(url), body: requestModel.toJson());
     var tmpResponse = SignUpResponseModel.fromJson(json.decode(response.body));
-    if((response.statusCode == 200 || response.statusCode == 400) && (tmpResponse.result == "create account")){
-      UserData(
-        response.headers['set-cookie']!,
-        tmpResponse.uID, 
-        tmpResponse.account, 
-        tmpResponse.name, 
-        tmpResponse.password, 
-        tmpResponse.email, 
-        tmpResponse.phone,
-        tmpResponse.totalDiatance,
-        tmpResponse.totalTime,
-        tmpResponse.totalActivity,
-        tmpResponse.totalTrack,
-      );
-      print("註冊成功");
-      print(response.body);
+    print("註冊RESPONSE $response");
+    if((response.statusCode == 200 || response.statusCode == 400) || (tmpResponse.result == "create account")){
+      // UserData(
+      //   response.headers['set-cookie']!,
+      //   int.parse(tmpResponse.uID),
+      //   tmpResponse.account,
+      //   tmpResponse.name,
+      //   tmpResponse.password,
+      //   tmpResponse.email,
+      //   int.parse(tmpResponse.phone),
+      //   0,0,0,0,
+      // );
       return true;
       // return LoginResponseModel.fromJson(json.decode(response.body));
     } else {
@@ -112,11 +112,9 @@ class APIService {
       // throw Exception("Failed to Load Data");
     }
   }
-  
-  // FIXME 0912 : update User info
+
   Future<bool> updateUserInfo(UpdateInfoRequestModel requestModel) async{
     String url = "http://163.22.17.247:3000";
-
     final response = await http.post(Uri.parse(url),headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if(response.statusCode == 200 || response.statusCode == 400){
       print(response.body);
@@ -126,7 +124,29 @@ class APIService {
       print(response.body);
       return false;
       // throw Exception("Failed to Load Data");
-    } 
+    }
+  }
+
+  // 查詢好友清單
+  // 以 uID 呼叫 API 查詢
+  // 返回結果一一插入 sqflite - friend table
+  Future<bool> selectUserInfo(SelectInfoRequestModel requestModel) async {
+    String url = "http://163.22.17.247:3000/api/member/select_uid_member";
+    final response = await http.post(Uri.parse(url),headers: {'cookie': UserData.token}, body: requestModel.toJson());
+    if (response.statusCode == 200 || response.statusCode == 400){
+      var jsonResponse = json.decode(response.body) ;
+      print("JSON RESPONSE IN SELECTUSERINFO $jsonResponse");
+      await SqliteHelper.insert(tableName: "friend", insertData: jsonResponse);
+      // for (var tmpResponse in jsonResponse){
+      //   print(jsonResponse);
+      //   await SqliteHelper.insert(tableName: "friend", insertData: tmpResponse);
+      // }
+      return true;
+    } else{
+      print(response.body);
+      return false;
+      // throw Exception("Failed to Load Data");
+    }
   }
 
   // 好友
@@ -175,20 +195,31 @@ class APIService {
     }
   }
   // 列出好友清單
-  Future<SelectFriendResponseModel> selectFriend(SelectFriendRequestModel requestModel) async {
+  Future<bool> selectFriend(SelectFriendRequestModel requestModel) async {
+    await SqliteHelper.clear(tableName: "friend");
     String url = "http://163.22.17.247:3000/api/friend/select_friend";
     final response = await http.post(Uri.parse(url),headers: {'cookie': UserData.token}, body: requestModel.toJson());
+    SelectInfoRequestModel selectInfoRequestModel;
+    selectInfoRequestModel = SelectInfoRequestModel(uid: "");
     if (response.statusCode == 200 || response.statusCode == 400){
-      print("【我的朋友們】");
-      print(response.body);
-      // return true;
-      return SelectFriendResponseModel.fromJson(json.decode(response.body));
+      List jsonResponse = json.decode(response.body); //回傳一個 Map
+      for (var tmpResponse in jsonResponse) {
+        // 使用 uID2 查詢 userInfo 以列出好友清單
+        print(tmpResponse);
+        selectInfoRequestModel.uid = tmpResponse["uID2"].toString();
+        await selectUserInfo(selectInfoRequestModel);
+      }
+      print("我的朋友 table");
+      print(await SqliteHelper.queryAll(tableName: "friend"));
+      return true;
     } else{
       print(response.body);
-      // return false;
+      print("將好友們加入 sqlite 失敗");
+      return false;
       throw Exception("Failed to Load Data");
     }
   }
+
 
   // 活動
   Future<bool> addActivity(AddActivityRequestModel requestModel) async {

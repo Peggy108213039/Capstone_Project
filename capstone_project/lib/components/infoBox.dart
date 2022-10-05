@@ -1,20 +1,21 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/size_config.dart';
-import 'package:capstone_project/ui/aboutUser/updateMyInfo_page.dart';
+import 'package:capstone_project/ui/setting/updateMyName_page.dart';
 
 class InfoBox extends StatelessWidget{
   final double innerHeight;
   final double innerWidth;
+  final bool visible;
+
   const InfoBox({
     Key? key,
     required this.innerHeight,
-    required this.innerWidth
+    required this.innerWidth, 
+    required this.visible
   }) : super(key: key);
+  @override
   Widget build(BuildContext context){
     return Stack(
       fit: StackFit.expand,
@@ -71,20 +72,29 @@ class InfoBox extends StatelessWidget{
         ),
         Positioned(
           top: innerHeight * 0,
-          right: innerWidth * 0,
+          right: innerWidth * 0.015,
           //right: 0,
-          child: TextButton(
-            child: const Text('編輯'),
-            onPressed: () {
-              print('【按下】更新個人資料 - infoBox');
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const UpdateMyInfoPage(),
-                ),
-              );            },
-          ),
-        )
+          child: Visibility(
+            visible: visible,
+            child: TextButton(
+              child: const Text('編輯'),
+              style: TextButton.styleFrom(
+                primary: PrimaryMiddleGreen,
+                backgroundColor: PrimaryLightYellow,
+              ),
+              onPressed: () {
+                print('【按下】更新個人資料 - infoBox');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UpdateMyInfoPage(),
+                  ),
+                );
+              },
+            ),
+          )
+        ),
+        
       ],
     );
   }

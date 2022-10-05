@@ -1,0 +1,10 @@
+D:/Github/Capstone_Project/capstone_project/build/windows/CMakeFiles/INSTALL.dir
+D:/Github/Capstone_Project/capstone_project/build/windows/CMakeFiles/ALL_BUILD.dir
+D:/Github/Capstone_Project/capstone_project/build/windows/CMakeFiles/ZERO_CHECK.dir
+D:/Github/Capstone_Project/capstone_project/build/windows/flutter/CMakeFiles/flutter_wrapper_plugin.dir
+D:/Github/Capstone_Project/capstone_project/build/windows/flutter/CMakeFiles/flutter_wrapper_app.dir
+D:/Github/Capstone_Project/capstone_project/build/windows/flutter/CMakeFiles/flutter_assemble.dir
+D:/Github/Capstone_Project/capstone_project/build/windows/flutter/CMakeFiles/INSTALL.dir
+D:/Github/Capstone_Project/capstone_project/build/windows/runner/CMakeFiles/capstone_project.dir
+D:/Github/Capstone_Project/capstone_project/build/windows/runner/CMakeFiles/INSTALL.dir
+D:/Github/Capstone_Project/capstone_project/build/windows/runner/CMakeFiles/ALL_BUILD.dir

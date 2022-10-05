@@ -5,7 +5,7 @@ class SqliteHelper {
   static const int dbVersion = 1;
   static const trackTable = 'track'; // 資料表的名稱
   static const activTable = 'activity';
-  static const userTable = 'userinfo';
+  static const friendTable = 'friend';
 
   // only have a single app-wide reference to the database
   static Database? db;
@@ -60,16 +60,14 @@ class SqliteHelper {
     print('建立活動資料庫');
     // 建立 userinfo table
     await db.execute('''
-        CREATE TABLE $userTable (
-        uID interger primary key,
-        user_name text,
-        user_account text,
-        user_password text,
-        user_email text,
-        user_phone int
+        CREATE TABLE $friendTable (
+        fID integer primary key AUTOINCREMENT,
+        uID integer,
+        account text,
+        name text
         );
       ''');
-    print('建立使用者資訊資料表');
+    print('建立好友資料表');
   }
 
   // 新增
@@ -121,9 +119,17 @@ class SqliteHelper {
   // 刪除
   static Future<int?> delete(
       {required String tableName,
-      required String tableIdName,
-      required int deleteId}) async {
+      required String dataFieldName,
+      required int deleteValue}) async {
     final Database? database = await open;
-    return await database?.delete(tableName, where: '$tableIdName=$deleteId');
+    return await database?.delete(tableName, where: '$dataFieldName=$deleteValue');
+  }
+
+  // 清空資料表
+  static Future<void> clear(
+      {required String tableName,}) async {
+    final Database? database = await open;
+    print("以清空 $tableName 資料表");
+    return await database?.execute('DELETE FROM `$tableName`;');
   }
 }

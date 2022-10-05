@@ -1,4 +1,5 @@
 // import 'package:flutter/foundation.dart';
+import 'package:capstone_project/ui/login_page.dart';
 import 'package:flutter/material.dart';
 // basic setting
 import 'package:capstone_project/constants.dart';
@@ -10,6 +11,7 @@ import 'package:capstone_project/bottom_bar.dart';
 import 'package:capstone_project/services/http_service.dart';
 // model
 import 'package:capstone_project/models/signup_model.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 class SignupPage extends StatefulWidget {
@@ -79,16 +81,13 @@ class _SignupPageState extends State<SignupPage> {
                     keyboardType: TextInputType.text,
                     onSaved: (input) => requestModel.name = input!,
                     validator: (input) {
-                      if(input!.isEmpty || !RegExp(r'[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+').hasMatch(input)){
-                  //allow upper and lower case alphabets and space
-                  return "Phone number should be valid";
-                }else{
-                  return null;
-                };
+                      if(input!.isEmpty || !RegExp(r'^[A-Za-z0-9_-]{3,15}$').hasMatch(input)){
+                        //allow upper and lower case alphabets and space
+                        return "請輸入有效的使用者名稱";
+                      }else{
+                        return null;
+                      };
                     },
-                    // validator: (input) => /*!*/input!.contains("'") 
-                    //   ? "使用者帳號不得包含特殊字元，ex: !@#%^&*'" 
-                    //   : null,
                     decoration: const InputDecoration(
                       labelText: "User Name",
                     ),
@@ -190,13 +189,16 @@ class _SignupPageState extends State<SignupPage> {
                           setState(() {
                             isApiCallProcess = false;
                           });
+                          Fluttertoast.showToast(msg: "SignUp Successful");
+                          Fluttertoast.showToast(msg: "Please Login after Signup Successful");
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const MyBottomBar(),
+                              builder: (context) => const LoginPage(),
                             ),
                           );
                         } else {
+                          Fluttertoast.showToast(msg: "SignUp Failed");
                           Navigator.push(
                             context,
                             MaterialPageRoute(
