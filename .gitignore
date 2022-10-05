@@ -615,5 +615,5 @@ windows/
 .flutter-plugins
 .flutter-plugins-dependencies
 pubspec.lock
-android/.gradle/
+android/.gradle
 build/
