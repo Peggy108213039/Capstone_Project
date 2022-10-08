@@ -40,14 +40,34 @@ dependencies:
   sqflite: ^2.0.2+1
   # Your other reqular dependencies here
   # Do HTTP Request
-  http: ^0.13.4
+  http: ^0.13.5
   # Automated Source Code Producer for Serialization JSON
   json_annotation: ^4.6.0
   # Unknown
   socket_io_client: ^2.0.0
   # create a new socketChannel
   web_socket_channel: ^2.1.0
-  #flutter_session: ^0.1.1
+  # flutter_session: ^0.1.1
+  # pick file from storage
+  file_picker: ^4.6.1 
+  open_file: ^3.2.1
+  # download and save file
+  dio: ^4.0.6
+  path_provider: ^2.0.11
+  date_field: ^3.0.1
+  # map
+  flutter_map: ^2.2.0
+  flutter_polyline_points: ^1.0.0
+  map_elevation: ^2.0.0
+  location: ^4.4.0
+  # flutter_svg: ^1.0.3
+  # equatable: ^2.0.3
+  xml: ^5.3.1
+  latlong2: ^0.8.1
+  image_picker: ^0.8.5+3
+  gallery_saver: ^2.3.2
+  flutter_archive: ^5.0.0 # 解壓縮的套件
+  dart_numerics: ^0.0.6
 
 dev_dependencies:
   flutter_test:

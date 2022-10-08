@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:capstone_project/models/userInfo/selectInfo_model.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:http/http.dart' as http;

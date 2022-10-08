@@ -1,7 +1,25 @@
+import 'package:capstone_project/bottom_bar.dart';
+import 'package:capstone_project/ui/activity/activity_page.dart';
+import 'package:capstone_project/ui/activity/add_activity.dart';
+import 'package:capstone_project/ui/activity/edit_activity.dart';
+import 'package:capstone_project/ui/activity/show_activity_data.dart';
+import 'package:capstone_project/ui/map/camera/take_picture_screen.dart';
+import 'package:capstone_project/ui/map/locationProvider.dart';
+import 'package:capstone_project/ui/map/offline_map/add_offline_map.dart';
+import 'package:capstone_project/ui/map/offline_map/download_offline_map.dart';
+import 'package:capstone_project/ui/track/fm_show_track_data.dart';
+import 'package:capstone_project/ui/track/track_page.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/ui/login_page.dart';
+import 'package:flutter/services.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    // 垂直固定
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const MyApp());
 }
 
@@ -12,6 +30,29 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+        '/MapPage': (context) => const LocationProvider(
+              mapService: 'FlutterMapPage',
+            ),
+        '/StartActivity': (context) => const LocationProvider(
+              mapService: 'StartActivity',
+            ),
+        '/OfflineMapPage': (context) => const LocationProvider(
+              mapService: 'OfflineMapPage',
+            ),
+        '/TrackPage': (context) => const TrackPage(),
+        '/ActivityPage': (context) => const ActivityPage(),
+        '/AddActivityPage': (context) => const AddActivityPage(),
+        '/ShowActivityData': (context) => const ShowActivityData(),
+        '/EditActivityData': (context) => const EditActivity(),
+        '/ShowTrackDataPage': (context) => const ShowTrackDataPage(),
+        '/MyBottomBar1': ((context) => const MyBottomBar(i: 1)),
+        '/MyBottomBar3': ((context) => const MyBottomBar(i: 3)),
+        '/MyBottomBar0': ((context) => const MyBottomBar(i: 0)),
+        '/TakePhotoPage': ((context) => const TakePhotoPage()),
+        '/TestOfflineMap': ((context) => const TestOfflineMap()),
+        '/DownloadOfflineMap': ((context) => const DownloadOfflineMap()),
+      },
       debugShowCheckedModeBanner: false,
       theme: ThemeData(platform: TargetPlatform.iOS),
       //home: SocketPage(),

@@ -1,27 +1,32 @@
+import 'package:capstone_project/ui/map/locationProvider.dart';
+import 'package:capstone_project/ui/track/track_page.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/ui/activity/activity_page.dart';
 import 'package:capstone_project/ui/friend/friend_page copy 2.dart';
-import 'package:capstone_project/ui/map/map_page.dart';
-import 'package:capstone_project/ui/route_page.dart';
 import 'package:capstone_project/ui/profile_page.dart';
 
 class MyBottomBar extends StatefulWidget {
-  const MyBottomBar({Key? key}) : super(key: key);
+  final int i;
+  const MyBottomBar({Key? key, required this.i}) : super(key: key);
 
   @override
   State<MyBottomBar> createState() => _MyBottomBarState();
 }
 
 class _MyBottomBarState extends State<MyBottomBar>{
+  bool firstTime = true;
   // when button clicked
   int _selectedIndex = 2;
 
   final List<Widget> pages = [
-    const MapPage(),
-    const RoutePage(),
+    // Map
+    const LocationProvider(
+      mapService: 'FlutterMapPage',
+    ), // 0
+    const TrackPage(), // 1
     const ProfilePage(),
-    const ActivityPage(),
+    const ActivityPage(), // 3
     const FriendPage(),
   ];
 
@@ -33,6 +38,10 @@ class _MyBottomBarState extends State<MyBottomBar>{
 
   @override
   Widget build(BuildContext context) {
+    if (widget.i != 2 && firstTime) {
+      _selectedIndex = widget.i;
+      firstTime = false;
+    }
     return Scaffold(
       body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -53,7 +62,7 @@ class _MyBottomBarState extends State<MyBottomBar>{
                 AssetImage("assets/images/route.png"),
                 //Icons.route_outlined,
               ),
-              label: '路徑'),
+              label: '軌跡'),
           BottomNavigationBarItem(
               icon: ImageIcon(
                 AssetImage("assets/images/home.png")
