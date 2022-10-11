@@ -81,7 +81,7 @@ class GPXService {
       });
     });
     final XmlDocument document = builder.buildDocument();
-    print(document.toXmlString(pretty: true, indent: '\t'));
+    // print(document.toXmlString(pretty: true, indent: '\t'));
     return document.toXmlString(pretty: true, indent: '\t');
   }
 
@@ -144,7 +144,7 @@ class GPXService {
     if (result > 18) {
       result = 18;
     }
-    print('zoom result $result');
+    // print('zoom result $result');
     // result -= 0.75;
     return result;
   }

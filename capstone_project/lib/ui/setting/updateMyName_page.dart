@@ -78,7 +78,7 @@ class _UpdateMyInfoPageOneState extends State<UpdateMyInfoPage> {
                                   setState(() {
                                     isApiCallProcess = false;
                                   });
-                                  Navigator.of(context).pop(const MyBottomBar(i: 2));
+                                  Navigator.of(context).pop(const MyBottomBar(i: 2, firstTime: false));
                                   print('【成功】更新個人資料 - 使用者名稱');
                                 } else {
                                   print("【失敗】更新個人資料 - 使用者名稱");

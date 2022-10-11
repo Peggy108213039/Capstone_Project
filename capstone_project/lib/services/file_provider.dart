@@ -18,7 +18,6 @@ class FileProvider {
   Future<Directory?> getSpecificDir({required String dirName}) async {
     thisAppStorage ??= await getAppPath;
     Directory dir = Directory('${thisAppStorage?.path}/$dirName');
-    print('Dir Path  ${dir.path}');
     var isExists = await dir.exists();
     if (!isExists) {
       dir = await dir.create(recursive: true);

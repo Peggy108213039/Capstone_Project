@@ -119,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const MyBottomBar(i: 2),
+                              builder: (context) => const MyBottomBar(i: 2, firstTime: true,),
                             ),
                           );
                         } else { // login failed

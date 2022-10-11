@@ -6,6 +6,7 @@ import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:capstone_project/models/ui_model/input_dialog.dart';
 import 'package:capstone_project/services/file_provider.dart';
 import 'package:capstone_project/services/gpx_service.dart';
+import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/services/kml_service.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,9 @@ class _TrackPageState extends State<TrackPage> {
   late MyAlertDialog noFileAlertDialog;
   late MyAlertDialog reChooseAlertDialog;
   late MyAlertDialog deleteTrackDialog;
-  late MyAlertDialog deleteFailDialog;
+  late MyAlertDialog deleteTrackFailDialog;
+  late MyAlertDialog insertTrackFailDialog;
+  late MyAlertDialog uploadTrackFailDialog;
   late InputDialog nameFileDialog;
 
   @override
@@ -97,20 +100,16 @@ class _TrackPageState extends State<TrackPage> {
   // 抓資料庫中軌跡的資料
   getTrackData() async {
     // FIXME 抓後端軌跡的資料
-    // var userID = {"uID": "1"}; // FIXME 要換成 sqlite 中 user 的資料
-    // bool result = await HttpService.selectUserAllTrack(userID);
+    // var userID = {'uID': '9'}; // FIXME 要換成 sqlite 中 user 的資料
+    // bool result = await APIService.selectUserAllTrack(userID);
     // print('使用者所有軌跡的資料 $result');
     queryTrackList = await SqliteHelper.queryAll(tableName: 'track');
-    print('DB QUERY DATA $queryTrackList');
     return queryTrackList;
   }
 
   Future<void> getAppTrackDirPath() async {
-    // 抓此 APP 的檔案路徑
     await fileProvider.getAppPath;
-    // 抓軌跡資料夾
     trackDir = await fileProvider.getSpecificDir(dirName: 'trackData');
-    print("trackDir path : ${trackDir!.path}");
   }
 
   void _pushBack() {
@@ -139,11 +138,10 @@ class _TrackPageState extends State<TrackPage> {
     bool? toDelete = await deleteTrackDialog.show();
     toDelete ??= false;
 
-    print('是否要刪除軌跡 $toDelete');
     if (toDelete) {
-      // FIXME 刪除後端軌跡檔案
       var isDeleted = await fileProvider.deleteFile(file: deleteFile); // 刪除檔案
       if (isDeleted) {
+        // FIXME 刪除 server 軌跡檔案
         // 已經刪完檔案
         var deleteID = deleteTrackData[0]['tID'];
         // 刪除 sqlite 軌跡資料
@@ -152,30 +150,19 @@ class _TrackPageState extends State<TrackPage> {
         print('sqlite 刪除結果 $result');
         setState(() {});
       } else {
-        deleteFailDialog = MyAlertDialog(
+        deleteTrackFailDialog = MyAlertDialog(
             context: context,
             titleText: '刪除失敗',
             contentText: '找不到檔案',
             btn1Text: '確認',
             btn2Text: '');
-        deleteFailDialog.show();
+        deleteTrackFailDialog.show();
       }
     } else {
       print('不要刪除軌跡');
       return;
     }
   }
-
-  // List<LatLng?> stringToLatLng({required List list}) {
-  //   List<LatLng?> latLngList = [];
-  //   for (int i = 0; i < list.length; i++) {
-  //     var value = LatLng.fromJson(list[i]);
-  //     if (value != null) {
-  //       latLngList.add(value);
-  //     }
-  //   }
-  //   return latLngList;
-  // }
 
   void _checkTrackData({
     required BuildContext context,
@@ -196,7 +183,6 @@ class _TrackPageState extends State<TrackPage> {
           MediaQuery.of(context).size.width,
           MediaQuery.of(context).size.height,
         ));
-    print('======= zoomLevel $zoomLevel =======');
 
     Navigator.pushNamed(context, "/ShowTrackDataPage", arguments: {
       'trackData': trackData,
@@ -258,9 +244,9 @@ class _TrackPageState extends State<TrackPage> {
       }
     }
     if (toAdd) {
-      late Map<String, dynamic> newTrackData;
+      late Track newTrackData;
       late File newTrackFile;
-      // 匯入 kml 檔案
+      // kml 轉 gpx
       if (fileType == 'kml' && importFilePath != null) {
         String result =
             await fileProvider.readFileAsString(file: File(importFilePath));
@@ -271,10 +257,11 @@ class _TrackPageState extends State<TrackPage> {
             time: UserLocation.getCurrentTime(),
             userLocationList: userLocationList);
         String gpxFilePath = '${trackDir!.path}/$trackName.gpx';
+        // 匯入 kml 檔案到 app 下
         newTrackFile = await fileProvider.writeFileAsString(
             content: gpxFile, path: gpxFilePath);
       } else {
-        // 匯入 gpx 檔案
+        // 匯入 gpx 檔案到 app 下
         newTrackFile = await fileProvider.saveFile(
             file: file, fileName: trackName, dirPath: trackDir!.path);
       }
@@ -282,21 +269,51 @@ class _TrackPageState extends State<TrackPage> {
       final String currentDate =
           DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now());
       newTrackData = Track(
-              uID: '1',
-              track_name: fileProvider.getFileName(file: newTrackFile),
-              track_locate: newTrackFile.path,
-              start: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.utc(0)),
-              finish: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.utc(0)),
-              total_distance: '0',
-              time: currentDate,
-              track_type: 'importFile')
-          .toMap();
+          uID: '9', // FIXME uID
+          track_name: fileProvider.getFileName(file: newTrackFile),
+          track_locate: newTrackFile.path,
+          start: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.utc(0)),
+          finish: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.utc(0)),
+          total_distance: '0',
+          time: currentDate,
+          track_type: '0');
 
-      await SqliteHelper.insert(tableName: 'track', insertData: newTrackData);
+      List insertTrackResponse = await APIService.insertTrack(newTrackData);
 
-      trackName = ''; // 把輸入的軌跡名稱清空
+      if (insertTrackResponse[0]) {
+        print('ID ${insertTrackResponse[1]['tID']}');
+        String tID = insertTrackResponse[1]["tID"].toString();
+        Map<String, String> trackID = {
+          'tID': tID,
+          'filename': newTrackData.track_name
+        };
+        List uploadTrackResponse =
+            await APIService.uploadTrack(newTrackFile, trackID);
+        print(uploadTrackResponse);
+        if (uploadTrackResponse[0]) {
+          await SqliteHelper.insert(
+              tableName: 'track', insertData: newTrackData.toMap());
+        } else {
+          uploadTrackFailDialog = MyAlertDialog(
+              context: context,
+              titleText: '上傳軌跡失敗',
+              contentText: uploadTrackResponse[1].toString(),
+              btn1Text: '確認',
+              btn2Text: '');
+          uploadTrackFailDialog.show();
+        }
+      } else {
+        insertTrackFailDialog = MyAlertDialog(
+            context: context,
+            titleText: '新增軌跡失敗',
+            contentText: insertTrackResponse[1].toString(),
+            btn1Text: '確認',
+            btn2Text: '');
+        insertTrackFailDialog.show();
+      }
       setState(() {});
     }
+    trackName = ''; // 把輸入的軌跡名稱清空
     return; // 如果沒有要匯入就 return
   }
 

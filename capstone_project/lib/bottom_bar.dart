@@ -8,14 +8,15 @@ import 'package:capstone_project/ui/profile_page.dart';
 
 class MyBottomBar extends StatefulWidget {
   final int i;
-  const MyBottomBar({Key? key, required this.i}) : super(key: key);
+  final bool firstTime;
+  const MyBottomBar({Key? key, required this.i, required this.firstTime}) : super(key: key);
 
   @override
   State<MyBottomBar> createState() => _MyBottomBarState();
 }
 
 class _MyBottomBarState extends State<MyBottomBar>{
-  bool firstTime = true;
+  bool _firstTime = true;
   // when button clicked
   int _selectedIndex = 2;
 
@@ -38,9 +39,13 @@ class _MyBottomBarState extends State<MyBottomBar>{
 
   @override
   Widget build(BuildContext context) {
-    if (widget.i != 2 && firstTime) {
+    if(widget.firstTime && _firstTime){
+      // FIXME 一開啟 APP 就將 sqlite 的資料更新成 server 的資料
+      _firstTime = false;
+    }
+    if (!widget.firstTime && _firstTime) {
       _selectedIndex = widget.i;
-      firstTime = false;
+      _firstTime = false;
     }
     return Scaffold(
       body: pages[_selectedIndex],

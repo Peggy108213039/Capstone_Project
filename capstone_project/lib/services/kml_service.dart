@@ -16,7 +16,7 @@ class KMLService {
     }).forEach((XmlElement element) {
       String result = element.text;
       List<String> pointList = result.split(' ');
-      print('pointList $pointList');
+      // print('pointList $pointList');
       for (int i = 0; i < pointList.length; i++) {
         List<String> point = pointList[i].split(',');
         if (point.length == 3) {
@@ -29,7 +29,7 @@ class KMLService {
         }
       }
     });
-    print('locationList $locationList');
+    // print('locationList $locationList');
     return locationList;
   }
 }
