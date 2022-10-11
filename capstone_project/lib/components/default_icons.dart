@@ -7,7 +7,7 @@ import 'package:capstone_project/constants.dart';
 // import 'package:capstone_project/ui/notification_page.dart';
 
 class DefBackIcon extends StatelessWidget {
-  const DefBackIcon({ 
+  const DefBackIcon({
     Key? key,
     required this.navigatorPage,
   }) : super(key: key);
@@ -15,7 +15,7 @@ class DefBackIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: (){
+      onPressed: () {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -33,11 +33,9 @@ class DefBackIcon extends StatelessWidget {
 }
 
 class DefCheckIcon extends StatelessWidget {
-  const DefCheckIcon({ 
-    Key? key,
-    required this.navigatorPage,
-    required this.onpressed
-  }) : super(key: key);
+  const DefCheckIcon(
+      {Key? key, required this.navigatorPage, required this.onpressed})
+      : super(key: key);
   final Widget navigatorPage;
   final Function() onpressed;
   @override
@@ -54,7 +52,7 @@ class DefCheckIcon extends StatelessWidget {
 }
 
 class DefNotificationIcon extends StatelessWidget {
-  const DefNotificationIcon({ 
+  const DefNotificationIcon({
     Key? key,
     required this.enable,
   }) : super(key: key);
@@ -62,19 +60,19 @@ class DefNotificationIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(!enable){
+    if (!enable) {
       return IconButton(
         icon: const ImageIcon(
-          AssetImage("assets/images/notification.png"),
+          AssetImage("assets/images/other_icons/notification.png"),
           //Icons.notifications_active_outlined,
           color: PrimaryLightYellow,
           size: 30.0,
         ),
-        onPressed: (){},
+        onPressed: () {},
       );
-    } else{
+    } else {
       return IconButton(
-        onPressed: (){
+        onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -83,7 +81,7 @@ class DefNotificationIcon extends StatelessWidget {
           );
         },
         icon: const ImageIcon(
-          AssetImage("assets/images/notification.png"),
+          AssetImage("assets/images/other_icons/notification.png"),
           color: PrimaryLightYellow,
           size: 30.0,
         ),
@@ -93,7 +91,8 @@ class DefNotificationIcon extends StatelessWidget {
 }
 
 class DefSettingIcon extends StatelessWidget {
-  const DefSettingIcon({ // button onPressed pre-announce param
+  const DefSettingIcon({
+    // button onPressed pre-announce param
     Key? key,
     required this.enable,
   }) : super(key: key);
@@ -101,32 +100,31 @@ class DefSettingIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(!enable){
+    if (!enable) {
       return IconButton(
         icon: const ImageIcon(
-          AssetImage("assets/images/setting.png"),
+          AssetImage("assets/images/other_icons/setting.png"),
           //Icons.settings,
           color: PrimaryLightYellow,
           size: 30.0,
         ),
-        onPressed: (){},
+        onPressed: () {},
       );
-    } else{
+    } else {
       return IconButton(
-        onPressed: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const SettingPage(),
-            ),
-          );
-        },
-        icon: const ImageIcon(
-          AssetImage("assets/images/setting.png"),
-          color: PrimaryLightYellow,
-          size: 30.0,
-        )
-      );
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SettingPage(),
+              ),
+            );
+          },
+          icon: const ImageIcon(
+            AssetImage("assets/images/other_icons/setting.png"),
+            color: PrimaryLightYellow,
+            size: 30.0,
+          ));
     }
   }
 }

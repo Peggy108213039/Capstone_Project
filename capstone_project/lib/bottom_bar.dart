@@ -9,13 +9,14 @@ import 'package:capstone_project/ui/profile_page.dart';
 class MyBottomBar extends StatefulWidget {
   final int i;
   final bool firstTime;
-  const MyBottomBar({Key? key, required this.i, required this.firstTime}) : super(key: key);
+  const MyBottomBar({Key? key, required this.i, required this.firstTime})
+      : super(key: key);
 
   @override
   State<MyBottomBar> createState() => _MyBottomBarState();
 }
 
-class _MyBottomBarState extends State<MyBottomBar>{
+class _MyBottomBarState extends State<MyBottomBar> {
   bool _firstTime = true;
   // when button clicked
   int _selectedIndex = 2;
@@ -26,9 +27,9 @@ class _MyBottomBarState extends State<MyBottomBar>{
       mapService: 'FlutterMapPage',
     ), // 0
     const TrackPage(), // 1
-    const ProfilePage(),
+    const ProfilePage(), // 2
     const ActivityPage(), // 3
-    const FriendPage(),
+    const FriendPage(), // 4
   ];
 
   void _onItemTapped(int idx) {
@@ -39,7 +40,7 @@ class _MyBottomBarState extends State<MyBottomBar>{
 
   @override
   Widget build(BuildContext context) {
-    if(widget.firstTime && _firstTime){
+    if (widget.firstTime && _firstTime) {
       // FIXME 一開啟 APP 就將 sqlite 的資料更新成 server 的資料
       _firstTime = false;
     }
@@ -52,39 +53,39 @@ class _MyBottomBarState extends State<MyBottomBar>{
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: PrimaryDarkGreen,
-        currentIndex: _selectedIndex, 
-        selectedItemColor: PrimaryLightYellow, 
+        currentIndex: _selectedIndex,
+        selectedItemColor: PrimaryLightYellow,
         unselectedItemColor: PrimaryLightGreen,
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
               icon: ImageIcon(
-                AssetImage("assets/images/map.png"),
+                AssetImage("assets/images/bottom_bar_icons/map.png"),
               ),
               label: '地圖'),
           BottomNavigationBarItem(
               icon: ImageIcon(
-                AssetImage("assets/images/route.png"),
+                AssetImage("assets/images/bottom_bar_icons/track.png"),
                 //Icons.route_outlined,
               ),
               label: '軌跡'),
           BottomNavigationBarItem(
               icon: ImageIcon(
-                AssetImage("assets/images/home.png")
-                //Icons.home,
-              ),
+                  AssetImage("assets/images/bottom_bar_icons/home.png")
+                  //Icons.home,
+                  ),
               label: '首頁'),
           BottomNavigationBarItem(
               icon: ImageIcon(
-                AssetImage("assets/images/activity.png")
-                //Icons.hiking,
-              ),
+                  AssetImage("assets/images/bottom_bar_icons/activity.png")
+                  //Icons.hiking,
+                  ),
               label: '活動'),
           BottomNavigationBarItem(
               icon: ImageIcon(
-                AssetImage("assets/images/friend.png")
-                //Icons.people_outline_outlined,
-              ),
+                  AssetImage("assets/images/bottom_bar_icons/friend.png")
+                  //Icons.people_outline_outlined,
+                  ),
               label: '好友'),
         ],
       ),

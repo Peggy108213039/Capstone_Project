@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/components/default_icons.dart';
 import 'package:capstone_project/services/http_service.dart';
-import 'package:capstone_project/services/sqlite_helper.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
-  
+
   @override
   State<ProfilePage> createState() => _ProfilePageOneState();
 }
@@ -15,12 +14,13 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageOneState extends State<ProfilePage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
-  String userName  = UserData.userName.toString(); // catch & print userinfo table
+  String userName =
+      UserData.userName.toString(); // catch & print userinfo table
   String userAccount = UserData.userAccount;
-  String accDistance = UserData.totalDistance.toString(); 
+  String accDistance = UserData.totalDistance.toString();
   String accTrack = UserData.totalTrack.toString();
   String accActivity = UserData.totalActivity.toString();
-  
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -28,9 +28,8 @@ class _ProfilePageOneState extends State<ProfilePage> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Container(
-          color: PrimaryMiddleGreen
-          /*decoration: const BoxDecoration(
+        Container(color: PrimaryMiddleGreen
+            /*decoration: const BoxDecoration(
             color: PrimaryDarkGreen
             // 漸層 direction
             gradient: LinearGradient(
@@ -43,7 +42,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
                 end: FractionalOffset.bottomCenter),
             
           ),*/
-        ),
+            ),
         Scaffold(
           backgroundColor: Colors.transparent,
           body: SingleChildScrollView(
@@ -56,7 +55,9 @@ class _ProfilePageOneState extends State<ProfilePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const <Widget>[
                       DefNotificationIcon(enable: true),
-                      DefSettingIcon(enable: true,),
+                      DefSettingIcon(
+                        enable: true,
+                      ),
                     ],
                   ),
                   SizedBox(
@@ -83,8 +84,9 @@ class _ProfilePageOneState extends State<ProfilePage> {
                                 height: innerHeight * 0.3,
                                 width: innerWidth,
                                 child: Column(
-                                  children: [ 
-                                    Text( // 使用者名稱
+                                  children: [
+                                    Text(
+                                      // 使用者名稱
                                       userName,
                                       style: const TextStyle(
                                         color: PrimaryLightYellow,
@@ -95,7 +97,8 @@ class _ProfilePageOneState extends State<ProfilePage> {
                                     SizedBox(
                                       height: (height * 0.025),
                                     ),
-                                    Text( // 使用者帳號
+                                    Text(
+                                      // 使用者帳號
                                       "@" + userAccount,
                                       style: const TextStyle(
                                         color: PrimaryLightYellow,
@@ -112,7 +115,8 @@ class _ProfilePageOneState extends State<ProfilePage> {
                               left: 0,
                               right: 0,
                               child: Center(
-                                child: Container( // 大頭貼
+                                child: Container(
+                                  // 大頭貼
                                   width: innerWidth * 0.6,
                                   height: innerWidth * 0.6,
                                   decoration: BoxDecoration(
@@ -173,7 +177,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
                               Column(
                                 children: [
                                   Text(accDistance,
-                                      style:const  TextStyle(
+                                      style: const TextStyle(
                                           color: PrimaryLightYellow,
                                           // fontFamily: 'popFonts',
                                           fontSize: 25)),
@@ -192,20 +196,17 @@ class _ProfilePageOneState extends State<ProfilePage> {
                                   height: (height * 0.1),
                                   width: 4.5,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: PrimaryLightYellow
-                                  ),
+                                      borderRadius: BorderRadius.circular(100),
+                                      color: PrimaryLightYellow),
                                 ),
                               ),
                               Column(
                                 children: [
                                   Text(accTrack,
-                                    style: const TextStyle(
-                                      color: PrimaryLightYellow,
-                                      // fontFamily: 'popFonts',
-                                      fontSize: 25
-                                    )
-                                  ),
+                                      style: const TextStyle(
+                                          color: PrimaryLightYellow,
+                                          // fontFamily: 'popFonts',
+                                          fontSize: 25)),
                                   SizedBox(height: (height * 0.01)),
                                   const Text('路徑',
                                       style: TextStyle(
@@ -216,22 +217,22 @@ class _ProfilePageOneState extends State<ProfilePage> {
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 25, vertical: 8),
+                                    horizontal: 25, vertical: 8),
                                 child: Container(
                                   height: (height * 0.1),
                                   width: 4.5,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: PrimaryLightYellow
-                                  ),
+                                      borderRadius: BorderRadius.circular(100),
+                                      color: PrimaryLightYellow),
                                 ),
                               ),
-                              Column( children: [
+                              Column(
+                                children: [
                                   Text(accActivity,
-                                    style: const TextStyle(
-                                        color: PrimaryLightYellow,
-                                        // fontFamily: 'popFonts',
-                                        fontSize: 25)),
+                                      style: const TextStyle(
+                                          color: PrimaryLightYellow,
+                                          // fontFamily: 'popFonts',
+                                          fontSize: 25)),
                                   SizedBox(height: (height * 0.01)),
                                   const Text('活動',
                                       style: TextStyle(
