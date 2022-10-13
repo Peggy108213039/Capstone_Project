@@ -33,121 +33,134 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return LoadingAnimation(
       child: _uiSetup(context),
       inAsyncCall: isApiCallProcess,
-      opacity: 0.3, 
+      opacity: 0.3,
     );
   }
 
   //@override
   Widget _uiSetup(BuildContext context) {
     SizeConfig().init(context);
-    return Scaffold(
-      key: scaffoldKey,
-      backgroundColor: PrimaryLightYellow,
-      body: SingleChildScrollView(
-        child: Padding(
-          // padding: EdgeInsets.only(top: SizeConfig.noteBarHeight! *2),
-          padding: EdgeInsets.symmetric(
-            horizontal: getProportionateScreenWidth(0.1),
-            vertical: SizeConfig.noteBarHeight! * 2
-          ),
-          child: Form(
-            key: globalFormKey,
-            child: Column(
-              // mainAxisAlignment: MainAxisAlignment.center, //FIXME：垂直置中問題
-              children: <Widget>[
-                Text(
-                  "登入", 
-                  style: Theme.of(context).textTheme.headline2,
-                ),
-                const VerticalSpacing(percent: 0.1),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: "Your account number",
-                      prefixIcon: Icon(Icons.person),
-                      labelText: "Account",
+    return Container(
+      constraints: const BoxConstraints.expand(),
+      decoration: const BoxDecoration(
+          image:
+              DecorationImage(image: introBackgroundImage, fit: BoxFit.cover)),
+      child: Scaffold(
+        key: scaffoldKey,
+        backgroundColor: transparentColor,
+        body: SingleChildScrollView(
+          child: Padding(
+              // padding: EdgeInsets.only(top: SizeConfig.noteBarHeight! *2),
+              padding: EdgeInsets.symmetric(
+                  horizontal: getProportionateScreenWidth(0.1),
+                  vertical: SizeConfig.noteBarHeight! * 2),
+              child: Form(
+                key: globalFormKey,
+                child: Column(
+                  // mainAxisAlignment: MainAxisAlignment.center, //FIXME：垂直置中問題
+                  children: <Widget>[
+                    Text(
+                      "登入",
+                      style: Theme.of(context).textTheme.headline2,
                     ),
-                    keyboardType: TextInputType.emailAddress,
-                    onSaved: (input) => requestModel.account = input!,
-                    validator: (input) => /*!*/input!.contains("@") ? "Email ID should be Valid" : null,
-                    // check if account contains @
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: TextFormField(
-                    keyboardType: TextInputType.text,
-                    onSaved: (input) => requestModel.password = input!,
-                    validator: (input) => input!.length<3
-                      ? "Password should be more than 6 char"
-                      : null,
-                      obscureText: hidePassword,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      hintText: "Your password number",
-                      prefixIcon:const  Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        onPressed: (){
-                          setState(() {
-                            hidePassword = !hidePassword;
-                          });
-                        },
-                        icon: Icon(hidePassword? Icons.visibility_off: Icons.visibility),
+                    const VerticalSpacing(percent: 0.1),
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: TextFormField(
+                        decoration: const InputDecoration(
+                          hintText: "Your account number",
+                          prefixIcon: Icon(Icons.person),
+                          labelText: "Account",
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        onSaved: (input) => requestModel.account = input!,
+                        validator: (input) => /*!*/ input!.contains("@")
+                            ? "Email ID should be Valid"
+                            : null,
+                        // check if account contains @
                       ),
                     ),
-                  ),
-                ),
-                const VerticalSpacing(percent:0.1),
-                DefaultWilderButton(
-                  text: "登入",
-                  onpressed: () {
-                    if(validateAndSave()) {
-                      setState(() {
-                        isApiCallProcess = true;
-                      });
-                      APIService apiService = APIService();
-                      apiService.login(requestModel).then((value) {
-                        if (value) { // 成功登入
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: TextFormField(
+                        keyboardType: TextInputType.text,
+                        onSaved: (input) => requestModel.password = input!,
+                        validator: (input) => input!.length < 3
+                            ? "Password should be more than 6 char"
+                            : null,
+                        obscureText: hidePassword,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          hintText: "Your password number",
+                          prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                hidePassword = !hidePassword;
+                              });
+                            },
+                            icon: Icon(hidePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const VerticalSpacing(percent: 0.1),
+                    DefaultWilderButton(
+                      text: "登入",
+                      onpressed: () {
+                        if (validateAndSave()) {
                           setState(() {
-                            isApiCallProcess = false;
+                            isApiCallProcess = true;
                           });
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MyBottomBar(i: 2, firstTime: true,),
-                            ),
-                          );
-                        } else { // login failed
-                          setState(() {
-                            isApiCallProcess = false;
+                          APIService apiService = APIService();
+                          apiService.login(requestModel).then((value) {
+                            if (value) {
+                              // 成功登入
+                              setState(() {
+                                isApiCallProcess = false;
+                              });
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MyBottomBar(
+                                    i: 2,
+                                    firstTime: true,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              // login failed
+                              setState(() {
+                                isApiCallProcess = false;
+                              });
+                              // Login Failed Hint Box
+                              Fluttertoast.showToast(msg: "Login Failed");
+                            }
                           });
-                          // Login Failed Hint Box
-                          Fluttertoast.showToast(msg: "Login Failed");
                         }
-                      });
-                    }
-                  },
+                      },
+                    ),
+                    const VerticalSpacing(percent: 0.02),
+                    DefaultWilderButton(
+                      text: "註冊",
+                      onpressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignupPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                const VerticalSpacing(percent: 0.02),
-                DefaultWilderButton(
-                  text: "註冊",
-                  onpressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SignupPage(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          )
+              )),
         ),
       ),
     );
@@ -155,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool validateAndSave() {
     final form = globalFormKey.currentState;
-    if(form!.validate()) {
+    if (form!.validate()) {
       form.save();
       return true;
     } else {

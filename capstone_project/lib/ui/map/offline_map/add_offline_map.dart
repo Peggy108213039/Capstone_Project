@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:capstone_project/models/ui_model/input_dialog.dart';
 import 'package:capstone_project/services/file_provider.dart';
@@ -36,42 +37,49 @@ class _TestOfflineMapState extends State<TestOfflineMap> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.indigoAccent.shade100,
-        title: const Center(
-          child: Text('離線地圖'),
-        ),
-        leading: ValueListenableBuilder(
-          valueListenable: _visible,
-          builder: (context, value, child) => Visibility(
-            visible: _visible.value,
-            child: IconButton(
-              onPressed: _pushBack,
-              icon: const Icon(Icons.arrow_back_rounded),
-              tooltip: '返回',
+    return Container(
+      constraints: const BoxConstraints.expand(),
+      decoration: const BoxDecoration(
+          image: DecorationImage(
+              image: defaultBackgroundImage, fit: BoxFit.cover)),
+      child: Scaffold(
+        backgroundColor: transparentColor,
+        appBar: AppBar(
+          backgroundColor: transparentColor,
+          title: const Center(
+            child: Text('離線地圖'),
+          ),
+          leading: ValueListenableBuilder(
+            valueListenable: _visible,
+            builder: (context, value, child) => Visibility(
+              visible: _visible.value,
+              child: IconButton(
+                onPressed: _pushBack,
+                icon: const Icon(Icons.arrow_back_rounded),
+                tooltip: '返回',
+              ),
             ),
           ),
+          actions: [
+            IconButton(
+              onPressed: _pushDeleteBtn,
+              icon: const Icon(Icons.delete_outline_rounded),
+              iconSize: 30,
+              tooltip: '編輯離線地圖',
+            )
+          ],
         ),
-        actions: [
-          IconButton(
-            onPressed: _pushDeleteBtn,
-            icon: const Icon(Icons.delete_outline_rounded),
-            iconSize: 30,
-            tooltip: '編輯離線地圖',
-          )
-        ],
-      ),
-      body: showAllOfflineMapFiles(),
-      floatingActionButton: FloatingActionButton(
-        tooltip: "下載離線地圖",
-        onPressed: () {
-          print('下載離線地圖');
-          Navigator.pushNamed(context, '/DownloadOfflineMap');
-        },
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.indigoAccent.shade100,
-        child: const Text('下載\n地圖'),
+        body: showAllOfflineMapFiles(),
+        floatingActionButton: FloatingActionButton(
+          tooltip: "下載離線地圖",
+          onPressed: () {
+            print('下載離線地圖');
+            Navigator.pushNamed(context, '/DownloadOfflineMap');
+          },
+          foregroundColor: Colors.white,
+          backgroundColor: darkGreen1,
+          child: const Text('下載\n地圖'),
+        ),
       ),
     );
   }

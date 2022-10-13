@@ -24,10 +24,13 @@ class FriendPage extends StatefulWidget {
 class _FriendPageState extends State<FriendPage> {
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   APIService apiService = APIService();
-  bool isApiCallProcess = false ;
-  SelectFriendRequestModel selectFriendRequestModel = SelectFriendRequestModel(uID1: UserData.uid.toString());
-  late DeleteFriendRequestModel delRequestModel = DeleteFriendRequestModel(uID1: UserData.uid.toString(), uID2: "");
-  late AddFriendRequestModel addFriendRequestModel = AddFriendRequestModel(uID1: UserData.uid.toString(), account: "");
+  bool isApiCallProcess = false;
+  SelectFriendRequestModel selectFriendRequestModel =
+      SelectFriendRequestModel(uID1: UserData.uid.toString());
+  late DeleteFriendRequestModel delRequestModel =
+      DeleteFriendRequestModel(uID1: UserData.uid.toString(), uID2: "");
+  late AddFriendRequestModel addFriendRequestModel =
+      AddFriendRequestModel(uID1: UserData.uid.toString(), account: "");
   late List<Map<String, dynamic>>? friendList;
 
   @override
@@ -44,10 +47,15 @@ class _FriendPageState extends State<FriendPage> {
     double? width = SizeConfig.screenWidth;
     double? height = SizeConfig.screenHeight;
 
-    return Scaffold(
-      backgroundColor: PrimaryMiddleGreen,
-      //appBar: AppBar(title: Text("Base Stateful Demo")),
-      body:Padding(
+    return Container(
+      constraints: const BoxConstraints.expand(),
+      decoration: const BoxDecoration(
+          image: DecorationImage(
+              image: defaultBackgroundImage, fit: BoxFit.cover)),
+      child: Scaffold(
+        backgroundColor: transparentColor,
+        //appBar: AppBar(title: Text("Base Stateful Demo")),
+        body: Padding(
           padding: EdgeInsets.only(
             top: SizeConfig.noteBarHeight!,
             left: getProportionateScreenWidth(0.03),
@@ -58,14 +66,13 @@ class _FriendPageState extends State<FriendPage> {
               height: height! * 0.1,
               width: width,
               alignment: Alignment.center,
-              padding:const  EdgeInsets.all(7),
+              padding: const EdgeInsets.all(7),
               child: const Text(
                 '我的好友',
                 style: TextStyle(
-                  color: PrimaryLightYellow,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold
-                ),
+                    color: darkGreen2,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold),
               ),
             ),
             // Row(
@@ -85,49 +92,53 @@ class _FriendPageState extends State<FriendPage> {
             //     )
             //   ],
             // ),
-            Expanded(child: SingleChildScrollView(child: FutureBuilder(
-              future:getFriendList(),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if(snapshot.hasData) {
-                  return ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemCount: friendList!.length,
-                    itemBuilder: (buildContext, index){
-                      return ListTile(
-                        title: Text(friendList![index]["account"]),
-                        textColor: PrimaryLightYellow,
-                        enableFeedback: true,
-                        trailing: IconButton(
-                          icon: const Icon(Icons.cancel),
-                          color: PrimaryMiddleYellow,
-                          onPressed: () { 
-                            print('【按下】刪除好友');
-                            showDeleteFriendAlert(context, index);
+            Expanded(
+                child: SingleChildScrollView(
+              child: FutureBuilder(
+                future: getFriendList(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: friendList!.length,
+                      itemBuilder: (buildContext, index) {
+                        return ListTile(
+                          title: Text(friendList![index]["account"]),
+                          textColor: darkGreen1,
+                          enableFeedback: true,
+                          trailing: IconButton(
+                            icon: const Icon(Icons.cancel),
+                            color: darkGreen1,
+                            onPressed: () {
+                              print('【按下】刪除好友');
+                              showDeleteFriendAlert(context, index);
+                            },
+                          ),
+                          onLongPress: () {
+                            print("我按下了" + index.toString() + "號好友");
                           },
-                        ),
-                        onLongPress: () {
-                          print("我按下了" + index.toString() + "號好友");
-                        },
-                      );
-                    },
-                  );
-                } else{
-                  print("資料未抓到");
-                  return const Text("資料未抓到");
-                  // print("動畫");
-                  // return LoadingAnimation(child: build(context), inAsyncCall: inApiCallProcess);
-                }
-              },
-            ),)),
+                        );
+                      },
+                    );
+                  } else {
+                    print("資料未抓到");
+                    return const Text("資料未抓到");
+                    // print("動畫");
+                    // return LoadingAnimation(child: build(context), inAsyncCall: inApiCallProcess);
+                  }
+                },
+              ),
+            )),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                IconButton( // notification icon
+                IconButton(
+                  // notification icon
                   icon: const Icon(Icons.add_circle_outlined),
                   iconSize: 30,
                   color: PrimaryLightYellow,
-                  onPressed: (){
+                  onPressed: () {
                     showAddFriendAlert(context);
                     // 較簡單的搜尋 alertBox
                     // 較精美的搜尋頁面
@@ -140,9 +151,12 @@ class _FriendPageState extends State<FriendPage> {
                 )
               ],
             ),
-            const VerticalSpacing(percent: 0.01,)
+            const VerticalSpacing(
+              percent: 0.01,
+            )
           ]),
-        ),      
+        ),
+      ),
     );
   }
 
@@ -172,7 +186,7 @@ class _FriendPageState extends State<FriendPage> {
           content: Text('是否確定刪除 $deleteFriendAccount 好友？'),
           actions: <Widget>[
             TextButton(
-              child: const Text('取消'), 
+              child: const Text('取消'),
               onPressed: () {
                 print('已取消動作 - 刪除好友');
                 Navigator.of(context).pop(const FriendPage());
@@ -181,23 +195,26 @@ class _FriendPageState extends State<FriendPage> {
             TextButton(
               child: const Text('確定'),
               onPressed: () {
-                setState(() { // show waiting signal while click accept btn
+                setState(() {
+                  // show waiting signal while click accept btn
                   isApiCallProcess = true;
                   delRequestModel.uID2 = friendList![index]["uID"].toString();
                 });
                 print("確定刪除好友");
-                apiService.deleleFriend(delRequestModel).then((value) {
-                  if (value){
-                    setState(() {
-                      isApiCallProcess = false;
-                    });
-                    apiService.selectFriend(selectFriendRequestModel);
-                    Navigator.pop(context);
-                    print('已刪除好友 - $deleteFriendAccount');
-                  } else {
-                    print("刪除好友失敗");
-                  }
-                },);
+                apiService.deleleFriend(delRequestModel).then(
+                  (value) {
+                    if (value) {
+                      setState(() {
+                        isApiCallProcess = false;
+                      });
+                      apiService.selectFriend(selectFriendRequestModel);
+                      Navigator.pop(context);
+                      print('已刪除好友 - $deleteFriendAccount');
+                    } else {
+                      print("刪除好友失敗");
+                    }
+                  },
+                );
               },
             ),
           ],
@@ -206,7 +223,7 @@ class _FriendPageState extends State<FriendPage> {
     );
   }
 
-    Future<void> showAddFriendAlert(BuildContext context) {
+  Future<void> showAddFriendAlert(BuildContext context) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -217,10 +234,13 @@ class _FriendPageState extends State<FriendPage> {
             key: globalFormKey,
             child: TextFormField(
               keyboardType: TextInputType.name,
-              validator: (input){
-                if(input!.isEmpty || !RegExp(r'^[a-z0-9_-]{3,15}$').hasMatch(input)){
+              validator: (input) {
+                if (input!.isEmpty ||
+                    !RegExp(r'^[a-z0-9_-]{3,15}$').hasMatch(input)) {
                   return "account should be valid";
-                } else {return null;}
+                } else {
+                  return null;
+                }
               },
               onSaved: (input) => addFriendRequestModel.account = input!,
               decoration: const InputDecoration(
@@ -231,7 +251,7 @@ class _FriendPageState extends State<FriendPage> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('取消'), 
+              child: const Text('取消'),
               onPressed: () {
                 print('【取消】新增好友');
                 Navigator.pop(context);
@@ -240,12 +260,12 @@ class _FriendPageState extends State<FriendPage> {
             TextButton(
               child: const Text('邀請'),
               onPressed: () {
-                if(validateAndSave(globalFormKey)){
+                if (validateAndSave(globalFormKey)) {
                   setState(() {
                     isApiCallProcess = true;
                   });
                   apiService.addFriend(addFriendRequestModel).then((value) {
-                    if(value) {
+                    if (value) {
                       setState(() {
                         isApiCallProcess = false;
                       });
@@ -269,10 +289,9 @@ class _FriendPageState extends State<FriendPage> {
     );
   }
 
-
   bool validateAndSave(inputKey) {
     final form = inputKey.currentState;
-    if(form!.validate()) {
+    if (form!.validate()) {
       form.save();
       return true;
     } else {

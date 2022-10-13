@@ -3,7 +3,7 @@ import 'package:capstone_project/ui/track/track_page.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/ui/activity/activity_page.dart';
-import 'package:capstone_project/ui/friend/friend_page copy 2.dart';
+import 'package:capstone_project/ui/friend/friend_page_copy_2.dart';
 import 'package:capstone_project/ui/profile_page.dart';
 
 class MyBottomBar extends StatefulWidget {
@@ -52,10 +52,10 @@ class _MyBottomBarState extends State<MyBottomBar> {
       body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: PrimaryDarkGreen,
+        backgroundColor: darkGreen2,
         currentIndex: _selectedIndex,
-        selectedItemColor: PrimaryLightYellow,
-        unselectedItemColor: PrimaryLightGreen,
+        selectedItemColor: selectedColor,
+        unselectedItemColor: unselectedColor,
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(

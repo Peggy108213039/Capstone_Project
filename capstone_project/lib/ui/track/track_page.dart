@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/models/track/track_model.dart';
 import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
@@ -56,42 +57,49 @@ class _TrackPageState extends State<TrackPage> {
   // 所有的 Widget Card
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.indigoAccent.shade100,
-        title: const Center(
-            child: Text(
-          '軌跡列表',
-        )),
-        leading: ValueListenableBuilder(
-          valueListenable: _visible,
-          builder: (context, value, child) => Visibility(
-            visible: _visible.value,
-            child: IconButton(
-              onPressed: _pushBack,
-              icon: const Icon(Icons.arrow_back_rounded),
-              tooltip: '返回',
+    return Container(
+      constraints: const BoxConstraints.expand(),
+      decoration: const BoxDecoration(
+          image: DecorationImage(
+              image: defaultBackgroundImage, fit: BoxFit.cover)),
+      child: Scaffold(
+        backgroundColor: transparentColor,
+        appBar: AppBar(
+          backgroundColor: transparentColor,
+          title: const Center(
+              child: Text(
+            '軌跡列表',
+          )),
+          leading: ValueListenableBuilder(
+            valueListenable: _visible,
+            builder: (context, value, child) => Visibility(
+              visible: _visible.value,
+              child: IconButton(
+                onPressed: _pushBack,
+                icon: const Icon(Icons.arrow_back_rounded),
+                tooltip: '返回',
+              ),
             ),
           ),
+          actions: [
+            IconButton(
+              onPressed: _pushDeleteBtn,
+              icon: const Icon(Icons.delete_outline_rounded),
+              iconSize: 30,
+              tooltip: '編輯軌跡',
+            )
+          ],
         ),
-        actions: [
-          IconButton(
-            onPressed: _pushDeleteBtn,
-            icon: const Icon(Icons.delete_outline_rounded),
-            iconSize: 30,
-            tooltip: '編輯軌跡',
-          )
-        ],
-      ),
-      body: showAllTrackFiles(),
-      floatingActionButton: FloatingActionButton(
-        tooltip: "新增軌跡",
-        onPressed: () => _addTrackFile(context),
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.indigoAccent.shade100,
-        child: const Icon(
-          Icons.add,
-          size: 35.0,
+        body: showAllTrackFiles(),
+        floatingActionButton: FloatingActionButton(
+          tooltip: "新增軌跡",
+          onPressed: () => _addTrackFile(context),
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.indigoAccent.shade100,
+          child: const Icon(
+            Icons.add,
+            size: 35.0,
+          ),
         ),
       ),
     );
@@ -277,6 +285,7 @@ class _TrackPageState extends State<TrackPage> {
           total_distance: '0',
           time: currentDate,
           track_type: '0');
+      print(newTrackData);
 
       List insertTrackResponse = await APIService.insertTrack(newTrackData);
 

@@ -4,19 +4,19 @@ import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/size_config.dart';
 import 'package:capstone_project/ui/setting/updateMyName_page.dart';
 
-class InfoBox extends StatelessWidget{
+class InfoBox extends StatelessWidget {
   final double innerHeight;
   final double innerWidth;
   final bool visible;
 
-  const InfoBox({
-    Key? key,
-    required this.innerHeight,
-    required this.innerWidth, 
-    required this.visible
-  }) : super(key: key);
+  const InfoBox(
+      {Key? key,
+      required this.innerHeight,
+      required this.innerWidth,
+      required this.visible})
+      : super(key: key);
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -25,12 +25,13 @@ class InfoBox extends StatelessWidget{
           left: innerWidth * 0.1,
           child: SizedBox(
             height: innerHeight, //0.15*0.5
-            width: innerWidth ,
+            width: innerWidth,
             child: Column(
               children: [
-                Text( UserData.userName,
+                Text(
+                  UserData.userName,
                   style: const TextStyle(
-                    color: PrimaryLightYellow,
+                    color: darkGreen2,
                     fontSize: 25.0,
                     fontWeight: FontWeight.bold,
                     // fontFamily: 'popFonts'
@@ -40,7 +41,7 @@ class InfoBox extends StatelessWidget{
                 Text(
                   '@' + UserData.userAccount,
                   style: const TextStyle(
-                    color: PrimaryLightYellow,
+                    color: darkGreen2,
                     fontSize: 20.0,
                     // fontFamily: 'popFonts'
                   ),
@@ -63,38 +64,35 @@ class InfoBox extends StatelessWidget{
                 shape: BoxShape.circle,
                 image: const DecorationImage(
                   fit: BoxFit.fill,
-                  image:
-                      AssetImage("assets/images/user.png"),
+                  image: AssetImage("assets/images/user.png"),
                 ),
               ),
             ),
           ),
         ),
         Positioned(
-          top: innerHeight * 0,
-          right: innerWidth * 0.015,
-          //right: 0,
-          child: Visibility(
-            visible: visible,
-            child: TextButton(
-              child: const Text('編輯'),
-              style: TextButton.styleFrom(
-                primary: PrimaryMiddleGreen,
-                backgroundColor: PrimaryLightYellow,
+            top: innerHeight * 0,
+            right: innerWidth * 0.015,
+            //right: 0,
+            child: Visibility(
+              visible: visible,
+              child: TextButton(
+                child: const Text('編輯'),
+                style: TextButton.styleFrom(
+                  foregroundColor: darkGreen2,
+                  backgroundColor: lightGreen2,
+                ),
+                onPressed: () {
+                  print('【按下】更新個人資料 - infoBox');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UpdateMyInfoPage(),
+                    ),
+                  );
+                },
               ),
-              onPressed: () {
-                print('【按下】更新個人資料 - infoBox');
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UpdateMyInfoPage(),
-                  ),
-                );
-              },
-            ),
-          )
-        ),
-        
+            )),
       ],
     );
   }

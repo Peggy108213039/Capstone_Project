@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'dart:convert';
 import 'package:capstone_project/services/sqlite_helper.dart';
 
@@ -336,6 +337,7 @@ class APIService {
     request.fields.addAll(content);
     request.headers.addAll({'cookie': UserData.token});
     var multipartFile = http.MultipartFile('files', stream, length,
+        contentType: MediaType('trackFile', 'gpx'),
         filename: basename(trackFile.path));
     request.files.add(multipartFile);
     final response = await request.send();

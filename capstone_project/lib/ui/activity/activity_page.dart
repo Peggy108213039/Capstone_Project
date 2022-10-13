@@ -1,3 +1,4 @@
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -171,42 +172,49 @@ class _ActivityPageState extends State<ActivityPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.indigoAccent.shade100,
-        title: const Center(
-            child: Text(
-          '活動清單',
-        )),
-        leading: Visibility(
-          visible: _visible,
-          child: IconButton(
-            onPressed: pushBack,
-            icon: const Icon(Icons.arrow_back_rounded),
-            tooltip: '返回',
+    return Container(
+      constraints: const BoxConstraints.expand(),
+      decoration: const BoxDecoration(
+          image: DecorationImage(
+              image: defaultBackgroundImage, fit: BoxFit.cover)),
+      child: Scaffold(
+        backgroundColor: transparentColor,
+        appBar: AppBar(
+          backgroundColor: transparentColor,
+          title: const Center(
+              child: Text(
+            '活動清單',
+          )),
+          leading: Visibility(
+            visible: _visible,
+            child: IconButton(
+              onPressed: pushBack,
+              icon: const Icon(Icons.arrow_back_rounded),
+              tooltip: '返回',
+            ),
           ),
+          actions: [
+            IconButton(
+              onPressed: pushEdit,
+              icon: const Icon(Icons.edit),
+              tooltip: '編輯活動',
+            )
+          ],
         ),
-        actions: [
-          IconButton(
-            onPressed: pushEdit,
-            icon: const Icon(Icons.edit),
-            tooltip: '編輯活動',
-          )
-        ],
-      ),
-      body: showAllActivities(),
-      floatingActionButton: FloatingActionButton(
-        tooltip: '新增活動',
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.indigoAccent.shade100,
-        child: const Icon(
-          Icons.add,
-          size: 35.0,
+        body: showAllActivities(),
+        floatingActionButton: FloatingActionButton(
+          tooltip: '新增活動',
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.indigoAccent.shade100,
+          child: const Icon(
+            Icons.add,
+            size: 35.0,
+          ),
+          onPressed: () {
+            print('匯入軌跡');
+            Navigator.pushNamed(context, "/AddActivityPage");
+          },
         ),
-        onPressed: () {
-          print('匯入軌跡');
-          Navigator.pushNamed(context, "/AddActivityPage");
-        },
       ),
     );
   }
@@ -218,4 +226,3 @@ class _ActivityPageState extends State<ActivityPage> {
         arguments: activityData[0]);
   }
 }
-

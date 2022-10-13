@@ -65,7 +65,7 @@ class DefNotificationIcon extends StatelessWidget {
         icon: const ImageIcon(
           AssetImage("assets/images/other_icons/notification.png"),
           //Icons.notifications_active_outlined,
-          color: PrimaryLightYellow,
+          color: darkGreen2,
           size: 30.0,
         ),
         onPressed: () {},
@@ -82,7 +82,7 @@ class DefNotificationIcon extends StatelessWidget {
         },
         icon: const ImageIcon(
           AssetImage("assets/images/other_icons/notification.png"),
-          color: PrimaryLightYellow,
+          color: darkGreen2,
           size: 30.0,
         ),
       );
@@ -105,7 +105,7 @@ class DefSettingIcon extends StatelessWidget {
         icon: const ImageIcon(
           AssetImage("assets/images/other_icons/setting.png"),
           //Icons.settings,
-          color: PrimaryLightYellow,
+          color: darkGreen2,
           size: 30.0,
         ),
         onPressed: () {},
@@ -122,7 +122,7 @@ class DefSettingIcon extends StatelessWidget {
           },
           icon: const ImageIcon(
             AssetImage("assets/images/other_icons/setting.png"),
-            color: PrimaryLightYellow,
+            color: darkGreen2,
             size: 30.0,
           ));
     }

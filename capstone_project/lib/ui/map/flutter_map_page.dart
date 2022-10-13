@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/models/track/track_model.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
   final raisedBtnStyle = ElevatedButton.styleFrom(
       minimumSize: const Size(55, 55),
       shape: const CircleBorder(),
-      backgroundColor: Colors.indigoAccent.shade100);
+      backgroundColor: darkGreen2);
   final startBtnStyle = ElevatedButton.styleFrom(
       minimumSize: const Size(55, 55),
       shape: const CircleBorder(),
@@ -99,7 +100,7 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
       home: Scaffold(
         appBar: AppBar(
           title: const Center(child: Text('地圖頁面')),
-          backgroundColor: Colors.indigoAccent.shade100,
+          backgroundColor: darkGreen1,
         ),
         body: FlutterMap(
           mapController: mapController,
@@ -150,16 +151,16 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () => takePhoto(_markers),
-                      child: const Icon(Icons.camera_alt_outlined),
+                      // child: const Icon(Icons.camera_alt_outlined),
+                      child: const ImageIcon(cameraIcon),
                       style: raisedBtnStyle,
                     ),
                     ElevatedButton(
                       onPressed: () {
                         print('離線地圖清單');
-                        // Navigator.pushNamed(context, '/OfflineMapPage');
                         Navigator.pushNamed(context, '/TestOfflineMap');
                       },
-                      child: const Icon(Icons.map),
+                      child: const ImageIcon(layerIcon),
                       style: raisedBtnStyle,
                     ),
                   ],

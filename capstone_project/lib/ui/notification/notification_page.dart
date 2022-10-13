@@ -9,7 +9,6 @@ import 'package:capstone_project/services/http_service.dart';
 // model
 import 'package:capstone_project/models/friend/checkFriend_model.dart';
 
-
 class NotificationPage extends StatefulWidget {
   const NotificationPage({Key? key}) : super(key: key);
 
@@ -30,94 +29,91 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     requestModel = CheckFriendRequestModel(
-      uID1: UserData.uid.toString(),
-      // uID2: int.parse('')
-      uID2: 10.toString()
-    );
+        uID1: UserData.uid.toString(),
+        // uID2: int.parse('')
+        uID2: 10.toString());
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return LoadingAnimation(
       child: _uiSetup(context),
       inAsyncCall: isApiCallProcess,
-      opacity: 0.3, 
+      opacity: 0.3,
     );
   }
 
   Widget _uiSetup(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Container(
-          color: PrimaryMiddleGreen
-        ),
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SingleChildScrollView(
-            child: Padding( 
-              padding: EdgeInsets.symmetric(
-                  horizontal: (width * 0.035),
-                  vertical: (height * 0.05)
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const <Widget>[
-                      DefNotificationIcon(enable: false),
-                      DefSettingIcon(enable: true),
-                    ],
+    return Container(
+      constraints: const BoxConstraints.expand(),
+      decoration: const BoxDecoration(
+          image: DecorationImage(
+              image: defaultBackgroundImage, fit: BoxFit.cover)),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: (width * 0.035), vertical: (height * 0.05)),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const <Widget>[
+                    DefNotificationIcon(enable: false),
+                    DefSettingIcon(enable: true),
+                  ],
+                ),
+                Container(
+                  // 使用者 info Box
+                  decoration: BoxDecoration(
+                      border: Border.all(color: PrimaryLightYellow, width: 3)),
+                  height: height * 0.15, // container
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Container
+                      double innerHeight = constraints.maxHeight;
+                      double innerWidth = constraints.maxWidth;
+                      // Stack
+                      return InfoBox(
+                        innerHeight: innerHeight,
+                        innerWidth: innerWidth,
+                        visible: false,
+                      );
+                    },
                   ),
-                  Container( // 使用者 info Box
-                    decoration:BoxDecoration(
-                      border: Border.all(color: PrimaryLightYellow, width: 3)
-                    ),
-                    height: height * 0.15, // container
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        // Container
-                        double innerHeight = constraints.maxHeight;
-                        double innerWidth = constraints.maxWidth;
-                        // Stack
-                        return InfoBox(innerHeight: innerHeight, innerWidth: innerWidth, visible: false,);
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    height: (height * 0),
-                  ),
-                  // notification list
-                  Container(
+                ),
+                SizedBox(
+                  height: (height * 0),
+                ),
+                // notification list
+                Container(
                     child: ListView(
-                      children: <Widget> [
-                        const Card(
-                          child: ListTile(
-                            tileColor: PrimaryMiddleYellow,
-                            title:Text("您已被加入日月潭活動") ,
-                          ),
-                        ),
-                        Card(
-                          child: ListTile(
-                            tileColor: PrimaryMiddleYellow,
-                            title: Text("收到來自" + userAccount + "的好友邀請"),
-                            onTap: (){
-                              showAlert(context);
-                            }
-                          ),
-                        ),
-                      ],
-                      shrinkWrap: true,
-                    )
-                  )
-                ],
-              ),
+                  children: <Widget>[
+                    const Card(
+                      child: ListTile(
+                        tileColor: PrimaryMiddleYellow,
+                        title: Text("您已被加入日月潭活動"),
+                      ),
+                    ),
+                    Card(
+                      child: ListTile(
+                          tileColor: PrimaryMiddleYellow,
+                          title: Text("收到來自" + userAccount + "的好友邀請"),
+                          onTap: () {
+                            showAlert(context);
+                          }),
+                    ),
+                  ],
+                  shrinkWrap: true,
+                ))
+              ],
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -131,7 +127,7 @@ class _NotificationPageState extends State<NotificationPage> {
           content: Text('確定接受來自 @' + userAccount + '的交友邀請'),
           actions: <Widget>[
             TextButton(
-              child: const Text('拒絕'), 
+              child: const Text('拒絕'),
               onPressed: () {
                 print('You Denied Nobody');
                 Navigator.of(context).pop(NotificationPage());
@@ -140,21 +136,24 @@ class _NotificationPageState extends State<NotificationPage> {
             TextButton(
               child: const Text('接受'),
               onPressed: () {
-                setState(() { // show waiting signal while click accept btn
+                setState(() {
+                  // show waiting signal while click accept btn
                   isApiCallProcess = true;
                 });
                 APIService apiService = APIService();
-                apiService.checkFriend(requestModel).then((value) {
-                  if (value){
-                    setState(() {
-                      isApiCallProcess = false;
-                    });
-                    Navigator.of(context).pop(NotificationPage());
-                    print('You Accepted a Friend');
-                  } else {
-                    print("Accept Friend Invitation Failed");
-                  }
-                },);
+                apiService.checkFriend(requestModel).then(
+                  (value) {
+                    if (value) {
+                      setState(() {
+                        isApiCallProcess = false;
+                      });
+                      Navigator.of(context).pop(NotificationPage());
+                      print('You Accepted a Friend');
+                    } else {
+                      print("Accept Friend Invitation Failed");
+                    }
+                  },
+                );
               },
             ),
           ],
