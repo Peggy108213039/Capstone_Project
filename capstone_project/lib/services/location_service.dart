@@ -5,7 +5,7 @@ import 'dart:io';
 
 class LocationService {
   // static int sleepTime = 10;
-  static double updateDistancce = 5; // 每 20 公尺更新一次
+  static double updateDistancce = 5; // 每 5 公尺更新一次
   // 使用者目前位置
   static late UserLocation currentLocation;
 
@@ -19,7 +19,7 @@ class LocationService {
   static late StreamSubscription<LocationData> locationSubscription;
 
   static Future<void> locating() async {
-    // 每 10 公尺移動一次位置
+    // 每 5 公尺移動一次位置
     await location.changeSettings(
         accuracy: LocationAccuracy.high, distanceFilter: updateDistancce);
 

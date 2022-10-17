@@ -10,11 +10,11 @@ const PrimaryBrown = Color.fromARGB(255, 119, 89, 17);
 const kAnimationDuration = Duration(milliseconds: 200);
 
 // APP primary color
-const darkGreen2 = Color.fromARGB(255, 49, 96, 100);
-const darkGreen1 = Color.fromARGB(255, 78, 135, 140);
-const middleGreen = Color.fromARGB(255, 101, 184, 145);
-const lightGreen2 = Color.fromARGB(255, 147, 229, 171);
-const lightGreen1 = Color.fromARGB(255, 181, 255, 225);
+const darkGreen2 = Color.fromARGB(255, 49, 96, 100); // #316064
+const darkGreen1 = Color.fromARGB(255, 78, 135, 140); // #4E878C
+const middleGreen = Color.fromARGB(255, 101, 184, 145); // #65b891
+const lightGreen2 = Color.fromARGB(255, 147, 229, 171); // #93e5ab
+const lightGreen1 = Color.fromARGB(255, 181, 255, 225); // #b5ffe1
 
 // menu background color
 const menuDarkGreenColor = Color.fromARGB(255, 34, 65, 68);

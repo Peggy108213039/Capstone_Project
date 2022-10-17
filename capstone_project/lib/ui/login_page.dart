@@ -43,6 +43,9 @@ class _LoginPageState extends State<LoginPage> {
 
   //@override
   Widget _uiSetup(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    print('width: $width, height: $height');
     SizeConfig().init(context);
     return Container(
       constraints: const BoxConstraints.expand(),
@@ -63,9 +66,19 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   // mainAxisAlignment: MainAxisAlignment.center, //FIXME：垂直置中問題
                   children: <Widget>[
-                    Text(
-                      "登入",
-                      style: Theme.of(context).textTheme.headline2,
+                    // Text(
+                    //   "登入",
+                    //   style: Theme.of(context).textTheme.headline2,
+                    // ),
+                    Container(
+                      width: width * 0.5,
+                      height: width * 0.5,
+                      decoration: const BoxDecoration(
+                          color: darkGreen1, shape: BoxShape.circle),
+                      child: const Text(
+                        'Logo',
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
                     ),
                     const VerticalSpacing(percent: 0.1),
                     Container(

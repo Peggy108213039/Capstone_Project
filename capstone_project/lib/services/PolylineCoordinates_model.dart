@@ -25,9 +25,6 @@ class PolylineCoordinates {
   // 計算三維空間的距離
   double caculateDistance(
       {required UserLocation point1, required UserLocation point2}) {
-    // 方法 3
-
-    // 方法 2
     var p = 0.017453292519943295;
     var a = 0.5 -
         cos((point2.latitude - point1.latitude) * p) / 2 +
@@ -36,11 +33,6 @@ class PolylineCoordinates {
             (1 - cos((point2.longitude - point1.longitude) * p)) /
             2;
     return 12742 * asin(sqrt(a));
-
-    // 方法 1
-    // return sqrt(pow((point2.latitude - point1.latitude), 2) +
-    //     pow((point2.longitude - point1.longitude), 2) +
-    //     pow((point2.altitude - point1.altitude), 2));
   }
 
   void clearList() {
