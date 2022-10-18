@@ -7,6 +7,7 @@ import 'package:capstone_project/ui/map/camera/take_picture_screen.dart';
 import 'package:capstone_project/ui/map/locationProvider.dart';
 import 'package:capstone_project/ui/map/offline_map/add_offline_map.dart';
 import 'package:capstone_project/ui/map/offline_map/download_offline_map.dart';
+import 'package:capstone_project/ui/map/screens/ar_test.dart';
 import 'package:capstone_project/ui/track/fm_show_track_data.dart';
 import 'package:capstone_project/ui/track/track_page.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,8 @@ class MyApp extends StatelessWidget {
         '/TakePhotoPage': ((context) => const TakePhotoPage()),
         '/TestOfflineMap': ((context) => const TestOfflineMap()),
         '/DownloadOfflineMap': ((context) => const DownloadOfflineMap()),
+        // '/': (context) => MenuScreen(),
+        '/ar': (context) => ArScreen(),
       },
       debugShowCheckedModeBanner: false,
       theme: ThemeData(platform: TargetPlatform.iOS),

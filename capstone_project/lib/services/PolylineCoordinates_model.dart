@@ -11,7 +11,6 @@ class PolylineCoordinates {
     list = [];
     userLocationList = [];
   }
-  //
 
   // 紀錄目前軌跡
   void recordCoordinates(UserLocation location) {
