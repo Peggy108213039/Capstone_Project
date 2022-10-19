@@ -75,10 +75,6 @@ class _LoginPageState extends State<LoginPage> {
                       height: width * 0.5,
                       decoration: const BoxDecoration(
                           color: darkGreen1, shape: BoxShape.circle),
-                      child: const Text(
-                        'Logo',
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      ),
                     ),
                     const VerticalSpacing(percent: 0.1),
                     Container(

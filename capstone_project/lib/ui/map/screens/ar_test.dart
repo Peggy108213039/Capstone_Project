@@ -4,22 +4,19 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
-
 class ArScreen extends StatefulWidget {
-  ArScreen({Key? key}) : super(key: key);
+  const ArScreen({Key? key}) : super(key: key);
 
   @override
   _ArScreenState createState() => _ArScreenState();
-
 }
 
 class _ArScreenState extends State<ArScreen> {
   static final GlobalKey<ScaffoldState> _scaffoldKey =
-  GlobalKey<ScaffoldState>();
+      GlobalKey<ScaffoldState>();
 
   late UnityWidgetController _unityWidgetController;
   double _sliderValue = 0.0;
-
 
   @override
   void initState() {
@@ -34,9 +31,6 @@ class _ArScreenState extends State<ArScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -58,26 +52,20 @@ class _ArScreenState extends State<ArScreen> {
                 borderRadius: BorderRadius.all(Radius.circular(70)),
               ),
             ],
-          )
-      ),
+          )),
     );
-
-
   }
-
-
 
   // Callback that connects the created controller to the unity controller
   void _onUnityCreated(controller) {
-
     this._unityWidgetController = controller;
     read().then((value) => setCustomRoute(value));
-
   }
 
-  void setCustomRoute(Content){
+  void setCustomRoute(Content) {
     print("Post Meg To Unity! \nContent: " + Content);
-    _unityWidgetController.postMessage('RouteManager', 'GetRouteFromFlutter', Content);
+    _unityWidgetController.postMessage(
+        'RouteManager', 'GetRouteFromFlutter', Content);
   }
 
   void onUnityMessage(message) {
@@ -89,7 +77,7 @@ class _ArScreenState extends State<ArScreen> {
     print('Received scene loaded from unity buildIndex: ${scene.buildIndex}');
   }
 
-  Future<String> read() async{
+  Future<String> read() async {
     File? file = await FileProvider.getNewFile();
     print("Success Get File!");
 
@@ -97,16 +85,13 @@ class _ArScreenState extends State<ArScreen> {
 
     print("Start To Read File!!!!");
     String fileText = '';
-    if(file != '')
-    {
-      try{
+    if (file != '') {
+      try {
         fileText = await file!.readAsString();
-      }catch(e)
-      {
+      } catch (e) {
         print("Couldn't read file!");
         print("Exception: " + e.toString());
       }
-
     }
     return fileText;
     // String text;
@@ -119,24 +104,18 @@ class _ArScreenState extends State<ArScreen> {
     //   print("Couldn't read file!");
     //   print("Exception: " + e.toString());
     // }
-
-
   }
-
-
-
 }
 
-class FileProvider{
+class FileProvider {
   static File? newFile;
   static bool isSavingFile = false;
 
-  static Future<Directory> getAppDir() async
-  {
+  static Future<Directory> getAppDir() async {
     Directory directory = await getApplicationDocumentsDirectory();
     Directory dir = Directory('${directory.path}/dirName');
     var isExist = await dir.exists();
-    if(!isExist){
+    if (!isExist) {
       print("Create dir!!!");
       await dir.create(recursive: true);
     }
@@ -144,37 +123,33 @@ class FileProvider{
     return dir;
   }
 
-   static Future<File?> saveFile() async{
+  static Future<File?> saveFile() async {
+    Directory dir = await getAppDir();
 
-      Directory dir = await getAppDir();
+    try {
+      String fileName = 'customRoute.kml';
+      Directory? external = await getExternalStorageDirectory();
+      print("External Directory: " + external!.path);
+      final File file = File('${external.path}/$fileName');
 
-      try{
-        String fileName = 'customRoute.kml';
-        Directory? external = await getExternalStorageDirectory();
-        print("External Directory: " + external!.path);
-        final File file = File('${external.path}/$fileName');
+      newFile = File('${dir.path}/$fileName');
+      await File(file.path).copy(newFile!.path);
+      isSavingFile = true;
+    } catch (e) {
+      print("Cannot save file!!!!");
+      print("Exception: " + e.toString());
+    }
 
-        newFile = File('${dir.path}/$fileName');
-        await File(file.path).copy(newFile!.path);
-        isSavingFile = true;
-      }catch(e){
-        print("Cannot save file!!!!");
-        print("Exception: " + e.toString());
-      }
-
-      return newFile;
+    return newFile;
   }
 
-  static Future<File?> getNewFile() async{
-
+  static Future<File?> getNewFile() async {
     File? file = await saveFile();
-    if(file == null){
+    if (file == null) {
       print("File is NULL!!!");
-    }
-    else{
+    } else {
       print("File path: " + file.path);
     }
     return newFile;
   }
-
 }

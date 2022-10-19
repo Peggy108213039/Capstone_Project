@@ -31,35 +31,37 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      routes: {
-        '/MapPage': (context) => const LocationProvider(
-              mapService: 'FlutterMapPage',
-            ),
-        '/StartActivity': (context) => const LocationProvider(
-              mapService: 'StartActivity',
-            ),
-        '/OfflineMapPage': (context) => const LocationProvider(
-              mapService: 'OfflineMapPage',
-            ),
-        '/TrackPage': (context) => const TrackPage(),
-        '/ActivityPage': (context) => const ActivityPage(),
-        '/AddActivityPage': (context) => const AddActivityPage(),
-        '/ShowActivityData': (context) => const ShowActivityData(),
-        '/EditActivityData': (context) => const EditActivity(),
-        '/ShowTrackDataPage': (context) => const ShowTrackDataPage(),
-        '/MyBottomBar1': ((context) => const MyBottomBar(i: 1, firstTime: false)),
-        '/MyBottomBar3': ((context) => const MyBottomBar(i: 3, firstTime: false)),
-        '/MyBottomBar0': ((context) => const MyBottomBar(i: 0, firstTime: false)),
-        '/TakePhotoPage': ((context) => const TakePhotoPage()),
-        '/TestOfflineMap': ((context) => const TestOfflineMap()),
-        '/DownloadOfflineMap': ((context) => const DownloadOfflineMap()),
-        // '/': (context) => MenuScreen(),
-        '/ar': (context) => ArScreen(),
-      },
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(platform: TargetPlatform.iOS),
-      //home: SocketPage(),
-      home: const LoginPage()
-    );
+        routes: {
+          '/MapPage': (context) => const LocationProvider(
+                mapService: 'FlutterMapPage',
+              ),
+          '/StartActivity': (context) => const LocationProvider(
+                mapService: 'StartActivity',
+              ),
+          '/OfflineMapPage': (context) => const LocationProvider(
+                mapService: 'OfflineMapPage',
+              ),
+          '/TrackPage': (context) => const TrackPage(),
+          '/ActivityPage': (context) => const ActivityPage(),
+          '/AddActivityPage': (context) => const AddActivityPage(),
+          '/ShowActivityData': (context) => const ShowActivityData(),
+          '/EditActivityData': (context) => const EditActivity(),
+          '/ShowTrackDataPage': (context) => const ShowTrackDataPage(),
+          '/MyBottomBar1': ((context) =>
+              const MyBottomBar(i: 1, firstTime: false)),
+          '/MyBottomBar3': ((context) =>
+              const MyBottomBar(i: 3, firstTime: false)),
+          '/MyBottomBar0': ((context) =>
+              const MyBottomBar(i: 0, firstTime: false)),
+          '/TakePhotoPage': ((context) => const TakePhotoPage()),
+          '/TestOfflineMap': ((context) => const TestOfflineMap()),
+          '/DownloadOfflineMap': ((context) => const DownloadOfflineMap()),
+          // '/': (context) => MenuScreen(),
+          '/AR': ((context) => const ArScreen()),
+        },
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(platform: TargetPlatform.iOS),
+        //home: SocketPage(),
+        home: const LoginPage());
   }
 }

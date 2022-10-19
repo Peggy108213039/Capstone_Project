@@ -147,6 +147,21 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => Navigator.pushNamed(context, '/AR'),
+                      // child: const Icon(Icons.camera_alt_outlined),
+                      child: const ImageIcon(arIcon),
+                      style: raisedBtnStyle,
+                    ),
+                  ],
+                ),
+              ),
+              mySpace(0.06),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(

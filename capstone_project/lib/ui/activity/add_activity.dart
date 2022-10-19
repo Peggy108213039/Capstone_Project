@@ -59,6 +59,10 @@ class _AddActivityPageState extends State<AddActivityPage> {
     if (queryTrackTable == null) {
       return;
     }
+    if (queryTrackTable!.isEmpty) {
+      print('活動資料表為空');
+      return;
+    }
     // print('query Track Table ${queryTrackTable![0]['track_name']}');
     setState(() {
       activTrack = queryTrackTable![0]['tID'].toString();
