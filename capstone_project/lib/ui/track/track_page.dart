@@ -16,6 +16,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:map_elevation/map_elevation.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart';
 
 class TrackPage extends StatefulWidget {
   const TrackPage({Key? key}) : super(key: key);
@@ -32,13 +33,14 @@ class _TrackPageState extends State<TrackPage> {
   late Directory? trackDir; // 軌跡資料夾
   late List? queryTrackList = []; // sqlite 軌跡資料表下的資料
   late List<LatLng> latLngList; // 抓軌跡檔案中的經緯度座標 List
-  final ValueNotifier<bool> _visible = ValueNotifier<bool>(false);
   late MyAlertDialog noFileAlertDialog;
   late MyAlertDialog reChooseAlertDialog;
   late MyAlertDialog deleteTrackDialog;
-  late MyAlertDialog deleteTrackFailDialog;
-  late MyAlertDialog insertTrackFailDialog;
-  late MyAlertDialog uploadTrackFailDialog;
+  late MyAlertDialog deleteClientTrackFailDialog;
+  late MyAlertDialog deleteServerTrackFailDialog;
+  late MyAlertDialog insertClientTrackFailDialog;
+  late MyAlertDialog insertServerTrackFailDialog;
+  late MyAlertDialog uploadServerTrackFailDialog;
   late InputDialog nameFileDialog;
 
   @override
@@ -50,7 +52,6 @@ class _TrackPageState extends State<TrackPage> {
 
   @override
   void dispose() {
-    _visible.dispose();
     super.dispose();
   }
 
@@ -59,78 +60,167 @@ class _TrackPageState extends State<TrackPage> {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints.expand(),
-      decoration: const BoxDecoration(
-          image: DecorationImage(
-              image: defaultBackgroundImage, fit: BoxFit.cover)),
+      // decoration: const BoxDecoration(
+      //     image: DecorationImage(
+      //         image: defaultBackgroundImage, fit: BoxFit.cover)),
       child: Scaffold(
-        backgroundColor: transparentColor,
+        backgroundColor: lightGreen0,
         appBar: AppBar(
-          backgroundColor: transparentColor,
+          automaticallyImplyLeading: false,
+          backgroundColor: darkGreen1,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30))),
           title: const Center(
               child: Text(
             '軌跡列表',
           )),
-          leading: ValueListenableBuilder(
-            valueListenable: _visible,
-            builder: (context, value, child) => Visibility(
-              visible: _visible.value,
-              child: IconButton(
-                onPressed: _pushBack,
-                icon: const Icon(Icons.arrow_back_rounded),
-                tooltip: '返回',
+          actions: [
+            ElevatedButton(
+              onPressed: () => _addTrackFile(context),
+              // child: const Icon(Icons.camera_alt_outlined),
+              child: const ImageIcon(insertIcon),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(30, 30),
+                backgroundColor: transparentColor,
+                shadowColor: transparentColor,
               ),
             ),
-          ),
-          actions: [
-            IconButton(
-              onPressed: _pushDeleteBtn,
-              icon: const Icon(Icons.delete_outline_rounded),
-              iconSize: 30,
-              tooltip: '編輯軌跡',
-            )
           ],
         ),
         body: showAllTrackFiles(),
-        floatingActionButton: FloatingActionButton(
-          tooltip: "新增軌跡",
-          onPressed: () => _addTrackFile(context),
-          foregroundColor: Colors.white,
-          backgroundColor: Colors.indigoAccent.shade100,
-          child: const Icon(
-            Icons.add,
-            size: 35.0,
-          ),
-        ),
       ),
     );
   }
 
   // 抓資料庫中軌跡的資料
   getTrackData() async {
-    // FIXME 抓後端軌跡的資料
-    // var userID = {'uID': '9'}; // FIXME 要換成 sqlite 中 user 的資料
-    // bool result = await APIService.selectUserAllTrack(userID);
+    // 抓後端軌跡的資料
+    var userID = {'uID': '9'}; // FIXME 要換成 sqlite 中 user 的資料
+    List result = await APIService.selectUserAllTrack(userID);
     // print('使用者所有軌跡的資料 $result');
     queryTrackList = await SqliteHelper.queryAll(tableName: 'track');
+    queryTrackList ??= [];
+    print(
+        '=========\ncreate Track Check Table 1 $hasTrackCheckTable \n=========');
+    // FIXME
+    // if (result[0]) {
+    //   checkLostTrackFile(
+    //       serverTrackFiles: result[1], clientTrackFiles: queryTrackList);
+    // }
     return queryTrackList;
+  }
+
+  // 檢查 tID 是否已在 trackDataList 中
+  bool checkAddTID({required String tID, required List trackDataList}) {
+    for (int i = 0; i < trackDataList.length; i++) {
+      if (tID == trackDataList[i]['tID']) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void createCheckTable(
+      {required List serverTrackFiles, required List? clientTrackFiles}) {
+    for (int i = 0; i < serverTrackFiles.length; i++) {
+      bool hasAddTID = checkAddTID(
+          tID: serverTrackFiles[i]['tID'].toString(),
+          trackDataList: serverTrackData);
+      if (!hasAddTID) {
+        Map sTrackData = {
+          'tID': serverTrackFiles[i]['tID'].toString(),
+          'track_name': serverTrackFiles[i]['track_name'].toString(),
+          'isDownloaded': false
+        };
+        serverTrackData.add(sTrackData);
+      }
+    }
+  }
+
+  void checkLostFile(
+      {required List serverTrackData,
+      required List serverTrackFiles,
+      required List? clientTrackFiles}) async {
+    if (clientTrackFiles!.isNotEmpty) {
+      for (int s = 0; s < serverTrackData.length; s++) {
+        for (int c = 0; c < clientTrackFiles.length; c++) {
+          if (!serverTrackData[s]['isDownloaded']) {
+            if (serverTrackData[s]['tID'] == clientTrackFiles[c]['tID']) {
+              serverTrackData[s]['isDownloaded'] = true;
+            } else {
+              Map<String, dynamic> downloadTrackID = {
+                'tID': serverTrackData[s]['tID']
+              };
+              String savePath =
+                  '${trackDir!.path}/${serverTrackData[s]['track_name']}';
+              // download server track file
+              List downloadTrackResult = await APIService.downloadTrack(
+                  savePath: savePath, content: downloadTrackID);
+              if (downloadTrackResult[0]) {
+                // insert sqlite track data
+                Track newClientTrackData = Track(
+                    tID: serverTrackFiles[s]['tID'],
+                    uID: '9', // FIXME uID
+                    track_name: serverTrackFiles[s]['track_name'],
+                    track_locate: serverTrackFiles[s]['track_locate'],
+                    start: serverTrackFiles[s]['start'],
+                    finish: serverTrackFiles[s]['finish'],
+                    total_distance: serverTrackFiles[s]['total_distance'],
+                    time: serverTrackFiles[s]['time'],
+                    track_type: serverTrackFiles[s]['track_type']);
+                List insertClientTrackResult = await SqliteHelper.insert(
+                    tableName: 'track', insertData: newClientTrackData.toMap());
+                if (insertClientTrackResult[0]) {
+                  serverTrackData[s]['isDownloaded'] = true;
+                } else {
+                  print('$s 本機端新增軌跡 ${serverTrackFiles[s]['tID']} 失敗');
+                  // break;
+                }
+              } else {
+                print(downloadTrackResult[1]);
+                print('$s server 新增軌跡 ${serverTrackFiles[s]['tID']} 失敗');
+                // break;
+              }
+            }
+          }
+        }
+      }
+    } else {
+      print(' download all track files');
+    }
+  }
+
+  //  檢查 server 和 client 端的軌跡資料是否同步
+  void checkLostTrackFile(
+      {required List serverTrackFiles, required List? clientTrackFiles}) {
+    if (serverTrackFiles.isEmpty) {
+      print('server 上沒資料');
+      return;
+    }
+    if (!hasTrackCheckTable) {
+      createCheckTable(
+          serverTrackFiles: serverTrackFiles,
+          clientTrackFiles: clientTrackFiles);
+      hasTrackCheckTable = true;
+    }
+    checkLostFile(
+        serverTrackData: serverTrackData,
+        serverTrackFiles: serverTrackFiles,
+        clientTrackFiles: clientTrackFiles);
+
+    print('SERVER TRACK FILES ${serverTrackData.last}');
+    // print('CLIENT TRACK FILES $clientTrackData');
+    print(
+        '=========\ncreate Track Check Table 2 $hasTrackCheckTable \n=========');
   }
 
   Future<void> getAppTrackDirPath() async {
     await fileProvider.getAppPath;
     trackDir = await fileProvider.getSpecificDir(dirName: 'trackData');
-  }
-
-  void _pushBack() {
-    _visible.value = false;
-  }
-
-  void _pushDeleteBtn() {
-    // FIXME：除了刪除和返回，其他按鈕不能按
-    showDeleteBtn();
-  }
-
-  void showDeleteBtn() {
-    _visible.value = true;
+    print(
+        'APP 軌跡資料夾下的所有檔案 ${await fileProvider.getDirFileList(specifiedDir: trackDir)}');
   }
 
   Future<void> _pushDelete(
@@ -149,22 +239,37 @@ class _TrackPageState extends State<TrackPage> {
     if (toDelete) {
       var isDeleted = await fileProvider.deleteFile(file: deleteFile); // 刪除檔案
       if (isDeleted) {
-        // FIXME 刪除 server 軌跡檔案
-        // 已經刪完檔案
         var deleteID = deleteTrackData[0]['tID'];
-        // 刪除 sqlite 軌跡資料
-        var result = await SqliteHelper.delete(
-            tableName: 'track', tableIdName: 'tID', deleteId: deleteID);
-        print('sqlite 刪除結果 $result');
-        setState(() {});
+        // FIXME uID
+        Map<String, dynamic> deleteRequestModel = {'tID': deleteID, 'uID': '9'};
+        // 刪除 server 軌跡檔案
+        List deleteServerTrackResult =
+            await APIService.deleteTrack(deleteRequestModel);
+        if (deleteServerTrackResult[0]) {
+          // 刪除 sqlite 軌跡資料
+          var result = await SqliteHelper.delete(
+              tableName: 'track',
+              tableIdName: 'tID',
+              deleteId: int.parse(deleteID));
+          hasTrackCheckTable = false;
+          setState(() {});
+        } else {
+          deleteServerTrackFailDialog = MyAlertDialog(
+              context: context,
+              titleText: 'server 刪除軌跡資料失敗',
+              contentText: deleteServerTrackResult[1],
+              btn1Text: '確認',
+              btn2Text: '');
+          deleteServerTrackFailDialog.show();
+        }
       } else {
-        deleteTrackFailDialog = MyAlertDialog(
+        deleteClientTrackFailDialog = MyAlertDialog(
             context: context,
             titleText: '刪除失敗',
-            contentText: '找不到檔案',
+            contentText: '找不到軌跡檔案',
             btn1Text: '確認',
             btn2Text: '');
-        deleteTrackFailDialog.show();
+        deleteClientTrackFailDialog.show();
       }
     } else {
       print('不要刪除軌跡');
@@ -240,7 +345,7 @@ class _TrackPageState extends State<TrackPage> {
           context: context,
           myTitle: '新增軌跡資料',
           myContent: '幫你要匯入的軌跡取一個名字',
-          defaultText: file.name,
+          defaultText: basenameWithoutExtension(file.name),
           inputFieldName: '軌跡名稱',
           btn1Text: '確認',
           btn2Text: '取消');
@@ -248,11 +353,11 @@ class _TrackPageState extends State<TrackPage> {
       toAdd = result?[0];
       toAdd ??= false;
       if (toAdd) {
-        trackName = result?[1];
+        trackName = '${result?[1]}.gpx';
       }
     }
     if (toAdd) {
-      late Track newTrackData;
+      // late Track newTrackData;
       late File newTrackFile;
       // kml 轉 gpx
       if (fileType == 'kml' && importFilePath != null) {
@@ -264,7 +369,7 @@ class _TrackPageState extends State<TrackPage> {
             trackName: trackName,
             time: UserLocation.getCurrentTime(),
             userLocationList: userLocationList);
-        String gpxFilePath = '${trackDir!.path}/$trackName.gpx';
+        String gpxFilePath = '${trackDir!.path}/$trackName';
         // 匯入 kml 檔案到 app 下
         newTrackFile = await fileProvider.writeFileAsString(
             content: gpxFile, path: gpxFilePath);
@@ -276,7 +381,7 @@ class _TrackPageState extends State<TrackPage> {
       // 要新增的軌跡資料
       final String currentDate =
           DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now());
-      newTrackData = Track(
+      TrackRequestModel newServerTrackData = TrackRequestModel(
           uID: '9', // FIXME uID
           track_name: fileProvider.getFileName(file: newTrackFile),
           track_locate: newTrackFile.path,
@@ -285,40 +390,59 @@ class _TrackPageState extends State<TrackPage> {
           total_distance: '0',
           time: currentDate,
           track_type: '0');
-      print(newTrackData);
+      print(newServerTrackData);
 
-      List insertTrackResponse = await APIService.insertTrack(newTrackData);
+      List insertTrackResponse =
+          await APIService.insertTrack(newServerTrackData);
 
       if (insertTrackResponse[0]) {
         print('ID ${insertTrackResponse[1]['tID']}');
         String tID = insertTrackResponse[1]["tID"].toString();
-        Map<String, String> trackID = {
-          'tID': tID,
-          'filename': newTrackData.track_name
-        };
+        Map<String, String> trackID = {'tID': tID};
         List uploadTrackResponse =
             await APIService.uploadTrack(newTrackFile, trackID);
         print(uploadTrackResponse);
         if (uploadTrackResponse[0]) {
-          await SqliteHelper.insert(
-              tableName: 'track', insertData: newTrackData.toMap());
+          Track newClientTrackData = Track(
+              tID: tID,
+              uID: '9', // FIXME uID
+              track_name: fileProvider.getFileName(file: newTrackFile),
+              track_locate: newTrackFile.path,
+              start: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.utc(0)),
+              finish: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.utc(0)),
+              total_distance: '0',
+              time: currentDate,
+              track_type: '0');
+          List insertClientTrackResult = await SqliteHelper.insert(
+              tableName: 'track', insertData: newClientTrackData.toMap());
+          if (!insertClientTrackResult[0]) {
+            insertClientTrackFailDialog = MyAlertDialog(
+                context: context,
+                titleText: '本機端新增軌跡失敗',
+                contentText: insertClientTrackResult[1].toString(),
+                btn1Text: '確認',
+                btn2Text: '');
+            insertClientTrackFailDialog.show();
+          } else {
+            hasTrackCheckTable = false;
+          }
         } else {
-          uploadTrackFailDialog = MyAlertDialog(
+          uploadServerTrackFailDialog = MyAlertDialog(
               context: context,
               titleText: '上傳軌跡失敗',
               contentText: uploadTrackResponse[1].toString(),
               btn1Text: '確認',
               btn2Text: '');
-          uploadTrackFailDialog.show();
+          uploadServerTrackFailDialog.show();
         }
       } else {
-        insertTrackFailDialog = MyAlertDialog(
+        insertServerTrackFailDialog = MyAlertDialog(
             context: context,
             titleText: '新增軌跡失敗',
             contentText: insertTrackResponse[1].toString(),
             btn1Text: '確認',
             btn2Text: '');
-        insertTrackFailDialog.show();
+        insertServerTrackFailDialog.show();
       }
       setState(() {});
     }
@@ -337,38 +461,41 @@ class _TrackPageState extends State<TrackPage> {
               itemBuilder: (context, idx) {
                 return Column(
                   children: <Widget>[
-                    ListTile(
-                      title: Text(
-                        list[idx]['track_name'],
-                        style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Container(
-                        padding: const EdgeInsets.only(top: 5.0),
-                        child: Text(
-                          list[idx]['time'],
-                          style: TextStyle(color: Colors.grey.shade400),
-                        ),
-                      ),
-                      trailing: ValueListenableBuilder(
-                        valueListenable: _visible,
-                        builder: (context, value, child) => Visibility(
-                          visible: _visible.value,
-                          child: IconButton(
+                    Card(
+                      margin: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                      color: transparentColor,
+                      shadowColor: transparentColor,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            image: const DecorationImage(
+                                fit: BoxFit.cover, image: trackListImage)),
+                        child: ListTile(
+                          title: Text(
+                            list[idx]['track_name'],
+                            style: const TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Container(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: Text(
+                              list[idx]['time'],
+                              style: TextStyle(color: Colors.grey.shade300),
+                            ),
+                          ),
+                          trailing: IconButton(
                             icon: const Icon(Icons.delete),
                             onPressed: () => _pushDelete(
                                 context: context, deleteTrackData: [list[idx]]),
-                            color: Colors.grey.shade400,
+                            color: Colors.white,
                             tooltip: '刪除軌跡',
                           ),
+                          onTap: () => _checkTrackData(
+                              context: context, trackData: [list[idx]]),
                         ),
                       ),
-                      onTap: () => _checkTrackData(
-                          context: context, trackData: [list[idx]]),
-                    ),
-                    const Divider(
-                      height: 10.0,
                     ),
                   ],
                 );

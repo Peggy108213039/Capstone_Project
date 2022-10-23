@@ -15,6 +15,7 @@ const darkGreen1 = Color.fromARGB(255, 78, 135, 140); // #4E878C
 const middleGreen = Color.fromARGB(255, 101, 184, 145); // #65b891
 const lightGreen2 = Color.fromARGB(255, 147, 229, 171); // #93e5ab
 const lightGreen1 = Color.fromARGB(255, 181, 255, 225); // #b5ffe1
+const lightGreen0 = Color.fromARGB(255, 195, 255, 231); // #c3ffe7
 
 // menu background color
 const menuDarkGreenColor = Color.fromARGB(255, 34, 65, 68);
@@ -52,3 +53,8 @@ const notificationIcon =
 const positionIcon = AssetImage('assets/images/other_icons/position.png');
 const settingIcon = AssetImage('assets/images/other_icons/setting.png');
 const startIcon = AssetImage('assets/images/other_icons/start.png');
+
+// test Track Data
+bool hasTrackCheckTable = false;
+List serverTrackData = [];
+// List clientTrackData = [];

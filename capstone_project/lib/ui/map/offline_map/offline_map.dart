@@ -1,6 +1,5 @@
 import 'dart:io';
 
-
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/models/track/track_model.dart';
 import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
@@ -296,6 +295,7 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
               await fileProvider.fileIsExists(file: File(newFilePath));
           if (writeSuccess) {
             final newTrackData = Track(
+                    tID: '', // FIXME: tID
                     uID: '1',
                     track_name: newName,
                     track_locate: newFilePath,

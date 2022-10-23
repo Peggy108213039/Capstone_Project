@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart';
 import 'package:flutter_archive/flutter_archive.dart'; // (解) 壓縮檔案
 
 class FileProvider {
@@ -79,7 +79,7 @@ class FileProvider {
   }
 
   String getFileName({required File file}) {
-    final name = p.basename(file.path);
+    final name = basename(file.path);
     return name;
   }
 

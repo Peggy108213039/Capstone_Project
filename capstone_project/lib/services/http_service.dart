@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'dart:convert';
 import 'package:capstone_project/services/sqlite_helper.dart';
@@ -290,22 +291,23 @@ class APIService {
   }
 
   // 抓某使用者的所有軌跡的資料
-  static Future<bool> selectUserAllTrack(Map<String, dynamic> content) async {
+  static Future<List> selectUserAllTrack(Map<String, dynamic> content) async {
     String url = "http://163.22.17.247:3000/api/track/select_track";
     print(content);
     final response = await http.post(Uri.parse(url),
         headers: {'cookie': UserData.token}, body: content);
+    final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print(response.body);
-      return true;
+      // print(response.body);
+      return [true, responseString];
     } else {
-      print('失敗 ${response.body} response.statusCode ${response.statusCode}');
-      return false;
+      print('失敗 $responseString response.statusCode ${response.statusCode}');
+      return [false, []];
     }
   }
 
   // 新增軌跡，回傳 bool
-  static Future<List> insertTrack(Track requestModel) async {
+  static Future<List> insertTrack(TrackRequestModel requestModel) async {
     String url = "http://163.22.17.247:3000/api/track/insert_track";
 
     final response = await http.post(Uri.parse(url),
@@ -361,7 +363,7 @@ class APIService {
   }
 
   // 刪除軌跡，回傳 bool
-  static Future<bool> deleteTrack(Map<String, dynamic> content) async {
+  static Future<List> deleteTrack(Map<String, dynamic> content) async {
     String url = "http://163.22.17.247:3000/api/track/delete_track";
 
     final response = await http.post(Uri.parse(url),
@@ -375,11 +377,24 @@ class APIService {
       } else {
         deleteSuccess = false;
       }
-      print('刪除軌跡 $responseString');
     } else {
       deleteSuccess = false;
       print(response.body);
     }
-    return deleteSuccess;
+    return [deleteSuccess, responseString];
+  }
+
+  // 刪除軌跡，回傳 bool
+  static Future<List> downloadTrack(
+      {required String savePath, required Map<String, dynamic> content}) async {
+    bool downloadSuccess = false;
+    String url = "http://163.22.17.247:3000/api/track/download_track";
+    try {
+      final response = await Dio().download(url, savePath);
+      return [downloadSuccess, 'Track file path $savePath'];
+    } on DioError catch (err) {
+      print(err.message);
+      return [downloadSuccess, err.message];
+    }
   }
 }

@@ -27,7 +27,7 @@ class SqliteHelper {
     // 軌跡
     await db.execute('''
         CREATE TABLE $trackTable (
-        tID integer primary key AUTOINCREMENT,
+        tID text,
         uID text,
         track_name text,
         track_locate text,
@@ -81,16 +81,18 @@ class SqliteHelper {
   }
 
   // 新增
-  static Future<void> insert(
+  static Future<List> insert(
       {required String tableName,
       required Map<String, dynamic> insertData}) async {
     final Database? database = await open;
     try {
-      await database?.insert(tableName, insertData,
+      int? result = await database?.insert(tableName, insertData,
           conflictAlgorithm: ConflictAlgorithm.replace);
-      print('資料已寫入');
+      result ??= 0;
+      return [true, result];
     } catch (err) {
       print('DbException' + err.toString());
+      return [false, -1];
     }
   }
 
@@ -134,8 +136,9 @@ class SqliteHelper {
   }
 
   // 清空資料表
-  static Future<void> clear(
-      {required String tableName,}) async {
+  static Future<void> clear({
+    required String tableName,
+  }) async {
     final Database? database = await open;
     print("以清空 $tableName 資料表");
     return await database?.execute('DELETE FROM `$tableName`;');
