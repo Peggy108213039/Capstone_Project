@@ -180,8 +180,7 @@ class _TrackPageState extends State<TrackPage> {
                 }
               } else {
                 print(downloadTrackResult[1]);
-                print('$s server 新增軌跡 ${serverTrackFiles[s]['tID']} 失敗');
-                // break;
+                print('$s server 下載軌跡 ${serverTrackFiles[s]['tID']} 失敗');
               }
             }
           }
