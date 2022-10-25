@@ -1,7 +1,9 @@
-import 'package:capstone_project/models/activity/activity_model.dart';
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import 'package:capstone_project/models/activity/activity_model.dart';
+import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 
 class AddActivityPage extends StatefulWidget {
@@ -18,6 +20,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
   String activPartner = '';
   String warningDistance = '50';
   var warningTime = '3';
+
+  late MyAlertDialog noTrackListDialog; // 提醒視窗：沒有軌跡清單
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
@@ -43,7 +47,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
     DropdownMenuItem(child: Text("45 分鐘"), value: "45"),
     DropdownMenuItem(child: Text("60 分鐘"), value: "60"),
   ];
-  late List? queryTrackTable = []; // 軌跡資料表下的資料
+  // late List? queryTrackTable = []; // 軌跡資料表下的資料
 
   @override
   void initState() {
@@ -54,28 +58,28 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
   getTrackData() async {
     await SqliteHelper.open; // 開啟資料庫
-    queryTrackTable = await SqliteHelper.queryAll(tableName: 'track');
-    print('活動資料表 ${await SqliteHelper.queryAll(tableName: 'activity')}');
-    if (queryTrackTable == null) {
+    List? queryTrackTable = await SqliteHelper.queryAll(tableName: 'track');
+    queryTrackTable ??= [];
+    if (queryTrackTable.isEmpty) {
+      noTrackListDialog = MyAlertDialog(
+          context: context,
+          titleText: '沒有軌跡清單',
+          contentText: '請到軌跡頁面匯入軌跡',
+          btn1Text: '確認',
+          btn2Text: '');
+      await noTrackListDialog.show();
+      Navigator.of(context).pop(true);
       return;
     }
-    if (queryTrackTable!.isEmpty) {
-      print('活動資料表為空');
-      return;
-    }
-    // print('query Track Table ${queryTrackTable![0]['track_name']}');
     setState(() {
       activTrack = queryTrackTable![0]['tID'].toString();
-      queryTrackTable!.forEach((element) {
-        // print('element ${element['track_name']}');
+      for (var element in queryTrackTable) {
         activTrackList.add(DropdownMenuItem(
           child: Text(element['track_name']),
           value: element['tID'].toString(),
         ));
-      });
+      }
     });
-    print('activTrack $activTrack');
-    print('activTrackList $activTrackList');
     return queryTrackTable;
   }
 
@@ -126,9 +130,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
         activTrack = value!;
       },
       validator: (String? value) {
-        // print('活動軌跡 $value');
         if (value!.isEmpty) {
-          return '請填活動時間';
+          return '請填活動軌跡';
         }
       },
       onSaved: (String? value) {
@@ -160,9 +163,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
         warningDistance = value!;
       },
       validator: (String? value) {
-        // print('最遠距離 $value');
         if (value!.isEmpty) {
-          return '請填活動時間';
+          return '請填最遠距離';
         }
       },
       onSaved: (String? value) {
@@ -180,9 +182,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
         warningTime = value!;
       },
       validator: (String? value) {
-        // print('停留時間 $value');
         if (value!.isEmpty) {
-          return '請填活動時間';
+          return '請填停留時間';
         }
       },
       onSaved: (String? value) {
@@ -222,8 +223,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
             '新增活動',
           )),
           leading: IconButton(
-            onPressed: () =>
-                Navigator.of(context).pop(), // FIXME：context 要換成活動清單的 context
+            onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.arrow_back_rounded),
             tooltip: '返回',
           ),

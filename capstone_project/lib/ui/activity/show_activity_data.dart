@@ -104,7 +104,13 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                     onPressed: () {
                       print('開始活動');
                       Navigator.pushNamed(context, '/StartActivity',
-                          arguments: {'gpsList': gpsList});
+                          arguments: {
+                            'activity_name': arguments['activity_name'],
+                            'activity_time': arguments['activity_time'],
+                            'gpsList': gpsList,
+                            'warning_distance': arguments['warning_distance'],
+                            'warning_time': arguments['warning_time'],
+                          });
                     },
                   ),
                 ],

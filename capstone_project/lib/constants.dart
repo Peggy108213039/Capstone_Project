@@ -1,5 +1,7 @@
 // APP Color
 import 'package:flutter/material.dart';
+import 'package:capstone_project/services/PolylineCoordinates_model.dart';
+import 'package:latlong2/latlong.dart';
 
 const PrimaryDarkGreen = Color.fromARGB(255, 71, 79, 41);
 const PrimaryMiddleGreen = Color.fromARGB(255, 100, 112, 55);
@@ -54,7 +56,12 @@ const positionIcon = AssetImage('assets/images/other_icons/position.png');
 const settingIcon = AssetImage('assets/images/other_icons/setting.png');
 const startIcon = AssetImage('assets/images/other_icons/start.png');
 
-// test Track Data
+// 軌跡頁面
 bool hasTrackCheckTable = false;
 List serverTrackData = [];
-// List clientTrackData = [];
+
+// 開始活動
+late LatLng previousPoint;
+bool havePreviousPoint = false;
+// 紀錄使用者的 polyline
+PolylineCoordinates polyline = PolylineCoordinates();

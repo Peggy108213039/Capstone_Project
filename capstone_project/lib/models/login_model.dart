@@ -13,18 +13,18 @@ class LoginResponseModel {
   int totalTrack;
   String result;
 
-  LoginResponseModel({
-    required this.uID,
-    required this.account,
-    required this.name,
-    required this.password,
-    required this.email,
-    required this.phone,
-    required this.totalDiatance,
-    required this.totalTime,
-    required this.totalActivity,
-    required this.totalTrack,
-    required this.result});
+  LoginResponseModel(
+      {required this.uID,
+      required this.account,
+      required this.name,
+      required this.password,
+      required this.email,
+      required this.phone,
+      required this.totalDiatance,
+      required this.totalTime,
+      required this.totalActivity,
+      required this.totalTrack,
+      required this.result});
 
   /// `toJson` is the convention for a class to declare support for serialization
   /// to JSON. The implementation simply calls the private, generated
@@ -46,7 +46,8 @@ class LoginResponseModel {
   }
   //print(error);
 }
-class LoginRequestModel{
+
+class LoginRequestModel {
   String account;
   String password;
 

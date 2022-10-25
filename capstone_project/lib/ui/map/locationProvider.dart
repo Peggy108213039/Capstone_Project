@@ -27,7 +27,7 @@ class LocationProvider extends StatelessWidget {
       gpsList = arguments['gpsList'];
     }
 
-    var service;
+    Widget service;
     print('呈現地圖服務  $mapService');
     if (mapService == 'StartActivity') {
       service = StartActivity(
