@@ -33,7 +33,7 @@ class _SettingPageState extends State<SettingPage> {
   String userName = UserData.userName;
   String userAccount = UserData.userAccount;
   String userEmail = UserData.userEmail;
-  int userPhone = UserData.userPhone;
+  String userPhone = UserData.userPhone;
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _SettingPageState extends State<SettingPage> {
         account: UserData.userAccount,
         password: '',
         email: '',
-        phone: 0);
+        phone: '0');
   }
 
   @override
@@ -385,7 +385,7 @@ class _SettingPageState extends State<SettingPage> {
                 ;
               },
               //validator: (input) => input!.length < 10 ? "Phone Number should be Valid" : null, // 檢查電話號碼格式
-              onSaved: (input) => requestModel.phone = int.parse(input!),
+              onSaved: (input) => requestModel.phone = input!.toString(),
               decoration: const InputDecoration(
                 hintText: "Your new phone here",
                 prefixIcon: Icon(Icons.phone),

@@ -6,7 +6,7 @@ class LoginResponseModel {
   String name;
   String password;
   String email;
-  int phone;
+  String phone;
   int totalDiatance;
   int totalTime;
   int totalActivity;

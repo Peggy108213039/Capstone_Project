@@ -28,7 +28,7 @@ class UserData {
   static late String userName;
   static late String password;
   static late String userEmail;
-  static late int userPhone;
+  static late String userPhone;
   static late int totalDistance;
   static late int totalTime;
   static late int totalActivity;
@@ -41,7 +41,7 @@ class UserData {
       String getUserName,
       String getPassword,
       String getUserEmail,
-      int getUserPhone,
+      String getUserPhone,
       int getTotalDiatance,
       int getTotalTime,
       int getTotalActivity,

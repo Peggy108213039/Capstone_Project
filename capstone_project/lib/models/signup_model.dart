@@ -13,25 +13,25 @@ class SignUpResponseModel {
   // String totalTrack;
   String result;
 
-  SignUpResponseModel({
-    required this.uID,
-    required this.account,
-    required this.name,
-    required this.password,
-    required this.email,
-    required this.phone,
-    // required this.totalDiatance,
-    // required this.totalTime,
-    // required this.totalActivity,
-    // required this.totalTrack,
-    required this.result});
+  SignUpResponseModel(
+      {required this.uID,
+      required this.account,
+      required this.name,
+      required this.password,
+      required this.email,
+      required this.phone,
+      // required this.totalDiatance,
+      // required this.totalTime,
+      // required this.totalActivity,
+      // required this.totalTrack,
+      required this.result});
 
   /// `toJson` is the convention for a class to declare support for serialization
   /// to JSON. The implementation simply calls the private, generated
   /// helper method `_$UserToJson`.
   factory SignUpResponseModel.fromJson(Map<String, dynamic> json) {
     return SignUpResponseModel(
-      uID: json["uID"] ?? "" , // if null then return ""
+      uID: json["uID"] ?? "", // if null then return ""
       account: json["account"] ?? "",
       name: json["name"] ?? "",
       password: json["password"] ?? "",
@@ -45,7 +45,8 @@ class SignUpResponseModel {
     );
   }
 }
-class SignUpRequestModel{
+
+class SignUpRequestModel {
   String name;
   String account;
   String password;
