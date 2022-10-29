@@ -100,9 +100,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                     child: const Text('開始活動'),
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal.shade300),
-                    // FIXME 開始活動按鈕
                     onPressed: () {
-                      print('開始活動');
                       Navigator.pushNamed(context, '/StartActivity',
                           arguments: {
                             'activity_name': arguments['activity_name'],

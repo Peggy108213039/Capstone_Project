@@ -10,9 +10,7 @@ class LocationService {
 
   // 使用者目前位置
   static late UserLocation currentLocation;
-
   static Location location = Location();
-
   static bool isFirstLocated = true;
 
   // 持續監聽使用者位置
@@ -27,7 +25,6 @@ class LocationService {
         interval: updateInterval,
         distanceFilter: updateDistancce);
 
-    print('誰先 ? locating');
     location.requestPermission().then((PermissionStatus value) {
       if (value == PermissionStatus.granted) {
         locationSubscription =
@@ -66,14 +63,12 @@ class LocationService {
 
   static Future<UserLocation?> get getLocation async {
     try {
-      print('誰先 ? getLocation');
-      var userLocation = await location.getLocation();
+      LocationData userLocation = await location.getLocation();
       currentLocation = UserLocation(
           latitude: userLocation.latitude!,
           longitude: userLocation.longitude!,
           altitude: userLocation.altitude!,
           currentTime: UserLocation.getCurrentTime());
-      print('current location 目前位置 $currentLocation');
     } catch (err) {
       print('Could not get the locationn\n $err');
     }

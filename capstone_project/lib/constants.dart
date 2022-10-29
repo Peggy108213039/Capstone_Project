@@ -1,6 +1,6 @@
 // APP Color
 import 'package:flutter/material.dart';
-import 'package:capstone_project/services/PolylineCoordinates_model.dart';
+import 'package:capstone_project/services/polyline_coordinates_model.dart';
 import 'package:latlong2/latlong.dart';
 
 const PrimaryDarkGreen = Color.fromARGB(255, 71, 79, 41);

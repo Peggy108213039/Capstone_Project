@@ -9,14 +9,14 @@ import 'package:capstone_project/models/map/user_location.dart';
 class WarningDistanceText extends StatefulWidget {
   final bool isStarted;
   final bool isPaused;
-  final double warningDistance;
+  // final double warningDistance;
   final List<LatLng> gpsList;
   const WarningDistanceText({
     Key? key,
     required this.isStarted,
     required this.isPaused,
     required this.gpsList,
-    required this.warningDistance,
+    // required this.warningDistance,
   }) : super(key: key);
 
   @override
@@ -35,50 +35,13 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
   late List<LatLng> gpsList;
   late double warningDistance;
 
+  bool isVisible = false;
   String warningDistanceString = '';
 
   @override
   void initState() {
-    warningDistance = widget.warningDistance;
     gpsList = widget.gpsList;
     super.initState();
-  }
-
-  // 過濾點 (如果 warningDistance 內有點的話，代表沒有偏離)
-  bool filterPoint(
-      {required double warningDistance,
-      required LatLng currentPoint,
-      required List<LatLng> pointList}) {
-    double meterToLongitudeDegree = 1 / 111120; // 一公尺 = 多少度 (longitude 經度)
-    double meterToLatitudeDegree =
-        1 / 111319.488 * cos(currentPoint.latitude); // 一公尺 = 多少度 (latitude 緯度)
-    double lanMeter = (warningDistance / 2) * meterToLatitudeDegree; // 緯度
-    double lonMeter = (warningDistance / 2) * meterToLongitudeDegree; // 經度
-    double tempEastPoint = currentPoint.latitude + lanMeter;
-    double tempWestPoint = currentPoint.latitude - lanMeter;
-    double tempNorthPoint = currentPoint.longitude + lonMeter;
-    double tempSouthPoint = currentPoint.longitude - lonMeter;
-    List<double> lanList = [tempEastPoint, tempWestPoint];
-    List<double> lonList = [tempNorthPoint, tempSouthPoint];
-    lanList.sort();
-    lonList.sort();
-    if (pointList.isNotEmpty) {
-      for (int i = 0; i < pointList.length; i++) {
-        if (pointList[i].latitude >= lanList.first &&
-            pointList[i].latitude <= lanList.last) {
-          if (pointList[i].longitude >= lonList.first &&
-              pointList[i].longitude <= lonList.last) {
-            // 紀錄上一個點
-            previousPoint = pointList[i];
-            havePreviousPoint = true;
-            return true;
-          }
-        }
-      }
-      return false;
-    }
-    // pointList is Empty
-    return false;
   }
 
   // 計算與所有點的距離
@@ -105,39 +68,48 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
     return 12742 * asin(sqrt(a));
   }
 
-// 計算警告距離
+  List inSafeDistance(
+      {required double warningDistance,
+      required LatLng currentPoint,
+      required List<LatLng> pointList}) {
+    List<double> distanceList = [];
+    if (pointList.isNotEmpty) {
+      for (int i = 0; i < pointList.length; i++) {
+        double tempDistance =
+            caculateDistance(point1: currentPoint, point2: pointList[i]);
+        distanceList.add(tempDistance);
+        if (tempDistance * 1000 < warningDistance) {
+          return [true, tempDistance];
+        }
+      }
+    }
+    distanceList.sort();
+    return [false, distanceList[0]];
+  }
+
+  // 計算警告距離
   void caculateWarningDistance(
       {required double warningDistance, required List<LatLng> gpsList}) async {
-    if (isStarted && !isPaused) {
-      bool havePoint = filterPoint(
-          warningDistance: warningDistance,
-          currentPoint: LatLng(userLocation.latitude, userLocation.longitude),
-          pointList: gpsList);
-      if (!havePoint) {
-        late double minDistance;
-        // 如果沒有上一個點，計算與所有點的距離，並回傳最小值
-        if (!havePreviousPoint) {
-          List result = userWithAllPointsDistance(
-              LatLng(userLocation.latitude, userLocation.longitude), gpsList);
-          result.sort();
-          minDistance = result[0];
-        } else {
-          // 計算與 previousPoint 的位置，並回傳距離
-          minDistance = caculateDistance(
-              point1: LatLng(userLocation.latitude, userLocation.longitude),
-              point2: previousPoint);
-        }
-        if (minDistance < 1) {
-          double distance =
-              double.parse((minDistance * 1000).toStringAsFixed(2));
-          warningDistanceString = '1 偏離軌跡\n距離軌跡最近距離為 $distance 公尺';
-        } else {
-          double distance = double.parse(minDistance.toStringAsFixed(2));
-          warningDistanceString = '2 偏離軌跡\n距離軌跡最近距離為 $distance 公里';
-        }
+    List result = inSafeDistance(
+        warningDistance: warningDistance,
+        currentPoint: LatLng(userLocation.latitude, userLocation.longitude),
+        pointList: gpsList);
+    bool inSafe = result[0];
+    print('result $result');
+    print('inSafe $inSafe');
+    if (!inSafe) {
+      isVisible = true;
+      double minDistance = result[1];
+      if (minDistance < 1) {
+        double distance = double.parse((minDistance * 1000).toStringAsFixed(2));
+        warningDistanceString = '偏離軌跡\n距離軌跡 $distance 公尺';
       } else {
-        warningDistanceString = '';
+        double distance = double.parse(minDistance.toStringAsFixed(2));
+        warningDistanceString = '偏離軌跡\n距離軌跡 $distance 公里';
       }
+    } else {
+      isVisible = false;
+      warningDistanceString = '';
     }
     print('warningDistanceString $warningDistanceString');
   }
@@ -152,7 +124,24 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
       caculateWarningDistance(
           warningDistance: warningDistance, gpsList: gpsList);
     }
+    if (!isStarted && !isPaused) {
+      isVisible = false;
+    }
 
-    return Text(warningDistanceString);
+    return Visibility(
+      visible: isVisible,
+      child: Container(
+          width: 300,
+          height: 80,
+          decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 255, 229, 150),
+              borderRadius: BorderRadius.all(Radius.circular(15))),
+          child: Center(
+            child: Text(
+              warningDistanceString,
+              style: const TextStyle(color: Colors.black, fontSize: 15),
+            ),
+          )),
+    );
   }
 }

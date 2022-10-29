@@ -53,13 +53,10 @@ class _ActivityMapState extends State<ActivityMap> {
   Future<void> moveCamera(
       {required UserLocation userLocation,
       required UserLocation currentLocation}) async {
-    if (userLocation != currentLocation) {
-      print("================== 目前位置改變，相機移動 ACTIVITY ==================");
-      currentLocation = userLocation;
-      // 當使用者的位置移動時，地圖的 camera 要跟著移動
-      if (mapController != null) {
-        mapController!.move(currentLocation.toLatLng(), zoomLevel);
-      }
+    currentLocation = userLocation;
+    // 當使用者的位置移動時，地圖的 camera 要跟著移動
+    if (mapController != null) {
+      mapController!.move(currentLocation.toLatLng(), zoomLevel);
     }
   }
 
@@ -70,6 +67,7 @@ class _ActivityMapState extends State<ActivityMap> {
   // 畫使用者的軌跡
   void getUserTrack({required List<LatLng> gpsList}) async {
     if (isStarted && !isPaused) {
+      // FIXME 傳自己的座標給 server
       polyline.recordCoordinates(userLocation);
       print('polyline 我的軌跡 ${polyline.list}');
     }
@@ -79,12 +77,18 @@ class _ActivityMapState extends State<ActivityMap> {
   Widget build(BuildContext context) {
     isStarted = widget.isStarted;
     isPaused = widget.isPaused;
-
     userLocation = Provider.of<UserLocation>(context);
 
-    moveCamera(userLocation: userLocation, currentLocation: currentLocation);
+    if (userLocation != currentLocation) {
+      moveCamera(userLocation: userLocation, currentLocation: currentLocation);
+    } else {
+      print("停留於原地");
+      // FIXME 計時
+    }
+    print('userLocation ${userLocation.toLatLng()}');
+    print('currentLocation ${currentLocation.toLatLng()}');
     if (isStarted && !isPaused) {
-      print('畫軌跡');
+      // FIXME 抓同行者的位置
       getUserTrack(gpsList: gpsList);
     }
 

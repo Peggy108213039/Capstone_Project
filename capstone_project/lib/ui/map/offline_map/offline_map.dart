@@ -4,7 +4,7 @@ import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/models/track/track_model.dart';
 import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:capstone_project/models/ui_model/input_dialog.dart';
-import 'package:capstone_project/services/PolylineCoordinates_model.dart';
+import 'package:capstone_project/services/polyline_coordinates_model.dart';
 import 'package:capstone_project/services/file_provider.dart';
 import 'package:capstone_project/services/gpx_service.dart';
 import 'package:capstone_project/services/location_service.dart';

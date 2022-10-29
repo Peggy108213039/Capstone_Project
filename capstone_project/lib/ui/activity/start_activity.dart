@@ -6,7 +6,6 @@ import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:capstone_project/ui/activity/activity_map_widget.dart';
 import 'package:capstone_project/ui/activity/warning_distance_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:capstone_project/models/map/user_location.dart';
@@ -73,18 +72,14 @@ class _StartActivityState extends State<StartActivity> {
   @override
   void dispose() {
     print('===== 刪掉 dispose =====');
-    // mapController!.dispose();
     LocationService.closeService();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final arguments = (ModalRoute.of(context)?.settings.arguments ??
-        <String, dynamic>{}) as Map;
     print('===== 建立活動地圖頁面 START =====');
     final List<LatLng> gpsList = widget.gpsList;
-    final double warningDistance = double.parse(arguments['warning_distance']);
 
     // moveCamera();
     // if (isStarted && !isPaused) {
@@ -113,7 +108,7 @@ class _StartActivityState extends State<StartActivity> {
             child: WarningDistanceText(
               isStarted: isStarted,
               isPaused: isPaused,
-              warningDistance: warningDistance,
+              // warningDistance: warningDistance,
               gpsList: gpsList,
             ),
           ),
