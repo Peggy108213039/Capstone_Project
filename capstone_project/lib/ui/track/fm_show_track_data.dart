@@ -80,7 +80,7 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
               onPressed: () => editTrackName(
                   file: arguments['trackFile'],
                   context: context,
-                  trackID: arguments['trackData'][0]['tID']),
+                  trackID: int.parse(arguments['trackData'][0]['tID'])),
               icon: const Icon(Icons.edit),
               tooltip: '編輯軌跡名稱',
             )
@@ -124,7 +124,8 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                               height: 8,
                               builder: ((BuildContext context) => Container(
                                     decoration: BoxDecoration(
-                                        color: Colors.amber,
+                                        color: const Color.fromARGB(
+                                            255, 255, 7, 7),
                                         borderRadius: BorderRadius.circular(8)),
                                   )))
                       ])
@@ -144,7 +145,7 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                     color: const Color.fromARGB(255, 200, 200, 200),
                     child: Stack(children: [
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+                        padding: const EdgeInsets.fromLTRB(5, 20, 5, 20),
                         child: NotificationListener<ElevationHoverNotification>(
                             onNotification:
                                 (ElevationHoverNotification notification) {
@@ -165,8 +166,8 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                                   gt30: Colors.redAccent),
                             )),
                       ),
-                      const Positioned(left: 0, top: 0, child: Text('高度')),
-                      const Positioned(right: 0, bottom: 0, child: Text('時間'))
+                      const Positioned(left: 6, top: 3, child: Text('高度')),
+                      // const Positioned(right: 0, bottom: 0, child: Text('時間'))
                     ]))
               ],
             ),

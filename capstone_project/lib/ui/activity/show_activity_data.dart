@@ -44,8 +44,6 @@ class _ShowActivityDataState extends State<ShowActivityData> {
         actions: [
           IconButton(
               onPressed: () {
-                // FIXME 編輯活動資料
-                print('編輯活動資料 $arguments');
                 Navigator.pushNamed(context, '/EditActivityData',
                     arguments: arguments);
               },

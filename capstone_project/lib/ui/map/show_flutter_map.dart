@@ -1,3 +1,5 @@
+import 'package:capstone_project/constants.dart';
+import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -30,14 +32,21 @@ class _ShowFlutterMapState extends State<ShowFlutterMap> {
   late bool isPaused;
   late PolylineCoordinates polyline; // 紀錄使用者的 polyline
   late List<Marker> markerList;
-  static UserLocation defaultLocation = UserLocation(
-      latitude: 23.94981257,
-      longitude: 120.92764976,
-      altitude: 572.92668105,
-      currentTime: UserLocation.getCurrentTime());
-  UserLocation currentLocation = defaultLocation;
-  UserLocation userLocation = defaultLocation;
+  late MyAlertDialog takePhotoDialog; // 提醒視窗：照片儲存成功
+  // static UserLocation defaultLocation = UserLocation(
+  //     latitude: 23.94981257,
+  //     longitude: 120.92764976,
+  //     altitude: 572.92668105,
+  //     currentTime: UserLocation.getCurrentTime());
+  // UserLocation currentLocation = defaultLocation;
+  // UserLocation userLocation = defaultLocation;
   double zoomLevel = 16;
+
+  // button style
+  final raisedBtnStyle = ElevatedButton.styleFrom(
+      minimumSize: const Size(55, 55),
+      shape: const CircleBorder(),
+      backgroundColor: Colors.indigoAccent.shade100);
 
   @override
   void initState() {

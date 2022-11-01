@@ -1,4 +1,5 @@
 // APP Color
+import 'package:capstone_project/models/map/user_location.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/services/polyline_coordinates_model.dart';
 import 'package:latlong2/latlong.dart';
@@ -63,5 +64,13 @@ List serverTrackData = [];
 // 開始活動
 late LatLng previousPoint;
 bool havePreviousPoint = false;
-// 紀錄使用者的 polyline
-PolylineCoordinates polyline = PolylineCoordinates();
+PolylineCoordinates polyline = PolylineCoordinates(); // 紀錄使用者的 polyline
+
+// 地圖
+UserLocation defaultLocation = UserLocation(
+    latitude: 23.94981257,
+    longitude: 120.92764976,
+    altitude: 572.92668105,
+    currentTime: UserLocation.getCurrentTime());
+UserLocation currentLocation = defaultLocation;
+UserLocation userLocation = defaultLocation;

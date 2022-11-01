@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'package:capstone_project/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -33,12 +34,12 @@ class MapPageState extends State<MapPage> {
   bool isStarted = false;
   bool isPaused = false;
 
-  static UserLocation defaultLocation = UserLocation(
-      latitude: 23.94981257,
-      longitude: 120.92764976,
-      altitude: 572.92668105,
-      currentTime: UserLocation.getCurrentTime());
-  late UserLocation userLocation; // 抓使用者裝置位置
+  // static UserLocation defaultLocation = UserLocation(
+  //     latitude: 23.94981257,
+  //     longitude: 120.92764976,
+  //     altitude: 572.92668105,
+  //     currentTime: UserLocation.getCurrentTime());
+  // late UserLocation userLocation; // 抓使用者裝置位置
   List<Marker> markers = []; // 標記拍照點
 
   late MyAlertDialog pauseDialog; // 提醒視窗：暫停紀錄
@@ -295,37 +296,43 @@ class MapPageState extends State<MapPage> {
     }
     imageFile = File(pickedFile.path);
     // 存到手機的相簿中
-    await GallerySaver.saveImage(imageFile.path, albumName: '與山同行')
-        .then((bool? saveSuccess) async {
-      saveSuccess ??= false;
-      UserLocation? photoLocation = await LocationService.getLocation;
-      if (saveSuccess) {
-        markers.add(Marker(
-            point: photoLocation!.toLatLng(),
-            builder: (context) => Transform.translate(
-                  offset: const Offset(-5, -30),
-                  child: const Icon(
-                    Icons.photo,
-                    size: 40,
-                    color: Color.fromARGB(235, 254, 47, 1),
-                  ),
-                )));
-        takePhotoDialog = MyAlertDialog(
-            context: context,
-            titleText: '照片儲存成功',
-            contentText: '可以到手機的相簿中查看',
-            btn1Text: '確認',
-            btn2Text: '');
-        await takePhotoDialog.show();
-      } else {
-        takePhotoDialog = MyAlertDialog(
-            context: context,
-            titleText: '照片儲存失敗',
-            contentText: '',
-            btn1Text: '確認',
-            btn2Text: '');
-        await takePhotoDialog.show();
-      }
-    });
+    bool? saveSuccess =
+        await GallerySaver.saveImage(imageFile.path, albumName: '與山同行');
+    saveSuccess ??= false;
+    print('照片儲存成功 $saveSuccess');
+    print('polyline.userLocationList ${polyline.userLocationList}');
+    UserLocation? photoLocation = userLocation;
+    print('拍照位置 $photoLocation');
+
+    if (saveSuccess) {
+      print('======= 儲存這片階段 1 =======');
+      markers.add(Marker(
+          point: photoLocation!.toLatLng(),
+          builder: (context) => Transform.translate(
+                offset: const Offset(-5, -30),
+                child: const Icon(
+                  Icons.photo,
+                  size: 40,
+                  color: Color.fromARGB(235, 254, 47, 1),
+                ),
+              )));
+      print('======= 儲存這片階段 2 =======');
+      takePhotoDialog = MyAlertDialog(
+          context: context,
+          titleText: '照片儲存成功',
+          contentText: '可以到手機的相簿中查看',
+          btn1Text: '確認',
+          btn2Text: '');
+      await takePhotoDialog.show();
+      print('=======儲存這片階段 3 =======');
+    } else {
+      takePhotoDialog = MyAlertDialog(
+          context: context,
+          titleText: '照片儲存失敗',
+          contentText: '',
+          btn1Text: '確認',
+          btn2Text: '');
+      await takePhotoDialog.show();
+    }
   }
 }

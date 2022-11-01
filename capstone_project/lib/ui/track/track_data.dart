@@ -16,19 +16,20 @@ class _TrackDataState extends State<TrackData> {
   final double wordSize2 = 18.0;
   String distanceUnit = '公里';
   String timeUnit = '小時';
-  double distance = 0;
+  String distance = '0';
   String velocity = '0';
+  late double width;
+  late List<dynamic>? trackData;
 
   @override
   void initState() {
+    width = widget.width;
+    trackData = widget.trackData; // 軌跡資料
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final width = widget.width;
-    final trackData = widget.trackData; // 軌跡資料
-
     final totaltime = DateTime.parse(trackData?[0]['finish'])
         .difference(DateTime.parse(trackData?[0]['start']));
     final String durationTime = durationFormat(totaltime); // 步行總時間
@@ -39,20 +40,22 @@ class _TrackDataState extends State<TrackData> {
       velocity = 0.toString();
     } else {
       double _velocity = 0.0;
+      double _distance = 0;
       // 如果總距離小於 1 公里，總距離單位轉成 1 公尺
       if (totalDistance < 1) {
-        distance = (totalDistance * 1000); // 公尺
+        _distance = (totalDistance * 1000); // 公尺
         distanceUnit = '公尺';
         timeUnit = '分鐘';
         // 公尺/分鐘
-        _velocity = (distance / timeSecond * 60);
+        _velocity = (_distance / timeSecond * 60);
         print(' 公尺/分鐘 distance $distance timeSecond $timeSecond');
       } else {
-        distance = totalDistance; // 公里
+        _distance = totalDistance; // 公里
         // 公里/小時
-        _velocity = (distance / timeSecond * 60 * 60);
+        _velocity = (_distance / timeSecond * 60 * 60);
         print(' 公里/小時 distance $distance timeSecond $timeSecond');
       }
+      distance = _distance.toStringAsFixed(2);
       velocity = _velocity.toStringAsFixed(2);
     }
 
@@ -65,11 +68,7 @@ class _TrackDataState extends State<TrackData> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly, // 主軸 (橫) 的排版
             children: [
-              myCard(
-                  width: width,
-                  s1: '距離',
-                  s2: distance.toString(),
-                  s3: distanceUnit),
+              myCard(width: width, s1: '距離', s2: distance, s3: distanceUnit),
               myCard(width: width, s1: '步行時間', s2: durationTime, s3: '小時:分鐘'),
               myCard(
                   width: width,

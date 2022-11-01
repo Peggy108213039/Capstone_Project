@@ -1,4 +1,13 @@
 import 'dart:io';
+import 'dart:math';
+import 'package:capstone_project/services/polyline_coordinates_model.dart';
+import 'package:intl/intl.dart';
+import 'package:path/path.dart';
+import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:map_elevation/map_elevation.dart';
 
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/map/user_location.dart';
@@ -10,13 +19,6 @@ import 'package:capstone_project/services/gpx_service.dart';
 import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/services/kml_service.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:map_elevation/map_elevation.dart';
-import 'package:intl/intl.dart';
-import 'package:path/path.dart';
 
 class TrackPage extends StatefulWidget {
   const TrackPage({Key? key}) : super(key: key);
@@ -33,6 +35,7 @@ class _TrackPageState extends State<TrackPage> {
   late Directory? trackDir; // 軌跡資料夾
   late List? queryTrackList = []; // sqlite 軌跡資料表下的資料
   late List<LatLng> latLngList; // 抓軌跡檔案中的經緯度座標 List
+
   late MyAlertDialog noFileAlertDialog;
   late MyAlertDialog reChooseAlertDialog;
   late MyAlertDialog deleteTrackDialog;
@@ -46,7 +49,6 @@ class _TrackPageState extends State<TrackPage> {
   @override
   void initState() {
     getAppTrackDirPath(); // 抓軌跡資料夾的檔案路徑
-
     super.initState();
   }
 
@@ -97,18 +99,19 @@ class _TrackPageState extends State<TrackPage> {
   // 抓資料庫中軌跡的資料
   getTrackData() async {
     // 抓後端軌跡的資料
-    var userID = {'uID': '9'}; // FIXME 要換成 sqlite 中 user 的資料
+    var userID = {'uID': '${UserData.uid}'};
     List result = await APIService.selectUserAllTrack(userID);
-    // print('使用者所有軌跡的資料 $result');
+    print('使用者 server 上所有軌跡的資料 $result');
     queryTrackList = await SqliteHelper.queryAll(tableName: 'track');
     queryTrackList ??= [];
     print(
         '=========\ncreate Track Check Table 1 $hasTrackCheckTable \n=========');
-    // FIXME
+    // FIXME 檢查是否有漏下載的軌跡資料
     // if (result[0]) {
     //   checkLostTrackFile(
     //       serverTrackFiles: result[1], clientTrackFiles: queryTrackList);
     // }
+    print('使用者 sqlite 上所有軌跡的資料 $queryTrackList');
     return queryTrackList;
   }
 
@@ -162,7 +165,7 @@ class _TrackPageState extends State<TrackPage> {
                 // insert sqlite track data
                 Track newClientTrackData = Track(
                     tID: serverTrackFiles[s]['tID'],
-                    uID: '9', // FIXME uID
+                    uID: UserData.uid.toString(),
                     track_name: serverTrackFiles[s]['track_name'],
                     track_locate: serverTrackFiles[s]['track_locate'],
                     start: serverTrackFiles[s]['start'],
@@ -174,9 +177,9 @@ class _TrackPageState extends State<TrackPage> {
                     tableName: 'track', insertData: newClientTrackData.toMap());
                 if (insertClientTrackResult[0]) {
                   serverTrackData[s]['isDownloaded'] = true;
+                  print('$s 本機端新增軌跡 ${serverTrackFiles[s]['tID']} 成功');
                 } else {
                   print('$s 本機端新增軌跡 ${serverTrackFiles[s]['tID']} 失敗');
-                  // break;
                 }
               } else {
                 print(downloadTrackResult[1]);
@@ -209,7 +212,7 @@ class _TrackPageState extends State<TrackPage> {
         serverTrackFiles: serverTrackFiles,
         clientTrackFiles: clientTrackFiles);
 
-    print('SERVER TRACK FILES ${serverTrackData.last}');
+    print('SERVER TRACK FILES $serverTrackData');
     // print('CLIENT TRACK FILES $clientTrackData');
     print(
         '=========\ncreate Track Check Table 2 $hasTrackCheckTable \n=========');
@@ -239,8 +242,10 @@ class _TrackPageState extends State<TrackPage> {
       var isDeleted = await fileProvider.deleteFile(file: deleteFile); // 刪除檔案
       if (isDeleted) {
         var deleteID = deleteTrackData[0]['tID'];
-        // FIXME uID
-        Map<String, dynamic> deleteRequestModel = {'tID': deleteID, 'uID': '9'};
+        Map<String, dynamic> deleteRequestModel = {
+          'tID': deleteID,
+          'uID': '${UserData.uid}'
+        };
         // 刪除 server 軌跡檔案
         List deleteServerTrackResult =
             await APIService.deleteTrack(deleteRequestModel);
@@ -378,15 +383,28 @@ class _TrackPageState extends State<TrackPage> {
             file: file, fileName: trackName, dirPath: trackDir!.path);
       }
       // 要新增的軌跡資料
+      // ===================
+      String result = await fileProvider.readFileAsString(file: newTrackFile);
+      Map<String, dynamic> gpxResult = GPXService.getGPSList(content: result);
+      List<LatLng> latLngList = gpxResult['latLngList']; // LatLng (沒有高度)
+      List<DateTime> timeList = gpxResult['timeList'];
+      double distance = latLngListDistance(latLngList);
+      DateTime startTime = DateTime.utc(0);
+      DateTime finishTime = DateTime.utc(0);
+      if (timeList.isNotEmpty) {
+        startTime = timeList.first;
+        finishTime = timeList.last;
+      }
+      // ===================
       final String currentDate =
           DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now());
       TrackRequestModel newServerTrackData = TrackRequestModel(
-          uID: '9', // FIXME uID
+          uID: UserData.uid.toString(),
           track_name: fileProvider.getFileName(file: newTrackFile),
           track_locate: newTrackFile.path,
-          start: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.utc(0)),
-          finish: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.utc(0)),
-          total_distance: '0',
+          start: DateFormat('yyyy-MM-dd hh:mm').format(startTime),
+          finish: DateFormat('yyyy-MM-dd hh:mm').format(finishTime),
+          total_distance: distance.toString(),
           time: currentDate,
           track_type: '0');
       print(newServerTrackData);
@@ -395,7 +413,6 @@ class _TrackPageState extends State<TrackPage> {
           await APIService.insertTrack(newServerTrackData);
 
       if (insertTrackResponse[0]) {
-        print('ID ${insertTrackResponse[1]['tID']}');
         String tID = insertTrackResponse[1]["tID"].toString();
         Map<String, String> trackID = {'tID': tID};
         List uploadTrackResponse =
@@ -404,12 +421,12 @@ class _TrackPageState extends State<TrackPage> {
         if (uploadTrackResponse[0]) {
           Track newClientTrackData = Track(
               tID: tID,
-              uID: '9', // FIXME uID
+              uID: UserData.uid.toString(),
               track_name: fileProvider.getFileName(file: newTrackFile),
               track_locate: newTrackFile.path,
-              start: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.utc(0)),
-              finish: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.utc(0)),
-              total_distance: '0',
+              start: DateFormat('yyyy-MM-dd hh:mm').format(startTime),
+              finish: DateFormat('yyyy-MM-dd hh:mm').format(finishTime),
+              total_distance: distance.toString(),
               time: currentDate,
               track_type: '0');
           List insertClientTrackResult = await SqliteHelper.insert(
@@ -437,7 +454,7 @@ class _TrackPageState extends State<TrackPage> {
       } else {
         insertServerTrackFailDialog = MyAlertDialog(
             context: context,
-            titleText: '新增軌跡失敗',
+            titleText: 'server 新增軌跡失敗',
             contentText: insertTrackResponse[1].toString(),
             btn1Text: '確認',
             btn2Text: '');
@@ -447,6 +464,28 @@ class _TrackPageState extends State<TrackPage> {
     }
     trackName = ''; // 把輸入的軌跡名稱清空
     return; // 如果沒有要匯入就 return
+  }
+
+  // 計算 LatLngList 的總距離
+  double latLngListDistance(List<LatLng> latLngList) {
+    double distance = 0;
+    for (var i = 0; i < latLngList.length - 1; i++) {
+      distance +=
+          caculateDistance(point1: latLngList[i], point2: latLngList[i + 1]);
+    }
+    return distance;
+  }
+
+  // 計算三維空間的距離
+  double caculateDistance({required LatLng point1, required LatLng point2}) {
+    var p = 0.017453292519943295;
+    var a = 0.5 -
+        cos((point2.latitude - point1.latitude) * p) / 2 +
+        cos(point1.latitude * p) *
+            cos(point2.latitude * p) *
+            (1 - cos((point2.longitude - point1.longitude) * p)) /
+            2;
+    return 12742 * asin(sqrt(a));
   }
 
   Widget showAllTrackFiles() {

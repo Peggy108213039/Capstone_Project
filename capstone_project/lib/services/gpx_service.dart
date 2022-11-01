@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:capstone_project/models/map/user_location.dart';
+import 'package:capstone_project/services/http_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -13,6 +14,7 @@ class GPXService {
     // 把 gpx 檔案中的 gps 定位座標存入 points (list) 中，並回傳 points
     List<LatLng> points = [];
     List<ElevationPoint> elePoints = [];
+    List<DateTime> timeList = [];
     final xmlGpx = XmlDocument.parse(content);
     // print('內容  ${xmlGpx.toXmlString(pretty: true, indent: '\t')}');
 
@@ -24,17 +26,21 @@ class GPXService {
       var lat = element.getAttribute('lat');
       var lon = element.getAttribute('lon');
       var ele = element.findElements('ele').single.text;
+      var time = element.findElements('time').single.text;
       if (lat != null && lon != null) {
         LatLng p = LatLng(double.parse(lat), double.parse(lon));
         ElevationPoint eleP = ElevationPoint(
             double.parse(lat), double.parse(lon), double.parse(ele));
+        DateTime t = DateTime.parse(time);
         points.add(p);
         elePoints.add(eleP);
+        timeList.add(t);
       }
     });
     return {
       'latLngList': points,
       'elevationPointList': elePoints,
+      'timeList': timeList,
     };
   }
 
@@ -62,7 +68,7 @@ class GPXService {
     builder.element('gpx', nest: () {
       builder.attribute('version', '1.1');
       // FIXME testUser 改成使用者名稱
-      builder.attribute('creator', 'testUser');
+      builder.attribute('creator', UserData.userName.toString());
       builder.element('metadata', nest: () {
         builder.element('name', nest: trackName);
         builder.element('time', nest: time);

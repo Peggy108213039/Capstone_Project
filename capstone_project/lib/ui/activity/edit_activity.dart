@@ -84,7 +84,6 @@ class _EditActivityState extends State<EditActivity> {
                 buildActivName(initValue: arguments['activity_name']),
                 buildActivTime(
                     initValue: DateTime.parse(arguments['activity_time'])),
-                // FIXME
                 buildActivTrack(currentTrackID: arguments['tID']),
                 buildActivPartner(), // FIXME 同行成員
                 buildWarningDistance(initValue: arguments['warning_distance']),
@@ -266,8 +265,8 @@ class _EditActivityState extends State<EditActivity> {
             warning_distance: warningDistance,
             warning_time: warningTime)
         .toMap();
-    // FIXME 編輯同行成員資料
-    print('newActivityData  $newActivityData');
+    // FIXME 編輯 server 同行成員資料
+    print('修改後的活動資料  $newActivityData');
     await SqliteHelper.update(
         tableName: 'activity',
         updateData: newActivityData,
