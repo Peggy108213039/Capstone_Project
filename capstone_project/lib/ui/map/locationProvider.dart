@@ -1,7 +1,7 @@
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/services/location_service.dart';
 import 'package:capstone_project/ui/activity/start_activity.dart';
-import 'package:capstone_project/ui/map/flutter_map_page.dart';
+import 'package:capstone_project/ui/map/map_page.dart';
 import 'package:capstone_project/ui/map/offline_map/offline_map.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -45,7 +45,7 @@ class LocationProvider extends StatelessWidget {
             currentTime: UserLocation.getCurrentTime());
       }
     } else {
-      service = const FlutterMapPage();
+      service = const MapPage();
     }
     LocationService.locating();
     LocationService.getLocation;

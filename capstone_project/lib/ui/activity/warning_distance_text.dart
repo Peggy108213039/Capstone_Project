@@ -3,7 +3,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 
-import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/map/user_location.dart';
 
 class WarningDistanceText extends StatefulWidget {
@@ -44,18 +43,6 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
     super.initState();
   }
 
-  // 計算與所有點的距離
-  List userWithAllPointsDistance(LatLng currentPoint, List<LatLng> pointList) {
-    List distanceList = [];
-    late double tempDistance;
-    for (int i = 0; i < pointList.length; i++) {
-      tempDistance =
-          caculateDistance(point1: currentPoint, point2: pointList[i]);
-      distanceList.add(tempDistance);
-    }
-    return distanceList;
-  }
-
   // 計算三維空間的距離
   double caculateDistance({required LatLng point1, required LatLng point2}) {
     var p = 0.017453292519943295;
@@ -74,6 +61,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
       required List<LatLng> pointList}) {
     List<double> distanceList = [];
     if (pointList.isNotEmpty) {
+      // 計算與所有點的距離
       for (int i = 0; i < pointList.length; i++) {
         double tempDistance =
             caculateDistance(point1: currentPoint, point2: pointList[i]);
@@ -95,8 +83,6 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
         currentPoint: LatLng(userLocation.latitude, userLocation.longitude),
         pointList: gpsList);
     bool inSafe = result[0];
-    print('result $result');
-    print('inSafe $inSafe');
     if (!inSafe) {
       isVisible = true;
       double minDistance = result[1];
@@ -111,7 +97,6 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
       isVisible = false;
       warningDistanceString = '';
     }
-    print('warningDistanceString $warningDistanceString');
   }
 
   @override
@@ -131,8 +116,9 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
     return Visibility(
       visible: isVisible,
       child: Container(
-          width: 300,
+          width: 200,
           height: 80,
+          margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
           decoration: const BoxDecoration(
               color: Color.fromARGB(255, 255, 229, 150),
               borderRadius: BorderRadius.all(Radius.circular(15))),

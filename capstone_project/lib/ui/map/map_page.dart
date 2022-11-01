@@ -1,55 +1,57 @@
 import 'dart:io';
-
-import 'package:capstone_project/constants.dart';
-import 'package:capstone_project/models/map/user_location.dart';
-import 'package:capstone_project/models/track/track_model.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:latlong2/latlong.dart';
+
+import 'package:capstone_project/models/map/user_location.dart';
+import 'package:capstone_project/models/track/track_model.dart';
 import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:capstone_project/models/ui_model/input_dialog.dart';
-import 'package:capstone_project/services/polyline_coordinates_model.dart';
+import 'package:capstone_project/models/ui_model/warning_time.dart';
 import 'package:capstone_project/services/file_provider.dart';
 import 'package:capstone_project/services/gpx_service.dart';
 import 'package:capstone_project/services/location_service.dart';
+import 'package:capstone_project/services/polyline_coordinates_model.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
-import 'package:provider/provider.dart';
+import 'package:capstone_project/ui/map/show_flutter_map.dart';
 
-class FlutterMapPage extends StatefulWidget {
-  const FlutterMapPage({Key? key}) : super(key: key);
+class MapPage extends StatefulWidget {
+  const MapPage({Key? key}) : super(key: key);
 
   @override
-  State<FlutterMapPage> createState() => _FlutterMapPageState();
+  State<MapPage> createState() => MapPageState();
 }
 
-class _FlutterMapPageState extends State<FlutterMapPage> {
-  MapController? mapController;
-  double zoomLevel = 16;
+class MapPageState extends State<MapPage> {
+  late Directory? trackDir; // 軌跡資料夾
+  final FileProvider fileProvider = FileProvider();
+  // 紀錄使用者的 polyline
+  PolylineCoordinates polyline = PolylineCoordinates();
 
   bool isStarted = false;
   bool isPaused = false;
-  // location
+
   static UserLocation defaultLocation = UserLocation(
       latitude: 23.94981257,
       longitude: 120.92764976,
       altitude: 572.92668105,
       currentTime: UserLocation.getCurrentTime());
-  UserLocation currentLocation = defaultLocation; // 預設位置
   late UserLocation userLocation; // 抓使用者裝置位置
+  List<Marker> markers = []; // 標記拍照點
 
-  List<Marker> _markers = []; // 標記拍照點
-
-  final FileProvider fileProvider = FileProvider();
-  // 紀錄使用者的 polyline
-  PolylineCoordinates polyline = PolylineCoordinates();
+  late MyAlertDialog pauseDialog; // 提醒視窗：暫停紀錄
+  late MyAlertDialog dataNotEnoughDialog; // 提醒視窗：軌跡資料不足，無法紀錄
+  late MyAlertDialog saveFileSuccessDialog; // 提醒視窗：軌跡檔案儲存成功
+  late InputDialog inputTrackNameDialog; // 輸入軌跡名稱
+  late MyAlertDialog takePhotoDialog; // 提醒視窗：照片儲存成功
 
   // button style
   final raisedBtnStyle = ElevatedButton.styleFrom(
       minimumSize: const Size(55, 55),
       shape: const CircleBorder(),
-      backgroundColor: darkGreen2);
+      backgroundColor: Colors.indigoAccent.shade100);
   final startBtnStyle = ElevatedButton.styleFrom(
       minimumSize: const Size(55, 55),
       shape: const CircleBorder(),
@@ -59,23 +61,16 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
       shape: const CircleBorder(),
       backgroundColor: Colors.red);
 
-  late MyAlertDialog pauseDialog; // 提醒視窗：暫停紀錄
-  late MyAlertDialog dataNotEnoughDialog; // 提醒視窗：軌跡資料不足，無法紀錄
-  late MyAlertDialog saveFileSuccessDialog; // 提醒視窗：軌跡檔案儲存成功
-  late MyAlertDialog takePhotoDialog; // 提醒視窗：照片儲存成功
-  late InputDialog inputTrackNameDialog; // 輸入軌跡名稱
-  late Directory? trackDir; // 軌跡資料夾
-
   @override
   void initState() {
     getTrackDirPath();
+
     super.initState();
   }
 
   @override
   void dispose() {
     print('===== 刪掉 dispose =====');
-    mapController!.dispose();
     LocationService.closeService();
     super.dispose();
   }
@@ -83,11 +78,11 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
   @override
   Widget build(BuildContext context) {
     print('===== 建立地圖頁面 =====');
-    userLocation = Provider.of<UserLocation>(context);
-    moveCamera();
-    if (isStarted && !isPaused) {
-      getUserTrack();
+
+    if (!isStarted && !isPaused) {
+      markers.clear();
     }
+
     // 去抓使用者手機螢幕的高
     double height = MediaQuery.of(context).size.height;
 
@@ -100,45 +95,26 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
       home: Scaffold(
         appBar: AppBar(
           title: const Center(child: Text('地圖頁面')),
-          backgroundColor: darkGreen1,
+          backgroundColor: Colors.indigoAccent.shade100,
         ),
-        body: FlutterMap(
-          mapController: mapController,
-          options: MapOptions(
-            onMapCreated: _onMapCreated,
-            zoom: zoomLevel,
-            center: LatLng(userLocation.latitude, userLocation.longitude),
+        body: Stack(children: [
+          ShowFlutterMap(
+              isStarted: isStarted,
+              isPaused: isPaused,
+              polyline: polyline,
+              markerList: markers),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              WarningTime(
+                isStarted: isStarted,
+                isPaused: isPaused,
+                checkTime: 2,
+                warningTime: 10,
+              ),
+            ],
           ),
-          layers: [
-            TileLayerOptions(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: ['a', 'b', 'c'],
-            ),
-            // MarkerLayerOptions(markers: _markers),
-            MarkerLayerOptions(
-                markers: _markers +
-                    [
-                      Marker(
-                          point: LatLng(
-                              userLocation.latitude, userLocation.longitude),
-                          builder: (context) => Transform.translate(
-                                offset: const Offset(-5, -30),
-                                child: const Icon(
-                                  Icons.location_on,
-                                  size: 50,
-                                  color: Color.fromRGBO(255, 92, 92, 0.922),
-                                ),
-                              )),
-                    ]),
-            PolylineLayerOptions(polylines: [
-              Polyline(
-                points: polyline.list,
-                color: Colors.green,
-                strokeWidth: 4,
-              )
-            ])
-          ],
-        ),
+        ]),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Column(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -147,35 +123,20 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/AR'),
-                      // child: const Icon(Icons.camera_alt_outlined),
-                      child: const ImageIcon(arIcon),
-                      style: raisedBtnStyle,
-                    ),
-                  ],
-                ),
-              ),
-              mySpace(0.06),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
-                      onPressed: () => takePhoto(_markers),
-                      // child: const Icon(Icons.camera_alt_outlined),
-                      child: const ImageIcon(cameraIcon),
+                      onPressed: () => takePhoto(markers),
+                      child: const Icon(Icons.camera_alt_outlined),
                       style: raisedBtnStyle,
                     ),
                     ElevatedButton(
                       onPressed: () {
                         print('離線地圖清單');
+                        // Navigator.pushNamed(context, '/OfflineMapPage');
                         Navigator.pushNamed(context, '/TestOfflineMap');
                       },
-                      child: const ImageIcon(layerIcon),
+                      child: const Icon(Icons.map),
                       style: raisedBtnStyle,
                     ),
                   ],
@@ -243,7 +204,6 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
       isStarted = result!;
       // 如果是停止紀錄
       if (!isStarted && isPaused) {
-        // 如果 polyline.userLocationList 沒有 2 個座標
         if (polyline.userLocationList.length < 2) {
           dataNotEnoughDialog = MyAlertDialog(
               context: context,
@@ -326,47 +286,28 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
     setState(() {});
   }
 
-  Future<void> _onMapCreated(MapController controller) async {
-    mapController = controller;
-  }
-
-  // 抓使用者目前位置
-  Future<void> moveCamera() async {
-    if (userLocation != currentLocation) {
-      print("================== 目前位置改變，相機移動 ==================");
-      currentLocation = userLocation;
-      // 當使用者的位置移動時，地圖的 camera 要跟著移動
-      if (mapController != null) {
-        mapController?.move(currentLocation.toLatLng(), zoomLevel);
-      }
-    }
-  }
-
-  // 畫使用者的軌跡
-  void getUserTrack() async {
-    if (isStarted && !isPaused) {
-      polyline.recordCoordinates(userLocation);
-    }
-  }
-
-  void takePhoto(List<Marker> _markers) async {
+  void takePhoto(List<Marker> markers) async {
     File? imageFile;
     XFile? pickedFile = await ImagePicker()
         .pickImage(source: ImageSource.camera, maxHeight: 1080, maxWidth: 1080);
-    imageFile = File(pickedFile!.path);
+    if (pickedFile == null) {
+      return;
+    }
+    imageFile = File(pickedFile.path);
     // 存到手機的相簿中
-    await GallerySaver.saveImage(imageFile.path, albumName: '登山 APP 相簿')
-        .then((bool? saveSuccess) {
+    await GallerySaver.saveImage(imageFile.path, albumName: '與山同行')
+        .then((bool? saveSuccess) async {
       saveSuccess ??= false;
+      UserLocation? photoLocation = await LocationService.getLocation;
       if (saveSuccess) {
-        _markers.add(Marker(
-            point: LatLng(currentLocation.latitude, currentLocation.longitude),
+        markers.add(Marker(
+            point: photoLocation!.toLatLng(),
             builder: (context) => Transform.translate(
                   offset: const Offset(-5, -30),
                   child: const Icon(
                     Icons.photo,
                     size: 40,
-                    color: Color.fromARGB(235, 255, 228, 92),
+                    color: Color.fromARGB(235, 254, 47, 1),
                   ),
                 )));
         takePhotoDialog = MyAlertDialog(
@@ -375,8 +316,7 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
             contentText: '可以到手機的相簿中查看',
             btn1Text: '確認',
             btn2Text: '');
-        takePhotoDialog.show();
-        setState(() {});
+        await takePhotoDialog.show();
       } else {
         takePhotoDialog = MyAlertDialog(
             context: context,
@@ -384,7 +324,7 @@ class _FlutterMapPageState extends State<FlutterMapPage> {
             contentText: '',
             btn1Text: '確認',
             btn2Text: '');
-        takePhotoDialog.show();
+        await takePhotoDialog.show();
       }
     });
   }

@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/track/track_model.dart';
+import 'package:capstone_project/models/ui_model/warning_time.dart';
 import 'package:capstone_project/services/gpx_service.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:capstone_project/ui/activity/activity_map_widget.dart';
-import 'package:capstone_project/ui/activity/warning_distance_widget.dart';
+import 'package:capstone_project/ui/activity/warning_distance_text.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -25,11 +26,8 @@ class StartActivity extends StatefulWidget {
 class _StartActivityState extends State<StartActivity> {
   late Directory? trackDir; // 軌跡資料夾
   final FileProvider fileProvider = FileProvider();
-  // 紀錄使用者的 polyline
-  // PolylineCoordinates polyline = PolylineCoordinates();
+  late List<LatLng> gpsList;
 
-  // MapController? mapController;
-  // double zoomLevel = 16;
   bool isStarted = false;
   bool isPaused = false;
 
@@ -37,17 +35,6 @@ class _StartActivityState extends State<StartActivity> {
   late MyAlertDialog dataNotEnoughDialog; // 提醒視窗：軌跡資料不足，無法紀錄
   late MyAlertDialog saveFileSuccessDialog; // 提醒視窗：軌跡檔案儲存成功
   late InputDialog inputTrackNameDialog; // 輸入軌跡名稱
-
-  // location
-  // static UserLocation defaultLocation = UserLocation(
-  //     latitude: 23.94981257,
-  //     longitude: 120.92764976,
-  //     altitude: 572.92668105,
-  //     currentTime: UserLocation.getCurrentTime());
-  // UserLocation currentLocation = defaultLocation; // 預設位置
-  // late UserLocation userLocation; // 抓使用者裝置位置
-
-  // List<Marker> _markers = []; // 標記拍照點
 
   // button style
   final raisedBtnStyle = ElevatedButton.styleFrom(
@@ -65,6 +52,7 @@ class _StartActivityState extends State<StartActivity> {
 
   @override
   void initState() {
+    gpsList = widget.gpsList;
     getTrackDirPath();
     super.initState();
   }
@@ -79,12 +67,8 @@ class _StartActivityState extends State<StartActivity> {
   @override
   Widget build(BuildContext context) {
     print('===== 建立活動地圖頁面 START =====');
-    final List<LatLng> gpsList = widget.gpsList;
-
-    // moveCamera();
-    // if (isStarted && !isPaused) {
-    //   getUserTrack();
-    // }
+    final arguments = (ModalRoute.of(context)?.settings.arguments ??
+        <String, dynamic>{}) as Map;
 
     // 抓使用者手機螢幕的高
     double height = MediaQuery.of(context).size.height;
@@ -104,55 +88,27 @@ class _StartActivityState extends State<StartActivity> {
         body: Stack(children: [
           ActivityMap(
               gpsList: gpsList, isStarted: isStarted, isPaused: isPaused),
-          Center(
-            child: WarningDistanceText(
-              isStarted: isStarted,
-              isPaused: isPaused,
-              // warningDistance: warningDistance,
-              gpsList: gpsList,
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Column(
+              children: [
+                WarningTime(
+                  isStarted: isStarted,
+                  isPaused: isPaused,
+                  checkTime: 2,
+                  //FIXME:
+                  warningTime: int.parse(arguments['warning_time']) * 60,
+                  // warningTime: 10,
+                ),
+                WarningDistanceText(
+                  isStarted: isStarted,
+                  isPaused: isPaused,
+                  // warningDistance: warningDistance,
+                  gpsList: gpsList,
+                ),
+              ],
             ),
-          ),
+          ]),
         ]),
-        // FlutterMap(
-        //   mapController: mapController,
-        //   options: MapOptions(
-        //       onMapCreated: _onMapCreated,
-        //       zoom: zoomLevel,
-        //       center: LatLng(userLocation.latitude, userLocation.longitude)),
-        //   layers: [
-        //     TileLayerOptions(
-        //       urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        //       subdomains: ['a', 'b', 'c'],
-        //     ),
-        //     MarkerLayerOptions(
-        //         markers: _markers +
-        //             [
-        //               Marker(
-        //                   point: LatLng(
-        //                       userLocation.latitude, userLocation.longitude),
-        //                   builder: (context) => Transform.translate(
-        //                         offset: const Offset(-5, -30),
-        //                         child: const Icon(
-        //                           Icons.location_on,
-        //                           size: 50,
-        //                           color: Color.fromRGBO(255, 92, 92, 0.922),
-        //                         ),
-        //                       ))
-        //             ]),
-        //     PolylineLayerOptions(polylines: [
-        //       Polyline(
-        //         points: gpsList,
-        //         color: Colors.amber,
-        //         strokeWidth: 4,
-        //       ),
-        //       Polyline(
-        //         points: polyline.list,
-        //         color: Colors.green,
-        //         strokeWidth: 4,
-        //       )
-        //     ])
-        //   ],
-        // ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,

@@ -1,20 +1,20 @@
 import 'dart:io';
-
-import 'package:capstone_project/models/map/user_location.dart';
-import 'package:capstone_project/models/track/track_model.dart';
-import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
-import 'package:capstone_project/models/ui_model/input_dialog.dart';
-import 'package:capstone_project/services/polyline_coordinates_model.dart';
-import 'package:capstone_project/services/file_provider.dart';
-import 'package:capstone_project/services/gpx_service.dart';
-import 'package:capstone_project/services/location_service.dart';
-import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:gallery_saver/gallery_saver.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:gallery_saver/gallery_saver.dart';
+
+import 'package:capstone_project/services/gpx_service.dart';
+import 'package:capstone_project/services/sqlite_helper.dart';
+import 'package:capstone_project/services/file_provider.dart';
+import 'package:capstone_project/models/map/user_location.dart';
+import 'package:capstone_project/models/track/track_model.dart';
+import 'package:capstone_project/services/location_service.dart';
+import 'package:capstone_project/models/ui_model/input_dialog.dart';
+import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
+import 'package:capstone_project/services/polyline_coordinates_model.dart';
 
 class OfflineMapPage extends StatefulWidget {
   const OfflineMapPage({Key? key}) : super(key: key);
@@ -93,7 +93,7 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
       getUserTrack();
     }
 
-    print('離線地圖資料   ${arguments}');
+    print('離線地圖資料   $arguments');
     List offlineMapData = arguments['offlineMapData'];
     // double centerLatitude = double.parse(offlineMapData[0]['centerLatitude']);
     // double centerLongitude = double.parse(offlineMapData[0]['centerLongitude']);
@@ -296,7 +296,7 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
           if (writeSuccess) {
             final newTrackData = Track(
                     tID: '', // FIXME: tID
-                    uID: '1',
+                    uID: '1', // FIXME
                     track_name: newName,
                     track_locate: newFilePath,
                     start: polyline.userLocationList[0].currentTime,
