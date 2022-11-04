@@ -1,14 +1,16 @@
 import 'dart:io';
-import 'package:capstone_project/services/cache_tile_provider.dart';
-import 'package:capstone_project/ui/track/track_data.dart';
+import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:map_elevation/map_elevation.dart';
 
-import 'package:capstone_project/models/ui_model/input_dialog.dart';
+import 'package:capstone_project/services/http_service.dart';
+import 'package:capstone_project/ui/track/track_data.dart';
 import 'package:capstone_project/services/file_provider.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
+import 'package:capstone_project/services/cache_tile_provider.dart';
+import 'package:capstone_project/models/ui_model/input_dialog.dart';
 
 class ShowTrackDataPage extends StatefulWidget {
   const ShowTrackDataPage({Key? key}) : super(key: key);
@@ -21,14 +23,13 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
   MapController? mapController;
   late FileProvider fileProvider;
   late InputDialog editTrackNameDialog; // 編輯軌跡名稱
-  late ValueNotifier<String> _trackName;
+  final ValueNotifier<String> _trackName = ValueNotifier<String>('');
   late String originalFileName;
   ElevationPoint? hoverPoint;
 
   @override
   void initState() {
     fileProvider = FileProvider();
-    _trackName = ValueNotifier<String>('');
     super.initState();
   }
 
@@ -51,7 +52,8 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
     print(
         'zoomLevel ${arguments['zoomLevel']} ,type ${arguments['zoomLevel'].runtimeType}');
     double width = MediaQuery.of(context).size.width;
-    originalFileName = arguments['trackData'][0]['track_name'];
+    originalFileName =
+        basenameWithoutExtension(arguments['trackData'][0]['track_locate']);
     _trackName.value = originalFileName;
 
     return MaterialApp(
@@ -219,6 +221,17 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
         'track_name': newName,
         'track_locate': newFile.path
       };
+
+      // FIXME: 改 server 檔案名稱
+      Map<String, dynamic> updateTrackRequest = {
+        'uID': UserData.uid.toString(),
+        'tID': trackID.toString(),
+        'track_name': newName.toString()
+      };
+      List response =
+          await APIService.updateTrackName(content: updateTrackRequest);
+      print('response $response');
+
       // 改 sqlite 檔案名稱
       await SqliteHelper.update(
           tableName: 'track',

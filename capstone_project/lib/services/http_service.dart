@@ -397,4 +397,19 @@ class APIService {
       return [downloadSuccess, err.message];
     }
   }
+
+  // 修改軌跡名稱
+  static Future<List> updateTrackName(
+      {required Map<String, dynamic> content}) async {
+    String url = "http://163.22.17.247:3000/api/track/update_track";
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      return [true, responseString];
+    } else {
+      print('失敗 $responseString response.statusCode ${response.statusCode}');
+      return [false, responseString];
+    }
+  }
 }

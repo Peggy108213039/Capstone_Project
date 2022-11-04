@@ -1,16 +1,16 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:latlong2/latlong.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:dart_numerics/dart_numerics.dart' as numerics;
 
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/map/offline_map_model.dart';
 import 'package:capstone_project/models/ui_model/input_dialog.dart';
 import 'package:capstone_project/services/file_provider.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'dart:math';
-import 'package:dart_numerics/dart_numerics.dart' as numerics;
 
 class DownloadOfflineMap extends StatefulWidget {
   const DownloadOfflineMap({Key? key}) : super(key: key);
@@ -25,6 +25,10 @@ class _DownloadOfflineMapState extends State<DownloadOfflineMap> {
   double zoomLevel = 13;
   int minZoom = 10;
   int maxZoom = 18;
+
+  LatLng swPanBoundary = LatLng(21.76946522446522, 119.9143960826184);
+  LatLng nePanBoundary = LatLng(25.41323624404965, 122.06769169771557);
+  LatLng center = defaultLocation.toLatLng();
 
   bool downloadSuccess = false;
   String downloadMessage = '移動地圖選擇想要下載的範圍';
@@ -50,7 +54,6 @@ class _DownloadOfflineMapState extends State<DownloadOfflineMap> {
   Future<void> _onMapCreated(MapController controller) async {
     mapController = controller;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -82,11 +85,9 @@ class _DownloadOfflineMapState extends State<DownloadOfflineMap> {
                   onMapCreated: _onMapCreated,
                   center: LatLng(23.94981257, 120.92764976),
                   zoom: zoomLevel,
-                  maxBounds: LatLngBounds(
-                      LatLng(23.78634741851813, 120.75903619038363),
-                      LatLng(24.114141889661123, 121.0876408564609)),
-                  swPanBoundary: LatLng(23.78634741851813, 120.75903619038363),
-                  nePanBoundary: LatLng(24.114141889661123, 121.0876408564609),
+                  maxBounds: LatLngBounds(swPanBoundary, nePanBoundary),
+                  swPanBoundary: swPanBoundary,
+                  nePanBoundary: nePanBoundary,
                 ),
                 layers: [
                   TileLayerOptions(
@@ -113,7 +114,7 @@ class _DownloadOfflineMapState extends State<DownloadOfflineMap> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
               child: LinearProgressIndicator(
-                backgroundColor: Color.fromARGB(255, 184, 195, 253),
+                backgroundColor: const Color.fromARGB(255, 184, 195, 253),
                 color: Colors.indigoAccent,
                 value: linearPercentage,
               ),
