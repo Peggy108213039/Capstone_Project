@@ -307,7 +307,7 @@ class MapPageState extends State<MapPage> {
     if (saveSuccess) {
       print('======= 儲存這片階段 1 =======');
       markers.add(Marker(
-          point: photoLocation!.toLatLng(),
+          point: photoLocation.toLatLng(),
           builder: (context) => Transform.translate(
                 offset: const Offset(-5, -30),
                 child: const Icon(
