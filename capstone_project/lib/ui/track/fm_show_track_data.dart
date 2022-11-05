@@ -13,7 +13,23 @@ import 'package:capstone_project/services/cache_tile_provider.dart';
 import 'package:capstone_project/models/ui_model/input_dialog.dart';
 
 class ShowTrackDataPage extends StatefulWidget {
-  const ShowTrackDataPage({Key? key}) : super(key: key);
+  final List<dynamic> trackData;
+  final File trackFile;
+  final List<LatLng> latLngList;
+  final List<ElevationPoint> elevationPointList;
+  final LatLngBounds bounds;
+  final LatLng centerLatLng;
+  final double zoomLevel;
+  const ShowTrackDataPage(
+      {Key? key,
+      required this.trackData,
+      required this.trackFile,
+      required this.latLngList,
+      required this.elevationPointList,
+      required this.bounds,
+      required this.centerLatLng,
+      required this.zoomLevel})
+      : super(key: key);
 
   @override
   State<ShowTrackDataPage> createState() => _ShowTrackDataPageState();
@@ -22,14 +38,34 @@ class ShowTrackDataPage extends StatefulWidget {
 class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
   MapController? mapController;
   late FileProvider fileProvider;
-  late InputDialog editTrackNameDialog; // 編輯軌跡名稱
+
   final ValueNotifier<String> _trackName = ValueNotifier<String>('');
   late String originalFileName;
   ElevationPoint? hoverPoint;
 
+  late InputDialog editTrackNameDialog; // 編輯軌跡名稱
+
+  late List<dynamic> trackData;
+  late File trackFile;
+  late List<LatLng> latLngList;
+  late List<ElevationPoint> elevationPointList;
+  late LatLngBounds bounds;
+  late LatLng centerLatLng;
+  late double zoomLevel;
+
   @override
   void initState() {
+    trackData = widget.trackData;
+    trackFile = widget.trackFile;
+    latLngList = widget.latLngList;
+    elevationPointList = widget.elevationPointList;
+    bounds = widget.bounds;
+    centerLatLng = widget.centerLatLng;
+    zoomLevel = widget.zoomLevel;
+
     fileProvider = FileProvider();
+    originalFileName = basenameWithoutExtension(trackData[0]['track_locate']);
+    _trackName.value = originalFileName;
     super.initState();
   }
 
@@ -46,15 +82,7 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    final arguments = (ModalRoute.of(context)?.settings.arguments ??
-        <String, dynamic>{}) as Map;
-
-    print(
-        'zoomLevel ${arguments['zoomLevel']} ,type ${arguments['zoomLevel'].runtimeType}');
     double width = MediaQuery.of(context).size.width;
-    originalFileName =
-        basenameWithoutExtension(arguments['trackData'][0]['track_locate']);
-    _trackName.value = originalFileName;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -68,21 +96,12 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                 builder: (context, value, child) => Text('$value')),
           ),
           backgroundColor: Colors.indigoAccent.shade100,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_rounded,
-            ),
-            onPressed: () {
-              Navigator.pushNamed(context, "/MyBottomBar1");
-            },
-            tooltip: '返回',
-          ),
           actions: [
             IconButton(
               onPressed: () => editTrackName(
-                  file: arguments['trackFile'],
+                  file: trackFile,
                   context: context,
-                  trackID: int.parse(arguments['trackData'][0]['tID'])),
+                  trackID: int.parse(trackData[0]['tID'])),
               icon: const Icon(Icons.edit),
               tooltip: '編輯軌跡名稱',
             )
@@ -102,8 +121,8 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                     mapController: mapController,
                     options: MapOptions(
                       onMapCreated: _onMapCreated,
-                      center: arguments['centerLatLng'],
-                      zoom: arguments['zoomLevel'],
+                      center: centerLatLng,
+                      zoom: zoomLevel,
                     ),
                     layers: [
                       TileLayerOptions(
@@ -113,7 +132,7 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                           tileProvider: CachedTileProvider()),
                       PolylineLayerOptions(polylines: [
                         Polyline(
-                          points: arguments['gpsList'],
+                          points: latLngList,
                           color: Colors.green,
                           strokeWidth: 5,
                         )
@@ -137,7 +156,7 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                 // 軌跡相關資料
                 TrackData(
                   width: width,
-                  trackData: arguments['trackData'],
+                  trackData: trackData,
                 ),
                 // 軌跡高度表
                 Container(
@@ -159,7 +178,7 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                               return true;
                             },
                             child: Elevation(
-                              arguments['elePoints'],
+                              elevationPointList,
                               color: Colors.green.shade100,
                               elevationGradientColors: ElevationGradientColors(
                                   // gradient 坡度
@@ -169,7 +188,7 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                             )),
                       ),
                       const Positioned(left: 6, top: 3, child: Text('高度')),
-                      // const Positioned(right: 0, bottom: 0, child: Text('時間'))
+                      const Positioned(right: 0, bottom: 0, child: Text('距離'))
                     ]))
               ],
             ),
@@ -222,7 +241,7 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
         'track_locate': newFile.path
       };
 
-      // FIXME: 改 server 檔案名稱
+      // 改 server 檔案名稱
       Map<String, dynamic> updateTrackRequest = {
         'uID': UserData.uid.toString(),
         'tID': trackID.toString(),

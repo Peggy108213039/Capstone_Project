@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
           '/AddActivityPage': (context) => const AddActivityPage(),
           '/ShowActivityData': (context) => const ShowActivityData(),
           '/EditActivityData': (context) => const EditActivity(),
-          '/ShowTrackDataPage': (context) => const ShowTrackDataPage(),
+          // '/ShowTrackDataPage': (context) => const ShowTrackDataPage(),
           '/MyBottomBar1': ((context) =>
               const MyBottomBar(i: 1, firstTime: false)),
           '/MyBottomBar3': ((context) =>

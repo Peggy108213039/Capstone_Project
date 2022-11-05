@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:math';
-import 'package:capstone_project/services/polyline_coordinates_model.dart';
+import 'package:capstone_project/ui/track/fm_show_track_data.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
@@ -301,15 +301,17 @@ class _TrackPageState extends State<TrackPage> {
           MediaQuery.of(context).size.height,
         ));
 
-    Navigator.pushNamed(context, "/ShowTrackDataPage", arguments: {
-      'trackData': trackData,
-      'trackFile': trackFile,
-      'gpsList': latLngList,
-      'elePoints': elevationPointList,
-      'bounds': bounds,
-      'centerLatLng': centerLatLng,
-      'zoomLevel': zoomLevel,
-    });
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ShowTrackDataPage(
+                trackData: trackData,
+                trackFile: trackFile,
+                latLngList: latLngList,
+                elevationPointList: elevationPointList,
+                bounds: bounds,
+                centerLatLng: centerLatLng,
+                zoomLevel: zoomLevel)));
   }
 
   // 匯入軌跡

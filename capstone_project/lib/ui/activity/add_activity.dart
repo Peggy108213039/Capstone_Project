@@ -22,11 +22,15 @@ class _AddActivityPageState extends State<AddActivityPage> {
   var warningTime = '3';
 
   late MyAlertDialog noTrackListDialog; // 提醒視窗：沒有軌跡清單
+  late MyAlertDialog noFriendListDialog; // 提醒視窗：沒有朋友清單
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
   final int lastYear = 2050;
   List<DropdownMenuItem<String>> activTrackList = [];
+
+  // FIXME 朋友下拉式複選清單
+
   List<DropdownMenuItem<String>> warnDistance = const [
     DropdownMenuItem(child: Text("50 公尺"), value: "50"),
     DropdownMenuItem(child: Text("100 公尺"), value: "100"),
@@ -47,7 +51,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
     DropdownMenuItem(child: Text("45 分鐘"), value: "45"),
     DropdownMenuItem(child: Text("60 分鐘"), value: "60"),
   ];
-  // late List? queryTrackTable = []; // 軌跡資料表下的資料
 
   @override
   void initState() {
@@ -59,7 +62,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
   getTrackData() async {
     await SqliteHelper.open; // 開啟資料庫
     List? queryTrackTable = await SqliteHelper.queryAll(tableName: 'track');
+    List? queryFriendTable = await SqliteHelper.queryAll(tableName: 'friend');
     queryTrackTable ??= [];
+    queryFriendTable ??= [];
     if (queryTrackTable.isEmpty) {
       noTrackListDialog = MyAlertDialog(
           context: context,
@@ -68,6 +73,17 @@ class _AddActivityPageState extends State<AddActivityPage> {
           btn1Text: '確認',
           btn2Text: '');
       await noTrackListDialog.show();
+      Navigator.of(context).pop(true);
+      return;
+    }
+    if (queryFriendTable.isEmpty) {
+      noFriendListDialog = MyAlertDialog(
+          context: context,
+          titleText: '沒有朋友清單',
+          contentText: '請到朋友頁面新增好友',
+          btn1Text: '確認',
+          btn2Text: '');
+      await noFriendListDialog.show();
       Navigator.of(context).pop(true);
       return;
     }
