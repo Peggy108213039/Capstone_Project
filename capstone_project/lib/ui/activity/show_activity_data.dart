@@ -1,10 +1,11 @@
 import 'dart:io';
-import 'package:capstone_project/services/file_provider.dart';
-import 'package:capstone_project/services/gpx_service.dart';
+import 'package:capstone_project/services/cache_tile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'package:capstone_project/services/gpx_service.dart';
+import 'package:capstone_project/services/file_provider.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 
 class ShowActivityData extends StatefulWidget {
@@ -18,15 +19,45 @@ class _ShowActivityDataState extends State<ShowActivityData> {
   FileProvider fileProvider = FileProvider();
   late List<LatLng> gpsList;
 
+  late List? queryFriendTable = [];
+  late List<String> frindsIDList;
+  List friendList = [];
+  String memberString = '';
+
+  @override
+  void initState() {
+    getSqliteData();
+    super.initState();
+  }
+
+  void getSqliteData() async {
+    queryFriendTable = await SqliteHelper.queryAll(tableName: 'friend');
+    queryFriendTable ??= [];
+    setState(() {
+      queryFriendTable;
+    });
+  }
+
+  void getMemberList(List frindsIDList) {
+    memberString = '';
+    for (var member in queryFriendTable!) {
+      if (frindsIDList.contains(member['uID'].toString())) {
+        friendList.add(member);
+        memberString += (member['name'].toString() + '  ');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // 去抓使用者手機螢幕的長、寬
     double width = MediaQuery.of(context).size.width;
-    // double height = MediaQuery.of(context).size.height;
+    double height = MediaQuery.of(context).size.height;
 
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
-    print(arguments);
+    frindsIDList = arguments['members'].toString().split(', ');
+    getMemberList(frindsIDList);
 
     return Scaffold(
       appBar: AppBar(
@@ -73,7 +104,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
               showTrack(tID: arguments['tID'], width: width),
               // FIXME 同行成員
               buildText(
-                  content: '同行成員 :',
+                  content: '同行成員 : $memberString',
                   fontSize: 20,
                   subText: '',
                   subTextSize: 0,
@@ -118,12 +149,33 @@ class _ShowActivityDataState extends State<ShowActivityData> {
     );
   }
 
+  String adjustStringLength({required String str}) {
+    String _content = '';
+    if (str.length > 33) {
+      List<String> contentList = str.split('  ');
+      String tempString = '';
+      for (var element in contentList) {
+        _content += (element + '  ');
+        tempString += (element + '  ');
+        if ((tempString + element).length > 33) {
+          _content += '\n                   ';
+          tempString = '';
+        }
+      }
+    } else {
+      _content = str;
+    }
+    return _content;
+  }
+
   Widget buildText(
       {required String content,
       required double fontSize,
       required String subText,
       required double subTextSize,
       required double width}) {
+    String _content = adjustStringLength(str: content);
+
     return Row(
       children: [
         Column(
@@ -131,7 +183,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              content,
+              _content,
               style: TextStyle(fontSize: fontSize),
             ),
             if (subText != '' && subTextSize != 0) mySpace(6),
@@ -173,8 +225,6 @@ class _ShowActivityDataState extends State<ShowActivityData> {
           LatLngBounds bounds = snapshot.data['bounds'];
           var centerLatLng = snapshot.data['centerLatLng'];
           var zoomLevel = snapshot.data['zoomLevel'];
-          print('bounds ${bounds.northEast} ${bounds.southWest}');
-          print('zoomLevel $zoomLevel');
 
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -197,10 +247,10 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                   ),
                   layers: [
                     TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c'],
-                    ),
+                        urlTemplate:
+                            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        subdomains: ['a', 'b', 'c'],
+                        tileProvider: CachedTileProvider()),
                     PolylineLayerOptions(polylines: [
                       Polyline(
                         points: gpsList,
@@ -231,12 +281,10 @@ class _ShowActivityDataState extends State<ShowActivityData> {
   }
 
   Future<Map<String, dynamic>?> getTrackData({required String tID}) async {
-    print('tID $tID ${tID.runtimeType}');
     List<Map<String, dynamic>>? trackData =
         await SqliteHelper.queryRow(tableName: 'track', key: 'tID', value: tID);
-    print('track data  $trackData');
+
     if (trackData!.isEmpty) {
-      print('\nNO DATA\n');
       return {'result': 'no track data'};
     } else {
       File trackFile = File(trackData[0]['track_locate']);

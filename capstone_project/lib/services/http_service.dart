@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:capstone_project/models/activity/activity_model.dart';
 import 'package:path/path.dart';
 import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
@@ -241,20 +242,18 @@ class APIService {
     }
   }
 
-  // 活動
-  Future<bool> addActivity(AddActivityRequestModel requestModel) async {
+  static Future<bool> addActivity(
+      {required Map<String, dynamic> content}) async {
     String url = "http://163.22.17.247:3000/api/activity/insert_activity";
-
-    final response =
-        await http.post(Uri.parse(url), body: requestModel.toJson());
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: jsonEncode(content));
+    final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print(response.body);
+      print('新增活動 $responseString');
       return true;
-      // return LoginResponseModel.fromJson(json.decode(response.body));
     } else {
-      print(response.body);
+      print(responseString);
       return false;
-      // throw Exception("Failed to Load Data");
     }
   }
 

@@ -1,8 +1,10 @@
 import 'package:capstone_project/models/activity/activity_model.dart';
+import 'package:capstone_project/models/friend/friend_model.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class EditActivity extends StatefulWidget {
   const EditActivity({Key? key}) : super(key: key);
@@ -20,9 +22,12 @@ class _EditActivityState extends State<EditActivity> {
   String activPartner = '';
   String warningDistance = '50';
   var warningTime = '3';
-  // bool hasTrackData = false;
 
   List<DropdownMenuItem<String>> activTrackList = [];
+
+  List<MultiSelectItem<FriendModel>> friendSelectItems = []; // 朋友清單轉為下拉式選單
+  List<FriendModel?> selectedPartner = []; // 選中的同行者
+  final GlobalKey<FormFieldState> multiSelectKey = GlobalKey<FormFieldState>();
 
   List<DropdownMenuItem<String>> warnDistance = const [
     DropdownMenuItem(child: Text("50 公尺"), value: "50"),
@@ -47,13 +52,6 @@ class _EditActivityState extends State<EditActivity> {
 
   final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
   final int lastYear = 2050;
-
-  // @override
-  // void initState() {
-  //   // implement initState
-  //   super.initState();
-  //   // getTrackData(); // 抓軌跡資料表下的資料
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +83,10 @@ class _EditActivityState extends State<EditActivity> {
                 buildActivTime(
                     initValue: DateTime.parse(arguments['activity_time'])),
                 buildActivTrack(currentTrackID: arguments['tID']),
-                buildActivPartner(), // FIXME 同行成員
+                // FIXME 同行成員
+                buildActivPartner(
+                    initMemberList:
+                        arguments['members'].toString().split(', ')),
                 buildWarningDistance(initValue: arguments['warning_distance']),
                 buildWarningTime(initValue: arguments['warning_time']),
                 mySpace(100),
@@ -110,11 +111,10 @@ class _EditActivityState extends State<EditActivity> {
 
   Future<Map<String, bool>> getTrackData(
       {required String currentTrackID}) async {
-    late List? queryTrackTable = []; // 軌跡資料表下的資料
     await SqliteHelper.open; // 開啟資料庫
-    queryTrackTable = await SqliteHelper.queryAll(tableName: 'track');
-    print('getTrackData() 軌跡資料表 $queryTrackTable');
-    if (queryTrackTable == null) {
+    List? queryTrackTable = await SqliteHelper.queryAll(tableName: 'track');
+    queryTrackTable ??= [];
+    if (queryTrackTable.isEmpty) {
       return {'hasData': false};
     }
     if (activTrackList.isEmpty) {
@@ -130,9 +130,39 @@ class _EditActivityState extends State<EditActivity> {
         ));
       }
     }
-    print('activTrack $activTrack');
-    print('activTrackList $activTrackList');
     return {'hasData': true};
+  }
+
+  Future<List<FriendModel?>> getFriendTable(
+      {required List initMemberList}) async {
+    await SqliteHelper.open; // 開啟資料庫
+    List? queryFriendTable = await SqliteHelper.queryAll(tableName: 'friend');
+    queryFriendTable ??= [];
+    if (friendSelectItems.isEmpty) {
+      List<FriendModel> friendList = []; // 朋友清單
+      for (var friend in queryFriendTable!) {
+        friendList.add(FriendModel(
+            fID: friend['fID'],
+            uID: friend['uID'],
+            account: friend['account'],
+            name: friend['name']));
+      }
+      friendSelectItems = friendList
+          .map((friend) => MultiSelectItem<FriendModel>(friend, friend.name))
+          .toList();
+    }
+
+    List<FriendModel?> initList = [];
+    for (var friend in queryFriendTable) {
+      if (initMemberList.contains(friend['uID'].toString())) {
+        initList.add(FriendModel(
+            fID: friend['fID'],
+            uID: friend['uID'],
+            account: friend['account'],
+            name: friend['name']));
+      }
+    }
+    return initList;
   }
 
   Widget buildActivName({required String initValue}) {
@@ -198,18 +228,47 @@ class _EditActivityState extends State<EditActivity> {
         });
   }
 
-  Widget buildActivPartner() {
-    return TextFormField(
-      decoration: const InputDecoration(labelText: '同行成員'),
-      validator: (value) {
-        if (value!.isEmpty) {
-          return '請輸入同行成員';
-        }
-      },
-      onSaved: (newValue) {
-        activPartner = newValue!;
-      },
-    );
+  Widget buildActivPartner({required List initMemberList}) {
+    return FutureBuilder(
+        future: getFriendTable(initMemberList: initMemberList),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            return MultiSelectBottomSheetField<FriendModel?>(
+              key: multiSelectKey,
+              buttonText: const Text("同行成員"),
+              title: const Text("同行成員"),
+              initialChildSize: 0.4,
+              items: friendSelectItems, // 朋友下拉式選單
+              initialValue: snapshot.data, // 選中的同行者
+              listType: MultiSelectListType.CHIP,
+              searchable: true,
+              onConfirm: (values) {
+                setState(() {
+                  selectedPartner = values;
+                });
+              },
+              onSaved: (newValue) {
+                selectedPartner = newValue!;
+              },
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return '請選同行者';
+                }
+              },
+              chipDisplay: MultiSelectChipDisplay(
+                icon: const Icon(Icons.cancel_outlined),
+                scroll: true,
+                onTap: (value) {
+                  setState(() {
+                    selectedPartner.remove(value);
+                  });
+                },
+              ),
+            );
+          } else {
+            return const Center(child: Text('沒有朋友資料'));
+          }
+        });
   }
 
   Widget buildWarningDistance({required String initValue}) {
@@ -253,17 +312,26 @@ class _EditActivityState extends State<EditActivity> {
 
   void pushSubmitBtn({required int aID}) async {
     print('確認修改按鈕');
-    if (!formKey.currentState!.validate()) {
+    if (!formKey.currentState!.validate() ||
+        !multiSelectKey.currentState!.validate()) {
       return;
     }
     formKey.currentState!.save();
+    multiSelectKey.currentState!.save();
+
+    List members = [];
+    for (var partner in selectedPartner) {
+      members.add(partner!.uID);
+    }
+
     final newActivityData = Activity(
             uID: '0',
             activity_name: activName,
             activity_time: activTime.toString(),
             tID: activTrack,
             warning_distance: warningDistance,
-            warning_time: warningTime)
+            warning_time: warningTime,
+            members: members.join(', ')) // FIXME 同行成員
         .toMap();
     // FIXME 編輯 server 同行成員資料
     print('修改後的活動資料  $newActivityData');

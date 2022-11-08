@@ -33,13 +33,6 @@ class _ShowFlutterMapState extends State<ShowFlutterMap> {
   late PolylineCoordinates polyline; // 紀錄使用者的 polyline
   late List<Marker> markerList;
   late MyAlertDialog takePhotoDialog; // 提醒視窗：照片儲存成功
-  // static UserLocation defaultLocation = UserLocation(
-  //     latitude: 23.94981257,
-  //     longitude: 120.92764976,
-  //     altitude: 572.92668105,
-  //     currentTime: UserLocation.getCurrentTime());
-  // UserLocation currentLocation = defaultLocation;
-  // UserLocation userLocation = defaultLocation;
   double zoomLevel = 16;
 
   // button style
@@ -50,7 +43,6 @@ class _ShowFlutterMapState extends State<ShowFlutterMap> {
 
   @override
   void initState() {
-    // gpsList = widget.gpsList;
     super.initState();
   }
 

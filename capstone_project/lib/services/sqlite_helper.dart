@@ -48,7 +48,8 @@ class SqliteHelper {
         activity_time text,
         tID text,
         warning_distance text,
-        warning_time text
+        warning_time text,
+        members text
         );
       ''');
     print('建立活動資料表');

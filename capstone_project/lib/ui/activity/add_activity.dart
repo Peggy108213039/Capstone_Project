@@ -1,7 +1,11 @@
-import 'package:date_field/date_field.dart';
+import 'package:capstone_project/services/http_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:date_field/date_field.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import 'package:capstone_project/models/friend/friend_model.dart';
 import 'package:capstone_project/models/activity/activity_model.dart';
 import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
@@ -17,7 +21,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
   String activName = '';
   DateTime? activTime;
   String activTrack = '';
-  String activPartner = '';
   String warningDistance = '50';
   var warningTime = '3';
 
@@ -27,9 +30,12 @@ class _AddActivityPageState extends State<AddActivityPage> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
   final int lastYear = 2050;
+
   List<DropdownMenuItem<String>> activTrackList = [];
 
-  // FIXME 朋友下拉式複選清單
+  List<MultiSelectItem<FriendModel>> friendSelectItems = []; // 朋友清單轉為下拉式選單
+  List<FriendModel?> selectedPartner = []; // 選中的同行者
+  final GlobalKey<FormFieldState> multiSelectKey = GlobalKey<FormFieldState>();
 
   List<DropdownMenuItem<String>> warnDistance = const [
     DropdownMenuItem(child: Text("50 公尺"), value: "50"),
@@ -95,6 +101,18 @@ class _AddActivityPageState extends State<AddActivityPage> {
           value: element['tID'].toString(),
         ));
       }
+      List<FriendModel> friendList = []; // 朋友清單
+      for (var friend in queryFriendTable!) {
+        friendList.add(FriendModel(
+            fID: friend['fID'],
+            uID: friend['uID'],
+            account: friend['account'],
+            name: friend['name']));
+      }
+      friendSelectItems = friendList
+          .map((friend) => MultiSelectItem<FriendModel>(friend, friend.name))
+          .toList();
+      print('friendList $friendList');
     });
     return queryTrackTable;
   }
@@ -117,6 +135,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
     );
   }
 
+  // FIXME 活動時間
   Widget buildActivTime() {
     return DateTimeFormField(
       dateFormat: dateFormat,
@@ -124,12 +143,16 @@ class _AddActivityPageState extends State<AddActivityPage> {
       firstDate: DateTime.now(), // 起始時間
       initialDate: DateTime.now(), // 預設選取時間
       lastDate: DateTime(lastYear),
+      // mode: DateTimeFieldPickerMode.dateAndTime,
       autovalidateMode: AutovalidateMode.always,
       validator: (value) {
         // print('時間 $value');
         if (value == null) {
           return '請填活動時間';
         }
+      },
+      onDateSelected: (value) {
+        print(value);
       },
       onSaved: (value) {
         activTime = value;
@@ -157,16 +180,41 @@ class _AddActivityPageState extends State<AddActivityPage> {
   }
 
   Widget buildActivPartner() {
-    return TextFormField(
-      decoration: const InputDecoration(labelText: '同行成員'),
+    return MultiSelectBottomSheetField<FriendModel?>(
+      key: multiSelectKey,
+      buttonText: const Text("同行成員"),
+      title: const Text("同行成員"),
+      initialChildSize: 0.4,
+      items: friendSelectItems, // 朋友下拉式選單
+      initialValue: selectedPartner, // 選中的同行者
+
+      listType: MultiSelectListType.CHIP,
+      searchable: true,
+      onConfirm: (values) {
+        print('onConfirm');
+        setState(() {
+          selectedPartner = values;
+        });
+      },
+      onSaved: (newValue) {
+        print('onConfirm');
+        selectedPartner = newValue!;
+      },
       validator: (value) {
         if (value!.isEmpty) {
-          return '請輸入同行成員';
+          return '請選同行者';
         }
       },
-      onSaved: (value) {
-        activPartner = value!;
-      },
+      chipDisplay: MultiSelectChipDisplay(
+        icon: const Icon(Icons.cancel_outlined),
+        scroll: true,
+        onTap: (value) {
+          print('onTap');
+          setState(() {
+            selectedPartner.remove(value);
+          });
+        },
+      ),
     );
   }
 
@@ -210,39 +258,59 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
   void pushSubmitBtn() async {
     print('確認按鈕');
-    if (!formKey.currentState!.validate()) {
+    if (!formKey.currentState!.validate() ||
+        !multiSelectKey.currentState!.validate()) {
       return;
     }
     formKey.currentState!.save();
-    final newActivityData = Activity(
-            uID: '0',
+    multiSelectKey.currentState!.save();
+    List<int> members = [];
+    for (var partner in selectedPartner) {
+      members.add(partner!.uID);
+    }
+    final newLocalActivityData = Activity(
+            // FIXME: aID
+            uID: UserData.uid.toString(),
             activity_name: activName,
-            activity_time: activTime.toString(),
+            activity_time: dateFormat.format(activTime!),
             tID: activTrack,
             warning_distance: warningDistance,
-            warning_time: warningTime)
+            warning_time: warningTime,
+            members: members.join(', '))
         .toMap();
-    // FIXME 新增同行成員資料
+    final newServerActivityData = ActivityRequestModel(
+            // FIXME: aID
+            uID: UserData.uid.toString(),
+            activity_name: activName,
+            activity_time: dateFormat.format(activTime!),
+            tID: activTrack,
+            warning_distance: warningDistance,
+            warning_time: warningTime,
+            members: members)
+        .toMap();
     // 插入資料庫
-    await SqliteHelper.insert(
-        tableName: 'activity', insertData: newActivityData);
-    Navigator.pushNamed(context, "/MyBottomBar3");
+    print('newServerActivityData\n$newServerActivityData');
+    bool result = await APIService.addActivity(content: newServerActivityData);
+    print('result $result');
+    if (result) {
+      await SqliteHelper.insert(
+          tableName: 'activity', insertData: newLocalActivityData);
+      Navigator.pushNamed(context, "/MyBottomBar3");
+    } else {
+      print('$result 在 server 新增活動失敗');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false, // 關閉預設的 leading button
           backgroundColor: Colors.indigoAccent.shade100,
           title: const Center(
               child: Text(
             '新增活動',
           )),
-          leading: IconButton(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back_rounded),
-            tooltip: '返回',
-          ),
         ),
         body: SingleChildScrollView(
           child: Container(
