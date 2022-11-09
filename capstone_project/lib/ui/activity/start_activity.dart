@@ -7,6 +7,9 @@ import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:capstone_project/ui/activity/activity_map_widget.dart';
 import 'package:capstone_project/ui/activity/warning_distance_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:gallery_saver/gallery_saver.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:capstone_project/models/map/user_location.dart';
@@ -31,10 +34,13 @@ class _StartActivityState extends State<StartActivity> {
   bool isStarted = false;
   bool isPaused = false;
 
+  List<Marker> markers = []; // 標記拍照點
+
   late MyAlertDialog pauseDialog; // 提醒視窗：暫停紀錄
   late MyAlertDialog dataNotEnoughDialog; // 提醒視窗：軌跡資料不足，無法紀錄
   late MyAlertDialog saveFileSuccessDialog; // 提醒視窗：軌跡檔案儲存成功
   late InputDialog inputTrackNameDialog; // 輸入軌跡名稱
+  late MyAlertDialog takePhotoDialog; // 提醒視窗：照片儲存成功
 
   // button style
   final raisedBtnStyle = ElevatedButton.styleFrom(
@@ -70,6 +76,10 @@ class _StartActivityState extends State<StartActivity> {
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
 
+    if (!isStarted && !isPaused) {
+      markers.clear();
+    }
+
     // 抓使用者手機螢幕的高
     double height = MediaQuery.of(context).size.height;
 
@@ -87,7 +97,11 @@ class _StartActivityState extends State<StartActivity> {
         ),
         body: Stack(children: [
           ActivityMap(
-              gpsList: gpsList, isStarted: isStarted, isPaused: isPaused),
+            gpsList: gpsList,
+            isStarted: isStarted,
+            isPaused: isPaused,
+            markerList: markers,
+          ),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Column(
               children: [
@@ -96,14 +110,14 @@ class _StartActivityState extends State<StartActivity> {
                   isPaused: isPaused,
                   checkTime: 2,
                   //FIXME:
-                  warningTime: int.parse(arguments['warning_time']) * 60,
-                  // warningTime: 10,
+                  // warningTime: int.parse(arguments['warning_time']) * 60,
+                  warningTime: 10,
                 ),
                 WarningDistanceText(
                   isStarted: isStarted,
                   isPaused: isPaused,
-                  // warningDistance: warningDistance,
                   gpsList: gpsList,
+                  warningDistance: double.parse(arguments['warning_distance']),
                 ),
               ],
             ),
@@ -121,30 +135,15 @@ class _StartActivityState extends State<StartActivity> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      print('拍照');
+                      takePhoto(markers);
                     },
                     child: const Icon(Icons.camera_alt_outlined),
                     style: raisedBtnStyle,
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      print('離線地圖');
-                    },
-                    child: const Icon(Icons.map),
-                    style: raisedBtnStyle,
-                  )
-                ],
-              ),
-            ),
-            mySpace(height: height, num: 0.01),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
                       print('AR 按鈕');
+                      Navigator.pushNamed(context, '/AR');
                     },
                     child: const Text(
                       'AR',
@@ -152,9 +151,36 @@ class _StartActivityState extends State<StartActivity> {
                     ),
                     style: raisedBtnStyle,
                   ),
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     print('離線地圖');
+                  //   },
+                  //   child: const Icon(Icons.map),
+                  //   style: raisedBtnStyle,
+                  // )
                 ],
               ),
             ),
+            mySpace(height: height, num: 0.01),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.start,
+            //     children: [
+            //       ElevatedButton(
+            //         onPressed: () {
+            //           print('AR 按鈕');
+            //           Navigator.pushNamed(context, '/AR');
+            //         },
+            //         child: const Text(
+            //           'AR',
+            //           style: TextStyle(fontSize: 20),
+            //         ),
+            //         style: raisedBtnStyle,
+            //       ),
+            //     ],
+            //   ),
+            // ),
             mySpace(height: height, num: 0.035),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -225,7 +251,6 @@ class _StartActivityState extends State<StartActivity> {
       isStarted = result!;
       // 如果是停止紀錄
       if (!isStarted && isPaused) {
-        // 如果 polyline.userLocationList 沒有 2 個座標
         if (polyline.userLocationList.length < 2) {
           dataNotEnoughDialog = MyAlertDialog(
               context: context,
@@ -252,7 +277,6 @@ class _StartActivityState extends State<StartActivity> {
             btn1Text: '確認',
             btn2Text: '不要儲存軌跡');
         List? result = await inputTrackNameDialog.show();
-        // 如果使用者點擊 '確認' 按鈕以外的地方，重新顯示一次 inputTrackNameDialog
         while (result?[0] != true && result?[0] != false) {
           result = await inputTrackNameDialog.show();
         }
@@ -306,5 +330,48 @@ class _StartActivityState extends State<StartActivity> {
       isPaused = false;
     }
     setState(() {});
+  }
+
+  void takePhoto(List<Marker> markers) async {
+    File? imageFile;
+    XFile? pickedFile = await ImagePicker()
+        .pickImage(source: ImageSource.camera, maxHeight: 1080, maxWidth: 1080);
+    if (pickedFile == null) {
+      return;
+    }
+    imageFile = File(pickedFile.path);
+    // 存到手機的相簿中
+    bool? saveSuccess =
+        await GallerySaver.saveImage(imageFile.path, albumName: '與山同行');
+    saveSuccess ??= false;
+    UserLocation? photoLocation = userLocation;
+
+    if (saveSuccess) {
+      markers.add(Marker(
+          point: photoLocation.toLatLng(),
+          builder: (context) => Transform.translate(
+                offset: const Offset(-5, -30),
+                child: const Icon(
+                  Icons.photo,
+                  size: 40,
+                  color: Color.fromARGB(235, 254, 47, 1),
+                ),
+              )));
+      takePhotoDialog = MyAlertDialog(
+          context: context,
+          titleText: '照片儲存成功',
+          contentText: '可以到手機的相簿中查看',
+          btn1Text: '確認',
+          btn2Text: '');
+      await takePhotoDialog.show();
+    } else {
+      takePhotoDialog = MyAlertDialog(
+          context: context,
+          titleText: '照片儲存失敗',
+          contentText: '',
+          btn1Text: '確認',
+          btn2Text: '');
+      await takePhotoDialog.show();
+    }
   }
 }

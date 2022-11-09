@@ -11,11 +11,13 @@ class ActivityMap extends StatefulWidget {
   final List<LatLng> gpsList;
   final bool isStarted;
   final bool isPaused;
+  final List<Marker> markerList; // 標記拍照點
   const ActivityMap(
       {Key? key,
       required this.gpsList,
       required this.isStarted,
-      required this.isPaused})
+      required this.isPaused,
+      required this.markerList})
       : super(key: key);
 
   @override
@@ -27,6 +29,8 @@ class _ActivityMapState extends State<ActivityMap> {
   late List<LatLng> gpsList;
   late bool isStarted;
   late bool isPaused;
+  late List<Marker> markerList;
+
   static UserLocation defaultLocation = UserLocation(
       latitude: 23.94981257,
       longitude: 120.92764976,
@@ -36,7 +40,6 @@ class _ActivityMapState extends State<ActivityMap> {
   UserLocation userLocation = defaultLocation;
 
   double zoomLevel = 16;
-  List<Marker> markerList = []; // 標記拍照點
 
   @override
   void initState() {
@@ -80,6 +83,7 @@ class _ActivityMapState extends State<ActivityMap> {
     isStarted = widget.isStarted;
     isPaused = widget.isPaused;
     userLocation = Provider.of<UserLocation>(context);
+    markerList = widget.markerList;
 
     if (userLocation != currentLocation) {
       moveCamera(userLocation: userLocation, currentLocation: currentLocation);

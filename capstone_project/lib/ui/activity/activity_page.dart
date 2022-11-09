@@ -124,36 +124,43 @@ class _ActivityPageState extends State<ActivityPage> {
               itemBuilder: (context, idx) {
                 return Column(
                   children: <Widget>[
-                    ListTile(
-                      title: Text(
-                        list[idx]['activity_name'],
-                        style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Container(
-                        padding: const EdgeInsets.only(top: 5.0),
-                        child: Text(
-                          '活動時間 ${list[idx]['activity_time']}',
-                          style: TextStyle(color: Colors.grey.shade400),
+                    Card(
+                      margin: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                      color: transparentColor,
+                      shadowColor: transparentColor,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            image: const DecorationImage(
+                                image: activityListImage, fit: BoxFit.cover)),
+                        child: ListTile(
+                          title: Text(
+                            list[idx]['activity_name'],
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Container(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: Text(
+                              '活動時間 ${list[idx]['activity_time']}',
+                              style: const TextStyle(
+                                  color: Color.fromARGB(180, 255, 255, 255)),
+                            ),
+                          ),
+                          trailing: ElevatedButton(
+                            child: const ImageIcon(deleteIcon),
+                            onPressed: () => pushDelete(idx, context),
+                            style: ElevatedButton.styleFrom(
+                                shadowColor: transparentColor,
+                                backgroundColor: transparentColor,
+                                minimumSize: const Size(30, 30)),
+                          ),
+                          onTap: () {
+                            checkActivity(activityData: [list[idx]]);
+                          },
                         ),
                       ),
-                      trailing: Visibility(
-                        visible: _visible,
-                        child: IconButton(
-                          icon: const Icon(Icons.delete),
-                          // 刪除活動
-                          onPressed: () => pushDelete(idx, context),
-                          color: Colors.grey.shade400,
-                          tooltip: '刪除軌跡',
-                        ),
-                      ),
-                      onTap: () {
-                        checkActivity(activityData: [list[idx]]);
-                      },
-                    ),
-                    const Divider(
-                      height: 10.0,
                     ),
                   ],
                 );
@@ -174,47 +181,55 @@ class _ActivityPageState extends State<ActivityPage> {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints.expand(),
-      decoration: const BoxDecoration(
-          image: DecorationImage(
-              image: defaultBackgroundImage, fit: BoxFit.cover)),
+      // decoration: const BoxDecoration(
+      //     image: DecorationImage(
+      //         image: defaultBackgroundImage, fit: BoxFit.cover)),
       child: Scaffold(
-        backgroundColor: transparentColor,
+        backgroundColor: activityGreen,
         appBar: AppBar(
-          backgroundColor: transparentColor,
+          backgroundColor: grassGreen,
           title: const Center(
               child: Text(
             '活動清單',
           )),
-          leading: Visibility(
-            visible: _visible,
-            child: IconButton(
-              onPressed: pushBack,
-              icon: const Icon(Icons.arrow_back_rounded),
-              tooltip: '返回',
-            ),
-          ),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30))),
+          // leading:
+          // Visibility(
+          //     visible: _visible,
+          //     child:
+          // IconButton(
+          //   onPressed: pushBack,
+          //   icon: const Icon(Icons.arrow_back_rounded),
+          //   tooltip: '返回',
+          // ),
+          // ),
           actions: [
-            IconButton(
-              onPressed: pushEdit,
-              icon: const Icon(Icons.edit),
-              tooltip: '編輯活動',
+            ElevatedButton(
+              child: const ImageIcon(addIcon),
+              onPressed: () => Navigator.pushNamed(context, "/AddActivityPage"),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: transparentColor,
+                  shadowColor: transparentColor),
             )
           ],
         ),
         body: showAllActivities(),
-        floatingActionButton: FloatingActionButton(
-          tooltip: '新增活動',
-          foregroundColor: Colors.white,
-          backgroundColor: Colors.indigoAccent.shade100,
-          child: const Icon(
-            Icons.add,
-            size: 35.0,
-          ),
-          onPressed: () {
-            print('匯入軌跡');
-            Navigator.pushNamed(context, "/AddActivityPage");
-          },
-        ),
+        // floatingActionButton: FloatingActionButton(
+        //   tooltip: '新增活動',
+        //   foregroundColor: Colors.white,
+        //   backgroundColor: Colors.indigoAccent.shade100,
+        //   child: const Icon(
+        //     Icons.add,
+        //     size: 35.0,
+        //   ),
+        //   onPressed: () {
+        //     print('匯入軌跡');
+        //     Navigator.pushNamed(context, "/AddActivityPage");
+        //   },
+        // ),
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:capstone_project/services/http_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -264,9 +266,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
     }
     formKey.currentState!.save();
     multiSelectKey.currentState!.save();
-    List<int> members = [];
+    List<String> members = [];
     for (var partner in selectedPartner) {
-      members.add(partner!.uID);
+      members.add(partner!.uID.toString());
     }
     final newLocalActivityData = Activity(
             // FIXME: aID
@@ -278,16 +280,26 @@ class _AddActivityPageState extends State<AddActivityPage> {
             warning_time: warningTime,
             members: members.join(', '))
         .toMap();
-    final newServerActivityData = ActivityRequestModel(
-            // FIXME: aID
-            uID: UserData.uid.toString(),
-            activity_name: activName,
-            activity_time: dateFormat.format(activTime!),
-            tID: activTrack,
-            warning_distance: warningDistance,
-            warning_time: warningTime,
-            members: members)
-        .toMap();
+    // final newServerActivityData = ActivityRequestModel(
+    //         // FIXME: aID
+    //         uID: UserData.uid.toString(),
+    //         activity_name: activName,
+    //         activity_time: dateFormat.format(activTime!),
+    //         tID: activTrack,
+    //         warning_distance: warningDistance,
+    //         warning_time: warningTime,
+    //         members: members)
+    //     .toMap();
+
+    final newServerActivityData = {
+      'uID': UserData.uid.toString(),
+      'activity_name': activName,
+      'activity_time': dateFormat.format(activTime!),
+      'tID': activTrack,
+      'warning_distance': warningDistance,
+      'warning_time': warningTime,
+      'members': jsonEncode(members)
+    };
     // 插入資料庫
     print('newServerActivityData\n$newServerActivityData');
     bool result = await APIService.addActivity(content: newServerActivityData);

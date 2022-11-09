@@ -140,7 +140,7 @@ class _EditActivityState extends State<EditActivity> {
     queryFriendTable ??= [];
     if (friendSelectItems.isEmpty) {
       List<FriendModel> friendList = []; // 朋友清單
-      for (var friend in queryFriendTable!) {
+      for (var friend in queryFriendTable) {
         friendList.add(FriendModel(
             fID: friend['fID'],
             uID: friend['uID'],
