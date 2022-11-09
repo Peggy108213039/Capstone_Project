@@ -12,7 +12,6 @@ import 'package:capstone_project/models/login_model.dart';
 import 'package:capstone_project/models/signup_model.dart';
 import 'package:capstone_project/models/userInfo/selectInfo_model.dart';
 import 'package:capstone_project/models/userInfo/updateInfo_model.dart';
-import 'package:capstone_project/models/activity/addActivity_model.dart';
 import 'package:capstone_project/models/activity/finishActivity_model.dart';
 import 'package:capstone_project/models/activity/startActivity_model.dart';
 import 'package:capstone_project/models/friend/addFriend_model.dart';
@@ -246,7 +245,7 @@ class APIService {
       {required Map<String, dynamic> content}) async {
     String url = "http://163.22.17.247:3000/api/activity/insert_activity";
     final response = await http.post(Uri.parse(url),
-        headers: {'cookie': UserData.token}, body: jsonEncode(content));
+        headers: {'cookie': UserData.token}, body: content);
     final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
       print('新增活動 $responseString');

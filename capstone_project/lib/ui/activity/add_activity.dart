@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:date_field/date_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 import 'package:capstone_project/models/friend/friend_model.dart';
 import 'package:capstone_project/models/activity/activity_model.dart';
@@ -301,6 +300,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
       'members': jsonEncode(members)
     };
     // 插入資料庫
+    print('members ${jsonEncode(members)}');
     print('newServerActivityData\n$newServerActivityData');
     bool result = await APIService.addActivity(content: newServerActivityData);
     print('result $result');
