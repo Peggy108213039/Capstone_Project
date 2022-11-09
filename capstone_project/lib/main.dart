@@ -8,7 +8,7 @@ import 'package:capstone_project/ui/map/locationProvider.dart';
 import 'package:capstone_project/ui/map/offline_map/add_offline_map.dart';
 import 'package:capstone_project/ui/map/offline_map/download_offline_map.dart';
 import 'package:capstone_project/ui/map/screens/ar_test.dart';
-import 'package:capstone_project/ui/track/fm_show_track_data.dart';
+import 'package:capstone_project/ui/track/show_track_data_page.dart';
 import 'package:capstone_project/ui/track/track_page.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/ui/login_page.dart';

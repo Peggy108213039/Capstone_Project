@@ -66,15 +66,13 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   // mainAxisAlignment: MainAxisAlignment.center, //FIXME：垂直置中問題
                   children: <Widget>[
-                    // Text(
-                    //   "登入",
-                    //   style: Theme.of(context).textTheme.headline2,
-                    // ),
                     Container(
-                      width: width * 0.5,
+                      width: width,
                       height: width * 0.5,
                       decoration: const BoxDecoration(
-                          color: darkGreen1, shape: BoxShape.circle),
+                        image: DecorationImage(
+                            image: logoNameImg, fit: BoxFit.contain),
+                      ),
                     ),
                     const VerticalSpacing(percent: 0.1),
                     Container(

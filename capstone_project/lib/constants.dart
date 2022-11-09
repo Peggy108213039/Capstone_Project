@@ -23,6 +23,10 @@ const lightGreen0 = Color.fromARGB(255, 195, 255, 231); // #c3ffe7
 // menu background color
 const menuDarkGreenColor = Color.fromARGB(255, 34, 65, 68);
 
+// activity color
+const grassGreen = Color.fromARGB(255, 78, 140, 99);
+const activityGreen = Color.fromARGB(255, 173, 235, 192);
+
 // button color
 const unselectedColor = Colors.white;
 const selectedColor = Color.fromARGB(255, 255, 192, 0);
@@ -40,6 +44,11 @@ const activityListImage =
     AssetImage('assets/images/background/activity_list_bg.png');
 const trackListImage = AssetImage('assets/images/background/track_list_bg.png');
 const defaultUserImage = AssetImage("assets/images/user.png");
+
+// logo image
+const appNameImg = AssetImage('assets/images/logo_icons/appName.png');
+const logoImg = AssetImage('assets/images/logo_icons/logo.png');
+const logoNameImg = AssetImage('assets/images/logo_icons/logo_and_name.png');
 
 // icon image
 const addIcon = AssetImage('assets/images/other_icons/add.png');

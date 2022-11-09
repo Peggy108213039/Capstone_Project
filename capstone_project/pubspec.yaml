@@ -105,6 +105,7 @@ flutter:
     - assets/images/bottom_bar_icons/
     - assets/images/other_icons/
     - assets/images/background/
+    - assets/images/logo_icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
