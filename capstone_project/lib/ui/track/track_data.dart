@@ -1,3 +1,4 @@
+import 'package:capstone_project/constants.dart';
 import 'package:flutter/material.dart';
 
 class TrackData extends StatefulWidget {
@@ -89,7 +90,7 @@ class _TrackDataState extends State<TrackData> {
       required String s3}) {
     return Card(
       shadowColor: Colors.grey,
-      color: Colors.amber.shade50,
+      color: darkGreen2,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10.0))),
       child: SizedBox(
@@ -98,19 +99,22 @@ class _TrackDataState extends State<TrackData> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text(
-              s1,
-              style: TextStyle(color: Colors.grey, fontSize: wordSize2),
-            ),
+            // Text(
+            //   s1,
+            //   style: TextStyle(color: Colors.grey, fontSize: wordSize2),
+            // ),
             Text(
               s2,
               style: TextStyle(
-                  color: const Color.fromRGBO(39, 34, 34, 1),
-                  fontSize: wordSize1),
+                  color: Colors.white,
+                  fontSize: wordSize1,
+                  fontWeight: FontWeight.w600),
             ),
             Text(
               s3,
-              style: TextStyle(color: Colors.grey, fontSize: wordSize2),
+              style: TextStyle(
+                  color: const Color.fromARGB(200, 255, 255, 255),
+                  fontSize: wordSize2),
             ),
           ],
         ),

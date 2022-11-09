@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:capstone_project/constants.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -84,26 +85,43 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home:
-          // 地圖上的軌跡
-          Scaffold(
+    return Container(
+      constraints: const BoxConstraints.expand(),
+      decoration: const BoxDecoration(
+          image: DecorationImage(
+              image: defaultBackgroundImage, fit: BoxFit.cover)),
+      child: Scaffold(
+        backgroundColor: transparentColor,
         appBar: AppBar(
           title: Center(
             child: ValueListenableBuilder(
                 valueListenable: _trackName,
                 builder: (context, value, child) => Text('$value')),
           ),
-          backgroundColor: Colors.indigoAccent.shade100,
+          backgroundColor: darkGreen1,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30))),
+          leading: ElevatedButton(
+            child: const ImageIcon(backIcon),
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+                minimumSize: const Size(30, 30),
+                backgroundColor: transparentColor,
+                shadowColor: transparentColor),
+          ),
           actions: [
-            IconButton(
+            ElevatedButton(
               onPressed: () => editTrackName(
                   file: trackFile,
                   context: context,
                   trackID: int.parse(trackData[0]['tID'])),
-              icon: const Icon(Icons.edit),
-              tooltip: '編輯軌跡名稱',
+              child: const ImageIcon(editIcon),
+              style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(30, 30),
+                  backgroundColor: transparentColor,
+                  shadowColor: transparentColor),
             )
           ],
         ),
@@ -116,7 +134,11 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                 Container(
                   width: width / 10 * 9,
                   height: width / 10 * 9,
-                  margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+                  margin: const EdgeInsets.fromLTRB(0, 20, 0, 5),
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 3, color: darkGreen1),
+                    // borderRadius: BorderRadius.circular(30)
+                  ),
                   child: FlutterMap(
                     mapController: mapController,
                     options: MapOptions(
@@ -162,8 +184,8 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                 Container(
                     height: width / 10 * 5,
                     width: width / 10 * 9,
-                    margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-                    color: const Color.fromARGB(255, 200, 200, 200),
+                    margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                    color: const Color.fromARGB(150, 78, 135, 140),
                     child: Stack(children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 20, 5, 20),
@@ -187,8 +209,18 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                                   gt30: Colors.redAccent),
                             )),
                       ),
-                      const Positioned(left: 6, top: 3, child: Text('高度')),
-                      const Positioned(right: 0, bottom: 0, child: Text('距離'))
+                      const Positioned(
+                          left: 6,
+                          top: 3,
+                          child: Text(
+                            '高度',
+                            style: TextStyle(color: lightGreen0),
+                          )),
+                      const Positioned(
+                          right: 3,
+                          bottom: 6,
+                          child:
+                              Text('距離', style: TextStyle(color: lightGreen0)))
                     ]))
               ],
             ),

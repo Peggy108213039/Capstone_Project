@@ -8,14 +8,14 @@ import 'package:capstone_project/models/map/user_location.dart';
 class WarningDistanceText extends StatefulWidget {
   final bool isStarted;
   final bool isPaused;
-  // final double warningDistance;
+  final double warningDistance;
   final List<LatLng> gpsList;
   const WarningDistanceText({
     Key? key,
     required this.isStarted,
     required this.isPaused,
     required this.gpsList,
-    // required this.warningDistance,
+    required this.warningDistance,
   }) : super(key: key);
 
   @override
@@ -39,6 +39,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
 
   @override
   void initState() {
+    warningDistance = widget.warningDistance;
     gpsList = widget.gpsList;
     super.initState();
   }
