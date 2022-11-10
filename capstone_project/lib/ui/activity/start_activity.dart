@@ -143,7 +143,8 @@ class _StartActivityState extends State<StartActivity> {
                   ElevatedButton(
                     onPressed: () {
                       print('AR 按鈕');
-                      Navigator.pushNamed(context, '/AR');
+                      Navigator.pushNamed(context, '/AR',
+                          arguments: {'gpsList': gpsList});
                     },
                     child: const Text(
                       'AR',

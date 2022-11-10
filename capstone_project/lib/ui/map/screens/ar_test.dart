@@ -1,3 +1,4 @@
+import 'package:capstone_project/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -31,17 +32,27 @@ class _ArScreenState extends State<ArScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final arguments = (ModalRoute.of(context)?.settings.arguments ??
+        <String, dynamic>{}) as Map;
+
+    print('=== AR gpsList ===');
+    print(arguments['gpsList']);
+    print('============');
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: middleGreen,
       appBar: AppBar(
-        title: Text('Ar Screen'),
+        title: const Text('Ar Screen'),
+        backgroundColor: middleGreen,
+        shadowColor: transparentColor,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30))),
       ),
-      body: Card(
+      body: Container(
+          color: transparentColor,
           margin: const EdgeInsets.all(0),
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
           child: Stack(
             children: [
               UnityWidget(
@@ -49,7 +60,7 @@ class _ArScreenState extends State<ArScreen> {
                 onUnityMessage: onUnityMessage,
                 //onUnitySceneLoaded: onUnitySceneLoaded,
                 useAndroidViewSurface: true,
-                borderRadius: BorderRadius.all(Radius.circular(70)),
+                borderRadius: const BorderRadius.all(Radius.circular(70)),
               ),
             ],
           )),
