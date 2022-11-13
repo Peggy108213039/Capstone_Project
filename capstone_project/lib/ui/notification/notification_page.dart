@@ -1,3 +1,5 @@
+import 'package:capstone_project/services/socket_service.dart';
+import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/infoBox.dart';
 // basic setting
@@ -17,6 +19,7 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
+  SocketService socketService = SocketService();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   bool hidePassword = true;
@@ -24,14 +27,11 @@ class _NotificationPageState extends State<NotificationPage> {
   bool isApiCallProcess = false;
   String userName = UserData.userName;
   String userAccount = UserData.userAccount;
+  late List<Map<String, dynamic>>? notificationList; // 通知列表
 
   @override
   void initState() {
     super.initState();
-    requestModel = CheckFriendRequestModel(
-        uID1: UserData.uid.toString(),
-        // uID2: int.parse('')
-        uID2: 10.toString());
   }
 
   @override
@@ -89,32 +89,45 @@ class _NotificationPageState extends State<NotificationPage> {
                   height: (height * 0),
                 ),
                 // notification list
-                Container(
-                    child: ListView(
-                  children: <Widget>[
-                    const Card(
-                      child: ListTile(
-                        tileColor: PrimaryMiddleYellow,
-                        title: Text("您已被加入日月潭活動"),
-                      ),
-                    ),
-                    Card(
-                      child: ListTile(
-                          tileColor: PrimaryMiddleYellow,
-                          title: Text("收到來自" + userAccount + "的好友邀請"),
-                          onTap: () {
-                            showAlert(context);
-                          }),
-                    ),
-                  ],
-                  shrinkWrap: true,
-                ))
+                Expanded(child: SingleChildScrollView(child: FutureBuilder(
+                  future: getNotificationList(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if(snapshot.hasData) {
+                      return ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        itemCount: notificationList!.length,
+                        itemBuilder: (buildContext, index){
+                          return ListTile(
+                            title: Text(notificationList![index]['account ']),
+                            textColor: PrimaryLightYellow,
+                            onLongPress: () {
+                              print("我按下了" + index.toString() + "號通知");
+                            },
+                          );
+                        },
+                      );
+                    } else{
+                      print("抓資料中");
+                      return const Text("抓資料中");
+                      // return LoadingAnimation(child: build(context), inAsyncCall: isApiCallProcess);
+                    }
+                  },
+                ),)),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+  
+  Future<List<Map<String, dynamic>>?> getNotificationList() async {
+    isApiCallProcess = true;
+    notificationList = await SqliteHelper.queryAll(tableName: "friend");
+    isApiCallProcess = false;
+    print('======\n NOTIFICATION LIST \n $notificationList\n======');
+    return notificationList;
   }
 
   Future<void> showAlert(BuildContext context) {

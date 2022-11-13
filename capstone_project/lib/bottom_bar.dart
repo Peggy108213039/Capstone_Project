@@ -3,7 +3,7 @@ import 'package:capstone_project/ui/track/track_page.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/ui/activity/activity_page.dart';
-import 'package:capstone_project/ui/friend/friend_page_copy_2.dart';
+import 'package:capstone_project/ui/friend/friend_page.dart';
 import 'package:capstone_project/ui/profile_page.dart';
 
 class MyBottomBar extends StatefulWidget {

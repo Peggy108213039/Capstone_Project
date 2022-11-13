@@ -15,11 +15,11 @@ class CheckFriendResponseModel {
 }
 class CheckFriendRequestModel{
   String uID1;
-  String uID2;
+  String friendAccount;
 
   CheckFriendRequestModel({
     required this.uID1,
-    required this.uID2,
+    required this.friendAccount,
   });
 
   /// `toJson` is the convention for a class to declare support for serialization
@@ -28,7 +28,7 @@ class CheckFriendRequestModel{
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = {
       'uID1': uID1,
-      'uID2': uID2,
+      'uID2': friendAccount,
     };
 
     return map;

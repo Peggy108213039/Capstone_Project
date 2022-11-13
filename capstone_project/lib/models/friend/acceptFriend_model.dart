@@ -1,23 +1,23 @@
 // let sql="INSERT INTO `friend`(`uID1`,`uID2`) VALUES (?,?)";
-class AddFriendResponseModel {
+class AcceptFriendResponseModel {
   //String token;
   String error;
 
-  AddFriendResponseModel({/*required this.token,*/ required this.error});
+  AcceptFriendResponseModel({/*required this.token,*/ required this.error});
   
   /// `toJson` is the convention for a class to declare support for serialization
   /// to JSON. The implementation simply calls the private, generated
   /// helper method `_$UserToJson`.
-  factory AddFriendResponseModel.fromJson(Map<String, dynamic> json) {
-    return AddFriendResponseModel(/*token: json["token"] != null ? json["token"]: "",*/ error: json["error"] ?? "",);
+  factory AcceptFriendResponseModel.fromJson(Map<String, dynamic> json) {
+    return AcceptFriendResponseModel(/*token: json["token"] != null ? json["token"]: "",*/ error: json["error"] ?? "",);
   }
   //print(error);
 }
-class AddFriendRequestModel{
+class AcceptFriendRequestModel{
   String uID1;
   String account;
 
-  AddFriendRequestModel({
+  AcceptFriendRequestModel({
     required this.uID1,
     required this.account,
   });
