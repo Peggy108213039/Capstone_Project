@@ -1,3 +1,5 @@
+// 2022/11/15 已合併至 stream_socket.dart
+
 import 'package:capstone_project/services/http_service.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 

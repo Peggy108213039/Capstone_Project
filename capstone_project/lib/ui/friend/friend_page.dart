@@ -1,5 +1,5 @@
 //import 'dart:html';
-import 'package:capstone_project/services/socket_service.dart';
+import 'package:capstone_project/services/stream_socket.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:capstone_project/size_config.dart';
 import 'package:flutter/material.dart';
@@ -225,9 +225,9 @@ class _FriendPageState extends State<FriendPage> {
                 apiService.checkFriend(checkRequestModel).then((value) {
                   if(value){
                     print(checkRequestModel.friendAccount);
-                    SocketService socketService = SocketService();
+                    StreamSocket streamSocket = StreamSocket();
                     //socketService.friendRequest(checkRequestModel.friendAccount);
-                    socketService.joinAccountRoom();
+                    streamSocket.joinAccountRoom();
                     Navigator.pop(context);
                   } else {
                     Fluttertoast.showToast(msg: "無法新增該名好友（已為好友關係 / 已發送過邀請）");                    
