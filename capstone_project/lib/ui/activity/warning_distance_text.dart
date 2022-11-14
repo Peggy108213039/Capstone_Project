@@ -1,3 +1,4 @@
+import 'package:capstone_project/services/audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +34,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
   UserLocation userLocation = defaultLocation;
   late List<LatLng> gpsList;
   late double warningDistance;
+  AudioPlayerService audioPlayerService = AudioPlayerService();
 
   bool isVisible = false;
   String warningDistanceString = '';
@@ -41,7 +43,14 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
   void initState() {
     warningDistance = widget.warningDistance;
     gpsList = widget.gpsList;
+    // audioPlayerService.getPlayer;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    audioPlayerService.close();
+    super.dispose();
   }
 
   // 計算三維空間的距離
@@ -73,6 +82,8 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
       }
     }
     distanceList.sort();
+    // FIXME 警示音
+    audioPlayerService.playAudio();
     return [false, distanceList[0]];
   }
 

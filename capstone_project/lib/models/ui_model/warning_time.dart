@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:capstone_project/services/audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +32,7 @@ class _WarningTimeState extends State<WarningTime> {
 
   late Timer checkTimer;
   late Timer sendWarningTimer;
+  AudioPlayerService audioPlayerService = AudioPlayerService();
 
   int stopTimes = 0;
   int distanceRange = 2; // distanceRange 公尺內都算在原地範圍內
@@ -66,6 +68,7 @@ class _WarningTimeState extends State<WarningTime> {
       if (isStarted && !isPaused) {
         if (stopTimes >= (warningTime / checkTime)) {
           isVisible.value = true;
+          audioPlayerService.playAudio(); // 播放警示音
         }
         stopTimes = 0;
       }
@@ -77,6 +80,7 @@ class _WarningTimeState extends State<WarningTime> {
   void dispose() {
     checkTimer.cancel();
     sendWarningTimer.cancel();
+    audioPlayerService.close();
     super.dispose();
   }
 
