@@ -1,18 +1,21 @@
+import 'package:capstone_project/services/stream_socket.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'package:capstone_project/bottom_bar.dart';
+import 'package:capstone_project/ui/login_page.dart';
 import 'package:capstone_project/ui/activity/activity_page.dart';
 import 'package:capstone_project/ui/activity/add_activity.dart';
 import 'package:capstone_project/ui/activity/edit_activity.dart';
 import 'package:capstone_project/ui/activity/show_activity_data.dart';
-import 'package:capstone_project/ui/map/camera/take_picture_screen.dart';
 import 'package:capstone_project/ui/map/locationProvider.dart';
+import 'package:capstone_project/ui/map/camera/take_picture_screen.dart';
 import 'package:capstone_project/ui/map/offline_map/add_offline_map.dart';
 import 'package:capstone_project/ui/map/offline_map/download_offline_map.dart';
 import 'package:capstone_project/ui/map/screens/ar_test.dart';
-import 'package:capstone_project/ui/track/show_track_data_page.dart';
 import 'package:capstone_project/ui/track/track_page.dart';
-import 'package:flutter/material.dart';
-import 'package:capstone_project/ui/login_page.dart';
-import 'package:flutter/services.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +24,13 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  runApp(const MyApp());
+  // Socket stream
+  runApp(StreamProvider(
+      create: (BuildContext context) {
+        return StreamSocket.getResponse;
+      },
+      initialData: '',
+      child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -31,6 +40,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate
+        ],
+        supportedLocales: const [
+          Locale.fromSubtags(
+              languageCode: 'zh',
+              scriptCode: 'Hant'), // generic traditional Chinese 'zh_Hant'
+          Locale('en', 'US'),
+          Locale.fromSubtags(
+              languageCode: 'zh',
+              scriptCode: 'Hant',
+              countryCode: 'TW'), // 'zh_Hant_TW'
+        ],
+        locale: const Locale('zh'),
         routes: {
           '/MapPage': (context) => const LocationProvider(
                 mapService: 'FlutterMapPage',

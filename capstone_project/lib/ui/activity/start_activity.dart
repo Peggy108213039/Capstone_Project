@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/track/track_model.dart';
 import 'package:capstone_project/models/ui_model/warning_time.dart';
+import 'package:capstone_project/services/audio_player.dart';
 import 'package:capstone_project/services/gpx_service.dart';
+import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:capstone_project/ui/activity/activity_map_widget.dart';
 import 'package:capstone_project/ui/activity/warning_distance_text.dart';
@@ -17,6 +19,7 @@ import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:capstone_project/models/ui_model/input_dialog.dart';
 import 'package:capstone_project/services/file_provider.dart';
 import 'package:capstone_project/services/location_service.dart';
+import 'package:provider/provider.dart';
 
 class StartActivity extends StatefulWidget {
   final List<LatLng> gpsList;
@@ -30,6 +33,7 @@ class _StartActivityState extends State<StartActivity> {
   late Directory? trackDir; // 軌跡資料夾
   final FileProvider fileProvider = FileProvider();
   late List<LatLng> gpsList;
+  // late AudioPlayerService audioPlayerService;
 
   bool isStarted = false;
   bool isPaused = false;
@@ -60,18 +64,24 @@ class _StartActivityState extends State<StartActivity> {
   void initState() {
     gpsList = widget.gpsList;
     getTrackDirPath();
+    // audioPlayerService.getPlayer;
     super.initState();
   }
 
   @override
   void dispose() {
     print('===== 刪掉 dispose =====');
+    // audioPlayerService.close();
     LocationService.closeService();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // get Socket response
+    final testSocketData = Provider.of<Object?>(context);
+    print('==============');
+    print('開始活動  test Socket Data $testSocketData');
     print('===== 建立活動地圖頁面 START =====');
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
@@ -110,8 +120,8 @@ class _StartActivityState extends State<StartActivity> {
                   isPaused: isPaused,
                   checkTime: 2,
                   //FIXME:
-                  // warningTime: int.parse(arguments['warning_time']) * 60,
-                  warningTime: 10,
+                  warningTime: int.parse(arguments['warning_time']) * 60,
+                  // warningTime: 10,
                 ),
                 WarningDistanceText(
                   isStarted: isStarted,
@@ -135,14 +145,15 @@ class _StartActivityState extends State<StartActivity> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      takePhoto(markers);
+                      takePhoto(
+                          markers: markers,
+                          activName: arguments['activity_name'].toString());
                     },
                     child: const Icon(Icons.camera_alt_outlined),
                     style: raisedBtnStyle,
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      print('AR 按鈕');
                       Navigator.pushNamed(context, '/AR',
                           arguments: {'gpsList': gpsList});
                     },
@@ -152,36 +163,10 @@ class _StartActivityState extends State<StartActivity> {
                     ),
                     style: raisedBtnStyle,
                   ),
-                  // ElevatedButton(
-                  //   onPressed: () {
-                  //     print('離線地圖');
-                  //   },
-                  //   child: const Icon(Icons.map),
-                  //   style: raisedBtnStyle,
-                  // )
                 ],
               ),
             ),
             mySpace(height: height, num: 0.01),
-            // Padding(
-            //   padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.start,
-            //     children: [
-            //       ElevatedButton(
-            //         onPressed: () {
-            //           print('AR 按鈕');
-            //           Navigator.pushNamed(context, '/AR');
-            //         },
-            //         child: const Text(
-            //           'AR',
-            //           style: TextStyle(fontSize: 20),
-            //         ),
-            //         style: raisedBtnStyle,
-            //       ),
-            //     ],
-            //   ),
-            // ),
             mySpace(height: height, num: 0.035),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -189,8 +174,8 @@ class _StartActivityState extends State<StartActivity> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    print('記錄軌跡按鈕');
-                    pushRecordBtn(context);
+                    pushRecordBtn(
+                        context: context, aID: arguments['aID'].toString());
                   },
                   child: isStarted
                       ? const Icon(
@@ -224,7 +209,8 @@ class _StartActivityState extends State<StartActivity> {
     return SizedBox(height: (height * num));
   }
 
-  void pushRecordBtn(BuildContext context) async {
+  void pushRecordBtn(
+      {required BuildContext context, required String aID}) async {
     // 剛開始 (預設值)
     if (!isStarted && !isPaused) {
       setState(() {
@@ -267,6 +253,17 @@ class _StartActivityState extends State<StartActivity> {
             isPaused = false;
           });
           return;
+        }
+        // 結束活動
+        final finishActivityReq = {'aID': aID};
+        List finishActivityResponse =
+            await APIService.finishActivity(content: finishActivityReq);
+        if (finishActivityResponse[0]) {
+          print('結束活動 成功');
+          print(finishActivityResponse[1]);
+        } else {
+          print('結束活動 失敗');
+          print(finishActivityResponse[1]);
         }
         // 跳出對話框，讓使用者輸入軌跡名稱
         inputTrackNameDialog = InputDialog(
@@ -333,7 +330,8 @@ class _StartActivityState extends State<StartActivity> {
     setState(() {});
   }
 
-  void takePhoto(List<Marker> markers) async {
+  void takePhoto(
+      {required List<Marker> markers, required String activName}) async {
     File? imageFile;
     XFile? pickedFile = await ImagePicker()
         .pickImage(source: ImageSource.camera, maxHeight: 1080, maxWidth: 1080);
@@ -342,8 +340,8 @@ class _StartActivityState extends State<StartActivity> {
     }
     imageFile = File(pickedFile.path);
     // 存到手機的相簿中
-    bool? saveSuccess =
-        await GallerySaver.saveImage(imageFile.path, albumName: '與山同行');
+    bool? saveSuccess = await GallerySaver.saveImage(imageFile.path,
+        albumName: '與山同行_$activName');
     saveSuccess ??= false;
     UserLocation? photoLocation = userLocation;
 

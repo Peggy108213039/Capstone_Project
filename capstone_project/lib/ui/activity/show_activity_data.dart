@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:capstone_project/services/cache_tile_provider.dart';
+import 'package:capstone_project/services/http_service.dart';
+import 'package:capstone_project/ui/activity/start_activity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -56,7 +58,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
 
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
-    frindsIDList = arguments['members'].toString().split(', ');
+    frindsIDList = arguments['activityData']['members'].toString().split(', ');
     getMemberList(frindsIDList);
 
     return Scaffold(
@@ -76,7 +78,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
           IconButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/EditActivityData',
-                    arguments: arguments);
+                    arguments: arguments['activityData']);
               },
               icon: const Icon(Icons.edit))
         ],
@@ -90,18 +92,26 @@ class _ShowActivityDataState extends State<ShowActivityData> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildText(
-                  content: '活動名稱 : ${arguments['activity_name']}',
+                  content: '活動主辦人 : ${arguments['activityHostData']['name']}',
                   fontSize: 20,
                   subText: '',
                   subTextSize: 0,
                   width: width),
               buildText(
-                  content: '活動時間 : ${arguments['activity_time']}',
+                  content:
+                      '活動名稱 : ${arguments['activityData']['activity_name']}',
                   fontSize: 20,
                   subText: '',
                   subTextSize: 0,
                   width: width),
-              showTrack(tID: arguments['tID'], width: width),
+              buildText(
+                  content:
+                      '活動時間 : ${arguments['activityData']['activity_time']}',
+                  fontSize: 20,
+                  subText: '',
+                  subTextSize: 0,
+                  width: width),
+              showTrack(tID: arguments['activityData']['tID'], width: width),
               // FIXME 同行成員
               buildText(
                   content: '同行成員 : $memberString',
@@ -110,13 +120,15 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                   subTextSize: 0,
                   width: width),
               buildText(
-                  content: '最遠距離 : ${arguments['warning_distance']} 公尺',
+                  content:
+                      '最遠距離 : ${arguments['activityData']['warning_distance']} 公尺',
                   fontSize: 20,
                   subText: '補充說明 : 同行成員中，第一位成員與最後一位成員的距離不得超過此距離',
                   subTextSize: 12,
                   width: width),
               buildText(
-                  content: '停留時間 : ${arguments['warning_time']} 分鐘',
+                  content:
+                      '停留時間 : ${arguments['activityData']['warning_time']} 分鐘',
                   fontSize: 20,
                   subText: '補充說明 : 同行成員中，任何一位成員停留於原地時間不得超過此時間',
                   subTextSize: 12,
@@ -129,15 +141,32 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                     child: const Text('開始活動'),
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal.shade300),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/StartActivity',
-                          arguments: {
-                            'activity_name': arguments['activity_name'],
-                            'activity_time': arguments['activity_time'],
-                            'gpsList': gpsList,
-                            'warning_distance': arguments['warning_distance'],
-                            'warning_time': arguments['warning_time'],
-                          });
+                    onPressed: () async {
+                      final startActivityReq = {
+                        'aID': arguments['activityData']['aID'].toString()
+                      };
+                      List startActivityResponse =
+                          await APIService.startActivity(
+                              content: startActivityReq);
+                      if (startActivityResponse[0]) {
+                        print('開始活動 ${startActivityResponse[1]}');
+                        Navigator.pushNamed(context, '/StartActivity',
+                            arguments: {
+                              'aID': arguments['activityData']['aID'],
+                              'activity_name': arguments['activityData']
+                                  ['activity_name'],
+                              'activity_time': arguments['activityData']
+                                  ['activity_time'],
+                              'gpsList': gpsList,
+                              'warning_distance': arguments['activityData']
+                                  ['warning_distance'],
+                              'warning_time': arguments['activityData']
+                                  ['warning_time'],
+                            });
+                      } else {
+                        print('開始活動失敗');
+                        print('失敗 ${startActivityResponse[1]}');
+                      }
                     },
                   ),
                 ],

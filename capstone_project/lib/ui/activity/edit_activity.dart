@@ -1,7 +1,6 @@
 import 'package:capstone_project/models/activity/activity_model.dart';
 import 'package:capstone_project/models/friend/friend_model.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
-import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
@@ -17,11 +16,16 @@ class _EditActivityState extends State<EditActivity> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   String activName = '';
-  DateTime? activTime;
   String activTrack = '';
   String activPartner = '';
   String warningDistance = '50';
   var warningTime = '3';
+
+  // DateTime? activTime;
+  TextEditingController timeinput = TextEditingController();
+  final ValueNotifier<bool> timeValidate = ValueNotifier<bool>(false);
+  final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
+  final int lastYear = 2050;
 
   List<DropdownMenuItem<String>> activTrackList = [];
 
@@ -50,8 +54,17 @@ class _EditActivityState extends State<EditActivity> {
     DropdownMenuItem(child: Text("60 分鐘"), value: "60"),
   ];
 
-  final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
-  final int lastYear = 2050;
+  @override
+  void initState() {
+    timeinput.text = "";
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    timeValidate.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,23 +194,57 @@ class _EditActivityState extends State<EditActivity> {
   }
 
   Widget buildActivTime({required DateTime initValue}) {
-    return DateTimeFormField(
-      initialValue: initValue,
-      initialDate: DateTime.now(),
-      dateFormat: dateFormat,
-      decoration: const InputDecoration(labelText: '活動時間'),
-      firstDate: DateTime.now(),
+    return ValueListenableBuilder(
+        valueListenable: timeValidate,
+        builder: (context, bool? value, child) {
+          timeinput.text = dateFormat.format(initValue);
+          return TextField(
+            controller: timeinput, //editing controller of this TextField
+            decoration: InputDecoration(
+                labelText: '活動時間', errorText: value! ? '請選擇活動時間' : null),
+            readOnly: true,
+            onTap: () async {
+              String _dateTime = await pickDateTime(initValue: initValue);
+              timeinput.text = _dateTime;
+            },
+            onChanged: (value) {
+              timeinput.text = value;
+            },
+          );
+        });
+  }
+
+  Future<DateTime?> pickDate({required DateTime initValue}) {
+    return showDatePicker(
+      context: context,
+      initialDate: initValue, // 預設選取時間
+      firstDate: DateTime.now(), // 起始時間
       lastDate: DateTime(lastYear),
-      autovalidateMode: AutovalidateMode.always,
-      validator: (value) {
-        if (value == null) {
-          return '請填活動時間';
-        }
-      },
-      onSaved: (newValue) {
-        activTime = newValue;
-      },
     );
+  }
+
+  Future<TimeOfDay?> pickTime({required DateTime initValue}) {
+    return showTimePicker(
+        context: context,
+        initialTime: TimeOfDay(hour: initValue.hour, minute: initValue.minute),
+        builder: (BuildContext context, Widget? child) {
+          return MediaQuery(
+              data:
+                  MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+              child: child!);
+        });
+  }
+
+  Future<String> pickDateTime({required DateTime initValue}) async {
+    DateTime? date = await pickDate(
+        initValue: DateTime(initValue.year, initValue.month, initValue.day));
+    if (date == null) return '';
+    TimeOfDay? time = await pickTime(initValue: initValue);
+    if (time == null) return '';
+    final DateTime dateTime =
+        DateTime(date.year, date.month, date.day, time.hour, time.minute);
+
+    return dateFormat.format(dateTime);
   }
 
   Widget buildActivTrack({required String currentTrackID}) {
@@ -311,9 +358,14 @@ class _EditActivityState extends State<EditActivity> {
   }
 
   void pushSubmitBtn({required int aID}) async {
-    print('確認修改按鈕');
     if (!formKey.currentState!.validate() ||
-        !multiSelectKey.currentState!.validate()) {
+        !multiSelectKey.currentState!.validate() ||
+        timeinput.text.isEmpty) {
+      if (timeinput.text.isEmpty) {
+        timeValidate.value = true;
+      } else {
+        timeValidate.value = false;
+      }
       return;
     }
     formKey.currentState!.save();
@@ -323,16 +375,14 @@ class _EditActivityState extends State<EditActivity> {
     for (var partner in selectedPartner) {
       members.add(partner!.uID);
     }
-
-    final newActivityData = Activity(
-            uID: '0',
-            activity_name: activName,
-            activity_time: activTime.toString(),
-            tID: activTrack,
-            warning_distance: warningDistance,
-            warning_time: warningTime,
-            members: members.join(', ')) // FIXME 同行成員
-        .toMap();
+    final Map<String, String> newActivityData = {
+      'activity_name': activName,
+      'activity_time': timeinput.text,
+      'tID': activTrack,
+      'warning_distance': warningDistance,
+      'warning_time': warningTime,
+      'members': members.join(', ') // FIXME 同行成員
+    };
     // FIXME 編輯 server 同行成員資料
     print('修改後的活動資料  $newActivityData');
     await SqliteHelper.update(

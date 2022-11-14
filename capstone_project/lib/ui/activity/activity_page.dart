@@ -1,4 +1,5 @@
 import 'package:capstone_project/constants.dart';
+import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -28,27 +29,10 @@ class _ActivityPageState extends State<ActivityPage> {
     return activTable;
   }
 
-  void pushBack() {
-    setState(() {
-      _visible = false;
-    });
-  }
-
-  void pushEdit() {
-    // FIXME：除了刪除和返回，其他按鈕不能按
-    showDeleteBtn();
-  }
-
-  void showDeleteBtn() {
-    setState(() {
-      _visible = true;
-    });
-  }
-
-  pushDelete(int idx, BuildContext context) async {
+  void pushDelete(int idx, BuildContext context) async {
     final deleteActiv = activTable![idx];
     final String deleteActivName = deleteActiv['activity_name'];
-    final int deleteAID = deleteActiv['aID'];
+    final int deleteAID = int.parse(deleteActiv['aID']);
     bool? toDelete = await _showAlertDialog(
         context: context,
         myTitle: '刪除軌跡',
@@ -56,14 +40,21 @@ class _ActivityPageState extends State<ActivityPage> {
         btn1Text: '刪除',
         btn2Text: '取消');
     toDelete ??= false;
-    print('是否要刪除軌跡 $toDelete 活動 $deleteAID');
     if (toDelete) {
-      var result = await SqliteHelper.delete(
-          tableName: 'activity', tableIdName: 'aID', deleteId: deleteAID);
-      activTable = await SqliteHelper.queryAll(tableName: 'activity');
-      setState(() {
-        print('刪除軌跡完成');
-      });
+      final deleteServerActivity = {
+        'uID': UserData.uid.toString(),
+        'aID': deleteAID.toString()
+      };
+      final List deleteActivResponse =
+          await APIService.deleteActivity(content: deleteServerActivity);
+      if (deleteActivResponse[0]) {
+        var result = await SqliteHelper.delete(
+            tableName: 'activity', tableIdName: 'aID', deleteId: deleteAID);
+        activTable = await SqliteHelper.queryAll(tableName: 'activity');
+        setState(() {});
+      } else {
+        print('delete Activ Response ${deleteActivResponse[1]}');
+      }
     } else {
       print('不要刪除軌跡');
       return;
@@ -181,9 +172,6 @@ class _ActivityPageState extends State<ActivityPage> {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints.expand(),
-      // decoration: const BoxDecoration(
-      //     image: DecorationImage(
-      //         image: defaultBackgroundImage, fit: BoxFit.cover)),
       child: Scaffold(
         backgroundColor: activityGreen,
         appBar: AppBar(
@@ -196,16 +184,6 @@ class _ActivityPageState extends State<ActivityPage> {
               borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30))),
-          // leading:
-          // Visibility(
-          //     visible: _visible,
-          //     child:
-          // IconButton(
-          //   onPressed: pushBack,
-          //   icon: const Icon(Icons.arrow_back_rounded),
-          //   tooltip: '返回',
-          // ),
-          // ),
           actions: [
             ElevatedButton(
               child: const ImageIcon(addIcon),
@@ -217,27 +195,18 @@ class _ActivityPageState extends State<ActivityPage> {
           ],
         ),
         body: showAllActivities(),
-        // floatingActionButton: FloatingActionButton(
-        //   tooltip: '新增活動',
-        //   foregroundColor: Colors.white,
-        //   backgroundColor: Colors.indigoAccent.shade100,
-        //   child: const Icon(
-        //     Icons.add,
-        //     size: 35.0,
-        //   ),
-        //   onPressed: () {
-        //     print('匯入軌跡');
-        //     Navigator.pushNamed(context, "/AddActivityPage");
-        //   },
-        // ),
       ),
     );
   }
 
-  void checkActivity({required List<dynamic> activityData}) {
-    print('查看活動 $activityData');
-    print('aID  ${activityData[0]['aID']}');
-    Navigator.pushNamed(context, '/ShowActivityData',
-        arguments: activityData[0]);
+  void checkActivity({required List<dynamic> activityData}) async {
+    final uID = activityData[0]['uID'];
+    final uidMemberDataReq = {'uID': uID};
+    List uidMemberDataResponse =
+        await APIService.selectUidMemberData(content: uidMemberDataReq);
+    Navigator.pushNamed(context, '/ShowActivityData', arguments: {
+      'activityData': activityData[0],
+      'activityHostData': uidMemberDataResponse[0]
+    });
   }
 }

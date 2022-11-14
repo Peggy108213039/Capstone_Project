@@ -21,11 +21,11 @@ const lightGreen1 = Color.fromARGB(255, 181, 255, 225); // #b5ffe1
 const lightGreen0 = Color.fromARGB(255, 195, 255, 231); // #c3ffe7
 
 // menu background color
-const menuDarkGreenColor = Color.fromARGB(255, 34, 65, 68);
+const menuDarkGreenColor = Color.fromARGB(255, 34, 65, 68); // #224144
 
 // activity color
-const grassGreen = Color.fromARGB(255, 78, 140, 99);
-const activityGreen = Color.fromARGB(255, 173, 235, 192);
+const grassGreen = Color.fromARGB(255, 78, 140, 99); // # 4E8C63
+const activityGreen = Color.fromARGB(255, 173, 235, 192); // #ADEBC0
 
 // button color
 const unselectedColor = Colors.white;

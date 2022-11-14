@@ -1,9 +1,9 @@
 import 'dart:convert';
 
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/services/http_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:date_field/date_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 import 'package:capstone_project/models/friend/friend_model.dart';
@@ -20,7 +20,6 @@ class AddActivityPage extends StatefulWidget {
 
 class _AddActivityPageState extends State<AddActivityPage> {
   String activName = '';
-  DateTime? activTime;
   String activTrack = '';
   String warningDistance = '50';
   var warningTime = '3';
@@ -29,6 +28,10 @@ class _AddActivityPageState extends State<AddActivityPage> {
   late MyAlertDialog noFriendListDialog; // 提醒視窗：沒有朋友清單
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  // DateTime? activTime;
+  TextEditingController timeinput = TextEditingController();
+  final ValueNotifier<bool> timeValidate = ValueNotifier<bool>(false);
   final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
   final int lastYear = 2050;
 
@@ -61,9 +64,15 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
   @override
   void initState() {
-    // implement initState
-    super.initState();
+    timeinput.text = "";
     getTrackData(); // 抓軌跡資料表下的資料
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    timeValidate.dispose();
+    super.dispose();
   }
 
   getTrackData() async {
@@ -123,190 +132,309 @@ class _AddActivityPageState extends State<AddActivityPage> {
   }
 
   Widget buildActivName() {
-    return TextFormField(
-      decoration: const InputDecoration(labelText: '活動名稱'),
-      validator: (value) {
-        if (value!.isEmpty) {
-          return '請填入活動名稱';
-        }
-      },
-      onSaved: (value) {
-        activName = value!;
-      },
-    );
-  }
-
-  // FIXME 活動時間
-  Widget buildActivTime() {
-    return DateTimeFormField(
-      dateFormat: dateFormat,
-      decoration: const InputDecoration(labelText: '活動時間'),
-      firstDate: DateTime.now(), // 起始時間
-      initialDate: DateTime.now(), // 預設選取時間
-      lastDate: DateTime(lastYear),
-      // mode: DateTimeFieldPickerMode.dateAndTime,
-      autovalidateMode: AutovalidateMode.always,
-      validator: (value) {
-        // print('時間 $value');
-        if (value == null) {
-          return '請填活動時間';
-        }
-      },
-      onDateSelected: (value) {
-        print(value);
-      },
-      onSaved: (value) {
-        activTime = value;
-      },
-    );
-  }
-
-  Widget buildActivTrack() {
-    return DropdownButtonFormField(
-      decoration: const InputDecoration(labelText: '活動軌跡'),
-      value: activTrack,
-      items: activTrackList,
-      onChanged: (String? value) {
-        activTrack = value!;
-      },
-      validator: (String? value) {
-        if (value!.isEmpty) {
-          return '請填活動軌跡';
-        }
-      },
-      onSaved: (String? value) {
-        activTrack = value!;
-      },
-    );
-  }
-
-  Widget buildActivPartner() {
-    return MultiSelectBottomSheetField<FriendModel?>(
-      key: multiSelectKey,
-      buttonText: const Text("同行成員"),
-      title: const Text("同行成員"),
-      initialChildSize: 0.4,
-      items: friendSelectItems, // 朋友下拉式選單
-      initialValue: selectedPartner, // 選中的同行者
-
-      listType: MultiSelectListType.CHIP,
-      searchable: true,
-      onConfirm: (values) {
-        print('onConfirm');
-        setState(() {
-          selectedPartner = values;
-        });
-      },
-      onSaved: (newValue) {
-        print('onConfirm');
-        selectedPartner = newValue!;
-      },
-      validator: (value) {
-        if (value!.isEmpty) {
-          return '請選同行者';
-        }
-      },
-      chipDisplay: MultiSelectChipDisplay(
-        icon: const Icon(Icons.cancel_outlined),
-        scroll: true,
-        onTap: (value) {
-          print('onTap');
-          setState(() {
-            selectedPartner.remove(value);
-          });
+    return Container(
+      padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+      margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+      decoration: BoxDecoration(
+          border: Border.all(width: 3, color: grassGreen),
+          borderRadius: BorderRadius.circular(15)),
+      child: TextFormField(
+        style: const TextStyle(color: darkGreen2),
+        decoration: const InputDecoration(labelText: '活動名稱'),
+        validator: (value) {
+          if (value!.isEmpty) {
+            return '請填入活動名稱';
+          }
+        },
+        onSaved: (value) {
+          activName = value!;
         },
       ),
     );
   }
 
+  Widget buildActivTime() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+      margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+      decoration: BoxDecoration(
+          border: Border.all(width: 3, color: grassGreen),
+          borderRadius: BorderRadius.circular(15)),
+      child: ValueListenableBuilder(
+          valueListenable: timeValidate,
+          builder: (context, bool? value, child) {
+            return TextField(
+              style: const TextStyle(color: darkGreen2),
+              controller: timeinput, //editing controller of this TextField
+              decoration: InputDecoration(
+                  labelText: '活動時間', errorText: value! ? '請選擇活動時間' : null),
+              readOnly: true,
+              onTap: () async {
+                String _dateTime = await pickDateTime();
+                timeinput.text = _dateTime;
+              },
+              onChanged: (value) {
+                timeinput.text = value;
+              },
+            );
+          }),
+    );
+  }
+
+  Future<DateTime?> pickDate() {
+    return showDatePicker(
+        context: context,
+        initialDate: DateTime.now(), // 預設選取時間
+        firstDate: DateTime.now(), // 起始時間
+        lastDate: DateTime(lastYear),
+        builder: (context, child) => Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: const ColorScheme.light(primary: middleGreen),
+              ),
+              child: child!,
+            ));
+  }
+
+  Future<TimeOfDay?> pickTime() {
+    return showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.light(primary: middleGreen),
+            ),
+            child: MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(alwaysUse24HourFormat: false),
+                child: child!),
+          );
+        });
+  }
+
+  Future<String> pickDateTime() async {
+    DateTime? date = await pickDate();
+    if (date == null) return '';
+    TimeOfDay? time = await pickTime();
+    if (time == null) return '';
+    final DateTime dateTime =
+        DateTime(date.year, date.month, date.day, time.hour, time.minute);
+
+    return dateFormat.format(dateTime);
+  }
+
+  Widget buildActivTrack() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+      margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+      decoration: BoxDecoration(
+          border: Border.all(width: 3, color: grassGreen),
+          borderRadius: BorderRadius.circular(15)),
+      child: DropdownButtonFormField(
+        decoration: const InputDecoration(labelText: '活動軌跡'),
+        value: activTrack,
+        items: activTrackList,
+        style: const TextStyle(color: darkGreen2, fontSize: 17),
+        onChanged: (String? value) {
+          activTrack = value!;
+        },
+        validator: (String? value) {
+          if (value!.isEmpty) {
+            return '請填活動軌跡';
+          }
+        },
+        onSaved: (String? value) {
+          activTrack = value!;
+        },
+      ),
+    );
+  }
+
+  Widget buildActivPartner() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+      decoration: BoxDecoration(
+          border: Border.all(width: 3, color: grassGreen),
+          borderRadius: BorderRadius.circular(15)),
+      child: MultiSelectBottomSheetField<FriendModel?>(
+        key: multiSelectKey,
+        buttonText: const Text(
+          "同行成員",
+          style: TextStyle(color: Colors.white),
+        ),
+        buttonIcon: const Icon(Icons.arrow_drop_down),
+        decoration: const BoxDecoration(
+            color: middleGreen,
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        confirmText: const Text(
+          '確認',
+          style: TextStyle(color: Colors.white),
+        ),
+        cancelText: const Text(
+          '取消',
+          style: TextStyle(color: Colors.white),
+        ),
+        title: const Text(
+          "選擇同行成員",
+          style: TextStyle(color: lightGreen0, fontWeight: FontWeight.bold),
+        ),
+        initialChildSize: 0.38,
+        maxChildSize: 0.6,
+
+        selectedColor: Colors.white,
+        selectedItemsTextStyle: const TextStyle(color: middleGreen),
+
+        unselectedColor: Colors.white,
+        checkColor: Colors.white,
+        itemsTextStyle: const TextStyle(color: Colors.black),
+
+        backgroundColor: darkGreen1,
+
+        searchHint: '搜尋好友',
+        searchHintStyle: const TextStyle(color: Colors.white),
+        searchTextStyle: const TextStyle(color: Colors.white),
+        searchIcon: const Icon(
+          Icons.search,
+          color: Colors.white,
+        ),
+        closeSearchIcon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ),
+
+        items: friendSelectItems, // 朋友下拉式選單
+        initialValue: selectedPartner, // 選中的同行者
+        listType: MultiSelectListType.CHIP,
+        separateSelectedItems: true,
+        searchable: true,
+        onConfirm: (values) {
+          print('onConfirm');
+          setState(() {
+            selectedPartner = values;
+          });
+        },
+        onSaved: (newValue) {
+          print('onSaved');
+          selectedPartner = newValue!;
+        },
+        validator: (value) {
+          if (value!.isEmpty) {
+            return '請選同行者';
+          }
+        },
+        chipDisplay: MultiSelectChipDisplay(
+          chipColor: Colors.white,
+          textStyle: const TextStyle(color: darkGreen2),
+          icon: const Icon(Icons.cancel_outlined, color: grassGreen),
+          scroll: true,
+          onTap: (value) {
+            print('onTap');
+            setState(() {
+              selectedPartner.remove(value);
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   Widget buildWarningDistance() {
-    return DropdownButtonFormField(
-      decoration: const InputDecoration(labelText: '最遠距離'),
-      value: warningDistance,
-      items: warnDistance,
-      onChanged: (String? value) {
-        warningDistance = value!;
-      },
-      validator: (String? value) {
-        if (value!.isEmpty) {
-          return '請填最遠距離';
-        }
-      },
-      onSaved: (String? value) {
-        warningDistance = value!;
-      },
+    return Container(
+      padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+      margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+      decoration: BoxDecoration(
+          border: Border.all(width: 3, color: grassGreen),
+          borderRadius: BorderRadius.circular(15)),
+      child: DropdownButtonFormField(
+        decoration: const InputDecoration(labelText: '最遠距離'),
+        style: const TextStyle(color: darkGreen2, fontSize: 17),
+        value: warningDistance,
+        items: warnDistance,
+        onChanged: (String? value) {
+          warningDistance = value!;
+        },
+        validator: (String? value) {
+          if (value!.isEmpty) {
+            return '請填最遠距離';
+          }
+        },
+        onSaved: (String? value) {
+          warningDistance = value!;
+        },
+      ),
     );
   }
 
   Widget buildWarningTime() {
-    return DropdownButtonFormField(
-      decoration: const InputDecoration(labelText: '停留時間'),
-      value: warningTime, // 設定初始值，要與列表 (items) 中的 value 是相同的
-      items: warnTimeList,
-      onChanged: (String? value) {
-        warningTime = value!;
-      },
-      validator: (String? value) {
-        if (value!.isEmpty) {
-          return '請填停留時間';
-        }
-      },
-      onSaved: (String? value) {
-        warningTime = value!;
-      },
+    return Container(
+      padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+      margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+      decoration: BoxDecoration(
+          border: Border.all(width: 3, color: grassGreen),
+          borderRadius: BorderRadius.circular(15)),
+      child: DropdownButtonFormField(
+        decoration: const InputDecoration(labelText: '停留時間'),
+        style: const TextStyle(color: darkGreen2, fontSize: 17),
+        value: warningTime, // 設定初始值，要與列表 (items) 中的 value 是相同的
+        items: warnTimeList,
+        onChanged: (String? value) {
+          warningTime = value!;
+        },
+        validator: (String? value) {
+          if (value!.isEmpty) {
+            return '請填停留時間';
+          }
+        },
+        onSaved: (String? value) {
+          warningTime = value!;
+        },
+      ),
     );
   }
 
   void pushSubmitBtn() async {
-    print('確認按鈕');
     if (!formKey.currentState!.validate() ||
-        !multiSelectKey.currentState!.validate()) {
+        !multiSelectKey.currentState!.validate() ||
+        timeinput.text.isEmpty) {
+      if (timeinput.text.isEmpty) {
+        timeValidate.value = true;
+      } else {
+        timeValidate.value = false;
+      }
       return;
     }
     formKey.currentState!.save();
     multiSelectKey.currentState!.save();
-    List<String> members = [];
+    List<int> members = [];
     for (var partner in selectedPartner) {
-      members.add(partner!.uID.toString());
+      members.add(partner!.uID);
     }
-    final newLocalActivityData = Activity(
-            // FIXME: aID
-            uID: UserData.uid.toString(),
-            activity_name: activName,
-            activity_time: dateFormat.format(activTime!),
-            tID: activTrack,
-            warning_distance: warningDistance,
-            warning_time: warningTime,
-            members: members.join(', '))
-        .toMap();
-    // final newServerActivityData = ActivityRequestModel(
-    //         // FIXME: aID
-    //         uID: UserData.uid.toString(),
-    //         activity_name: activName,
-    //         activity_time: dateFormat.format(activTime!),
-    //         tID: activTrack,
-    //         warning_distance: warningDistance,
-    //         warning_time: warningTime,
-    //         members: members)
-    //     .toMap();
-
-    final newServerActivityData = {
-      'uID': UserData.uid.toString(),
-      'activity_name': activName,
-      'activity_time': dateFormat.format(activTime!),
-      'tID': activTrack,
-      'warning_distance': warningDistance,
-      'warning_time': warningTime,
-      'members': jsonEncode(members)
-    };
+    final ActivityRequestModel newServerActivityData = ActivityRequestModel(
+        uID: UserData.uid.toString(),
+        activity_name: activName,
+        activity_time: timeinput.text,
+        tID: activTrack,
+        warning_distance: warningDistance,
+        warning_time: warningTime,
+        members: members);
     // 插入資料庫
-    print('members ${jsonEncode(members)}');
     print('newServerActivityData\n$newServerActivityData');
-    bool result = await APIService.addActivity(content: newServerActivityData);
+    List result =
+        await APIService.addActivity(content: newServerActivityData.toMap());
     print('result $result');
-    if (result) {
+    if (result[0]) {
+      print('新增活動的 ID ${result[1]['aID']}');
+      final Activity newLocalActivityData = Activity(
+          aID: result[1]['aID'].toString(),
+          uID: UserData.uid.toString(),
+          activity_name: activName,
+          activity_time: timeinput.text,
+          tID: activTrack,
+          warning_distance: warningDistance,
+          warning_time: warningTime,
+          members: members.join(', '));
       await SqliteHelper.insert(
-          tableName: 'activity', insertData: newLocalActivityData);
+          tableName: 'activity', insertData: newLocalActivityData.toMap());
       Navigator.pushNamed(context, "/MyBottomBar3");
     } else {
       print('$result 在 server 新增活動失敗');
@@ -316,16 +444,23 @@ class _AddActivityPageState extends State<AddActivityPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: activityGreen,
         appBar: AppBar(
           automaticallyImplyLeading: false, // 關閉預設的 leading button
-          backgroundColor: Colors.indigoAccent.shade100,
+          backgroundColor: grassGreen,
           title: const Center(
               child: Text(
             '新增活動',
           )),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30))),
         ),
         body: SingleChildScrollView(
           child: Container(
+            padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+            color: transparentColor,
             margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             child: Form(
               key: formKey,
@@ -338,12 +473,21 @@ class _AddActivityPageState extends State<AddActivityPage> {
                   buildActivPartner(),
                   buildWarningDistance(),
                   buildWarningTime(),
-                  mySpace(100),
-                  ElevatedButton(
-                    child: const Text('確認'),
-                    onPressed: pushSubmitBtn,
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.indigoAccent.shade100),
+                  mySpace(30),
+                  SizedBox(
+                    height: 45,
+                    width: 100,
+                    child: ElevatedButton(
+                      child: const Text(
+                        '確認',
+                        style: TextStyle(color: darkGreen2, fontSize: 20),
+                      ),
+                      onPressed: pushSubmitBtn,
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30))),
+                    ),
                   )
                 ],
               ),

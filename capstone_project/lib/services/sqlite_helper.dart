@@ -42,7 +42,7 @@ class SqliteHelper {
     // 活動
     await db.execute('''
         CREATE TABLE $activTable (
-        aID integer primary key AUTOINCREMENT,
+        aID text,
         uID text,
         activity_name text,
         activity_time text,
