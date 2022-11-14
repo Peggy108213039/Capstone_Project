@@ -5,7 +5,7 @@ import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/size_config.dart';
 import 'package:capstone_project/components/default_buttons.dart';
 import 'package:capstone_project/components/loadingAnimation.dart';
-
+import 'package:capstone_project/services/stream_socket.dart';
 import 'package:capstone_project/bottom_bar.dart';
 import 'package:capstone_project/ui/signup_page.dart';
 
@@ -132,6 +132,8 @@ class _LoginPageState extends State<LoginPage> {
                               setState(() {
                                 isApiCallProcess = false;
                               });
+                              // Socket connect
+                              StreamSocket.connectAndListen();
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

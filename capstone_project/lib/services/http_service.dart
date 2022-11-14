@@ -20,7 +20,8 @@ import 'package:capstone_project/models/friend/deleteFriend_model.dart';
 import 'package:capstone_project/models/friend/checkFriend_model.dart';
 import 'package:capstone_project/models/track/track_model.dart';
 
-class UserData { // 存放使用者資料
+class UserData {
+  // 存放使用者資料
   static late String token;
   static late int uid;
   static late String userAccount;
@@ -34,36 +35,38 @@ class UserData { // 存放使用者資料
   static late int totalTrack;
 
   UserData(
-    String getToken,
-    int getUid,
-    String getUserAccount,
-    String getUserName,
-    String getPassword,
-    String getUserEmail,
-    String getUserPhone,
-    int getTotalDiatance,
-    int getTotalTime,
-    int getTotalActivity,
-    int getTotalTrack){
-      token = getToken;
-      uid = getUid;
-      userAccount = getUserAccount;
-      userName = getUserName;
-      password = getPassword;
-      userEmail = getUserEmail;
-      userPhone = getUserPhone;
-      totalDistance = getTotalDiatance;
-      totalTime = getTotalTime;
-      totalActivity = getTotalActivity;
-      totalTrack = getTotalTrack;
+      String getToken,
+      int getUid,
+      String getUserAccount,
+      String getUserName,
+      String getPassword,
+      String getUserEmail,
+      String getUserPhone,
+      int getTotalDiatance,
+      int getTotalTime,
+      int getTotalActivity,
+      int getTotalTrack) {
+    token = getToken;
+    uid = getUid;
+    userAccount = getUserAccount;
+    userName = getUserName;
+    password = getPassword;
+    userEmail = getUserEmail;
+    userPhone = getUserPhone;
+    totalDistance = getTotalDiatance;
+    totalTime = getTotalTime;
+    totalActivity = getTotalActivity;
+    totalTrack = getTotalTrack;
   }
 }
 
 class APIService {
   String ip = "http://163.22.17.247:3000";
   Future<bool> login(LoginRequestModel requestModel) async {
-    String url = "$ip/api/login_member"; // 透過此行連線，/api/login_member 即 POST 對應的 API 路徑
-    final response = await http.post(Uri.parse(url),body: requestModel.toJson());
+    String url =
+        "$ip/api/login_member"; // 透過此行連線，/api/login_member 即 POST 對應的 API 路徑
+    final response =
+        await http.post(Uri.parse(url), body: requestModel.toJson());
     var tmpResponse = LoginResponseModel.fromJson(json.decode(response.body));
     if (tmpResponse.result != "LOGIN FAILED") {
       // 登入成功後直接開始 socket 連線並將使用者加入自己的 room
@@ -96,12 +99,15 @@ class APIService {
       return false;
     }
   }
+
   Future<bool> signup(SignUpRequestModel requestModel) async {
     String url = "$ip/api/signup_member";
-    final response = await http.post(Uri.parse(url), body: requestModel.toJson());
+    final response =
+        await http.post(Uri.parse(url), body: requestModel.toJson());
     var tmpResponse = SignUpResponseModel.fromJson(json.decode(response.body));
     print("註冊RESPONSE $response");
-    if((response.statusCode == 200 || response.statusCode == 400) || (tmpResponse.result == "create account")){
+    if ((response.statusCode == 200 || response.statusCode == 400) ||
+        (tmpResponse.result == "create account")) {
       // UserData(
       //   response.headers['set-cookie']!,
       //   int.parse(tmpResponse.uID),
@@ -122,10 +128,11 @@ class APIService {
     }
   }
 
-  Future<bool> updateUserInfo(UpdateInfoRequestModel requestModel) async{
+  Future<bool> updateUserInfo(UpdateInfoRequestModel requestModel) async {
     String url = "$ip";
-    final response = await http.post(Uri.parse(url),headers: {'cookie': UserData.token}, body: requestModel.toJson());
-    if(response.statusCode == 200 || response.statusCode == 400){
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: requestModel.toJson());
+    if (response.statusCode == 200 || response.statusCode == 400) {
       print(response.body);
       return true;
       // return LoginResponseModel.fromJson(json.decode(response.body));
@@ -139,13 +146,14 @@ class APIService {
   // 查詢好友清單：以 uID 呼叫 API 查詢好友姓名，返回結果一一插入 sqflite - friend table
   Future<bool> selectUserInfo(SelectInfoRequestModel requestModel) async {
     String url = "$ip/api/member/select_uid_member";
-    final response = await http.post(Uri.parse(url), headers: {'cookie': UserData.token}, body: requestModel.toJson());
-    if (response.statusCode == 200 || response.statusCode == 400){
-      var jsonResponse = json.decode(response.body) ;
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: requestModel.toJson());
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      var jsonResponse = json.decode(response.body);
       print("JSON RESPONSE IN SELECTUSERINFO $jsonResponse");
       await SqliteHelper.insert(tableName: "friend", insertData: jsonResponse);
       return true;
-    } else{
+    } else {
       print(response.body);
       return false;
       // throw Exception("Failed to Load Data");
@@ -157,8 +165,9 @@ class APIService {
   Future<bool> acceptFriend(AcceptFriendRequestModel requestModel) async {
     String url = "$ip/api/friend/insert_friend";
 
-    final response = await http.post(Uri.parse(url),headers: {'cookie': UserData.token}, body: requestModel.toJson());
-    if(response.statusCode == 200 || response.statusCode == 400){
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: requestModel.toJson());
+    if (response.statusCode == 200 || response.statusCode == 400) {
       print(response.body);
       return true;
       // return LoginResponseModel.fromJson(json.decode(response.body));
@@ -168,12 +177,14 @@ class APIService {
       // throw Exception("Failed to Load Data");
     }
   }
+
   // 送出好友邀請前先確認 UID1 & UID2 好友關係
   Future<bool> checkFriend(CheckFriendRequestModel requestModel) async {
     String url = "$ip/api/friend/check_friend";
 
-    final response = await http.post(Uri.parse(url),headers: {'cookie': UserData.token}, body: requestModel.toJson());
-    if(response.statusCode == 200 || response.statusCode == 400){
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: requestModel.toJson());
+    if (response.statusCode == 200 || response.statusCode == 400) {
       print(response.body);
       return true;
       // return LoginResponseModel.fromJson(json.decode(response.body));
@@ -183,11 +194,13 @@ class APIService {
       // throw Exception("Failed to Load Data");
     }
   }
+
   Future<bool> deleleFriend(DeleteFriendRequestModel requestModel) async {
     String url = "$ip/api/friend/delete_friend";
 
-    final response = await http.post(Uri.parse(url),headers: {'cookie': UserData.token}, body: requestModel.toJson());
-    if(response.statusCode == 200 || response.statusCode == 400){
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: requestModel.toJson());
+    if (response.statusCode == 200 || response.statusCode == 400) {
       print(response.body);
       return true;
       // return LoginResponseModel.fromJson(json.decode(response.body));
@@ -197,23 +210,26 @@ class APIService {
       // throw Exception("Failed to Load Data");
     }
   }
+
   // 列出好友清單
   Future<bool> selectFriend(SelectFriendRequestModel requestModel) async {
     await SqliteHelper.clear(tableName: "friend");
     String url = "$ip/api/friend/select_friend";
-    final response = await http.post(Uri.parse(url),headers: {'cookie': UserData.token}, body: requestModel.toJson());
-    if (response.statusCode == 200 || response.statusCode == 400){
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: requestModel.toJson());
+    if (response.statusCode == 200 || response.statusCode == 400) {
       List jsonResponse = json.decode(response.body); //回傳一個 Map
       print('FRIEND LIST FROM SERVER');
       for (var tmpResponse in jsonResponse) {
         // 使用 uID2 查詢 userInfo 以列出好友清單
         print(tmpResponse);
-        await selectUserInfo(SelectInfoRequestModel(uid: tmpResponse['uID2'].toString()));
+        await selectUserInfo(
+            SelectInfoRequestModel(uid: tmpResponse['uID2'].toString()));
       }
       print("我的朋友 table");
       print(await SqliteHelper.queryAll(tableName: "friend"));
       return true;
-    } else{
+    } else {
       print(response.body);
       print("將好友們加入 sqlite 失敗");
       return false;
@@ -221,51 +237,82 @@ class APIService {
     }
   }
 
-
-  static Future<bool> addActivity(
+  static Future<List> addActivity(
       {required Map<String, dynamic> content}) async {
     String url = "http://163.22.17.247:3000/api/activity/insert_activity";
     final response = await http.post(Uri.parse(url),
         headers: {'cookie': UserData.token}, body: content);
     final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print('新增活動 $responseString');
-      return true;
+      return [true, responseString];
     } else {
       print(responseString);
-      return false;
+      return [false, responseString];
     }
   }
 
-  Future<bool> startActivity(StartActivityRequestModel requestModel) async {
-    String url = "http://163.22.17.247:3000/api/activity/start_activity";
-
-    final response =
-        await http.post(Uri.parse(url), body: requestModel.toJson());
+  static Future<List> deleteActivity(
+      {required Map<String, dynamic> content}) async {
+    String url = "http://163.22.17.247:3000/api/activity/delete_activity";
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print(response.body);
-      return true;
-      // return LoginResponseModel.fromJson(json.decode(response.body));
+      print('刪除活動 $responseString');
+      return [true, responseString];
     } else {
-      print(response.body);
-      return false;
-      // throw Exception("Failed to Load Data");
+      print(responseString);
+      return [false, responseString];
     }
   }
 
-  Future<bool> finishActivity(FinishActivityRequestModel requestModel) async {
+  static Future<List> startActivity(
+      {required Map<String, dynamic> content}) async {
     String url = "http://163.22.17.247:3000/api/activity/start_activity";
 
-    final response =
-        await http.post(Uri.parse(url), body: requestModel.toJson());
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print(response.body);
-      return true;
-      // return LoginResponseModel.fromJson(json.decode(response.body));
+      return [true, responseString];
     } else {
-      print(response.body);
-      return false;
-      // throw Exception("Failed to Load Data");
+      print('開始活動失敗');
+      print(responseString);
+      return [false, responseString];
+    }
+  }
+
+  static Future<List> finishActivity(
+      {required Map<String, dynamic> content}) async {
+    String url = "http://163.22.17.247:3000/api/activity/finish_activity";
+
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      print('結束活動成功');
+      print(responseString);
+      return [true, responseString];
+    } else {
+      print('結束活動失敗');
+      print(responseString);
+      return [false, responseString];
+    }
+  }
+
+  // 抓某使用者 (uID) 的相關資料
+  static Future<List> selectUidMemberData(
+      {required Map<String, dynamic> content}) async {
+    String url = "http://163.22.17.247:3000/api/member/select_uid_member";
+    print(content);
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      return [responseString];
+    } else {
+      print('失敗 $responseString response.statusCode ${response.statusCode}');
+      return [responseString];
     }
   }
 
