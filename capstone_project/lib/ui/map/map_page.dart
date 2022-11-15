@@ -52,15 +52,17 @@ class MapPageState extends State<MapPage> {
   final raisedBtnStyle = ElevatedButton.styleFrom(
       minimumSize: const Size(55, 55),
       shape: const CircleBorder(),
-      backgroundColor: Colors.indigoAccent.shade100);
+      backgroundColor: darkGreen1);
   final startBtnStyle = ElevatedButton.styleFrom(
-      minimumSize: const Size(55, 55),
+      minimumSize: const Size(60, 60),
       shape: const CircleBorder(),
-      backgroundColor: Colors.teal);
+      foregroundColor: Colors.amber,
+      backgroundColor: Colors.white);
   final stopBtnStyle = ElevatedButton.styleFrom(
-      minimumSize: const Size(55, 55),
+      minimumSize: const Size(60, 60),
       shape: const CircleBorder(),
-      backgroundColor: Colors.red);
+      foregroundColor: Colors.redAccent,
+      backgroundColor: Colors.white);
 
   @override
   void initState() {
@@ -96,7 +98,11 @@ class MapPageState extends State<MapPage> {
       home: Scaffold(
         appBar: AppBar(
           title: const Center(child: Text('地圖頁面')),
-          backgroundColor: Colors.indigoAccent.shade100,
+          backgroundColor: darkGreen1,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30))),
         ),
         body: Stack(children: [
           ShowFlutterMap(
@@ -128,18 +134,21 @@ class MapPageState extends State<MapPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () => takePhoto(markers),
-                      child: const Icon(Icons.camera_alt_outlined),
+                      child: const ImageIcon(
+                        cameraIcon,
+                        size: 38,
+                      ),
                       style: raisedBtnStyle,
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        print('離線地圖清單');
-                        // Navigator.pushNamed(context, '/OfflineMapPage');
-                        Navigator.pushNamed(context, '/TestOfflineMap');
-                      },
-                      child: const Icon(Icons.map),
-                      style: raisedBtnStyle,
-                    ),
+                    // ElevatedButton(
+                    //   onPressed: () {
+                    //     print('離線地圖清單');
+                    //     // Navigator.pushNamed(context, '/OfflineMapPage');
+                    //     Navigator.pushNamed(context, '/TestOfflineMap');
+                    //   },
+                    //   child: const Icon(Icons.map),
+                    //   style: raisedBtnStyle,
+                    // ),
                   ],
                 ),
               ),
@@ -152,13 +161,13 @@ class MapPageState extends State<MapPage> {
                     ElevatedButton(
                       onPressed: () => pushRecordBtn(context),
                       child: isStarted
-                          ? const Icon(
-                              Icons.stop_rounded,
-                              size: 42.0,
+                          ? const ImageIcon(
+                              endIcon,
+                              size: 33,
                             )
-                          : const Icon(
-                              Icons.play_arrow_rounded,
-                              size: 42.0,
+                          : const ImageIcon(
+                              startIcon,
+                              size: 40.0,
                             ),
                       style: isStarted ? stopBtnStyle : startBtnStyle,
                     ),

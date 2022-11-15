@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:intl/intl.dart';
 import 'package:capstone_project/models/activity/activity_model.dart';
+import 'package:capstone_project/services/file_provider.dart';
 import 'package:path/path.dart';
 import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
@@ -62,6 +64,7 @@ class UserData {
 
 class APIService {
   String ip = "http://163.22.17.247:3000";
+  static final FileProvider fileProvider = FileProvider();
   Future<bool> login(LoginRequestModel requestModel) async {
     String url =
         "$ip/api/login_member"; // 透過此行連線，/api/login_member 即 POST 對應的 API 路徑
@@ -89,6 +92,8 @@ class APIService {
       print("登入成功");
       // 以此 uID 查詢好友列表
       selectFriend(SelectFriendRequestModel(uID1: tmpResponse.uID.toString()));
+      var userID = {'uID': tmpResponse.uID.toString()};
+      await selectUserAllTrack(userID);
       return true;
       // 如果 server 回傳 json 格式則應該像下行寫，才能把 server response 的 json 資料抓出來用
       // return LoginResponseModel.fromJson(json.decode(response.body));
@@ -319,15 +324,59 @@ class APIService {
   // 抓某使用者的所有軌跡的資料
   static Future<List> selectUserAllTrack(Map<String, dynamic> content) async {
     String url = "http://163.22.17.247:3000/api/track/select_track";
-    print(content);
+    await SqliteHelper.clear(tableName: "track");
+
+    // 抓軌跡資料夾的路徑
+    await fileProvider.getAppPath;
+    Directory? trackDir =
+        await fileProvider.getSpecificDir(dirName: 'trackData');
+    fileProvider.deleteDirectory(directory: trackDir!);
+    trackDir = await fileProvider.getSpecificDir(dirName: 'trackData');
+    print('==========\ntrackDir ${trackDir!.path}\n==========');
+
     final response = await http.post(Uri.parse(url),
         headers: {'cookie': UserData.token}, body: content);
-    final responseString = jsonDecode(response.body);
+    final serverTracks = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      // print(response.body);
-      return [true, responseString];
+      // print(serverTracks);
+      for (var _track in serverTracks) {
+        print('_track $_track');
+        // 將 sqlite 軌跡的資料更新成跟 server 一樣
+        // 下載軌跡
+        String savePath = '${trackDir.path}/${_track['track_name']}';
+        // download server track file
+        Map<String, dynamic> downloadTrackID = {'tID': _track['tID']};
+        List downloadTrackResult =
+            await downloadTrack(savePath: savePath, content: downloadTrackID);
+        print('下載成功   ${downloadTrackResult[0]}');
+        // 更新 sqlite
+        if (downloadTrackResult[0]) {
+          Track newClientTrackData = Track(
+              tID: _track['tID'].toString(),
+              uID: _track['uID'].toString(),
+              track_name: _track['track_name'],
+              track_locate: savePath,
+              start: _track['start'],
+              finish: _track['finish'],
+              total_distance: _track['total_distance'].toString(),
+              time: _track['time'],
+              track_type: _track['track_type'].toString());
+          List insertClientTrackResult = await SqliteHelper.insert(
+              tableName: 'track', insertData: newClientTrackData.toMap());
+          if (insertClientTrackResult[0]) {
+            _track['isDownloaded'] = true;
+            print('本機端新增軌跡 ${_track['tID']} 成功');
+          } else {
+            print('本機端新增軌跡 ${_track['tID']} 失敗');
+          }
+        } else {
+          print("err.message:  ${downloadTrackResult[1]}");
+          print('server 下載軌跡 ${_track['tID']} 失敗');
+        }
+      }
+      return [true, serverTracks];
     } else {
-      print('失敗 $responseString response.statusCode ${response.statusCode}');
+      print('失敗 $serverTracks response.statusCode ${response.statusCode}');
       return [false, []];
     }
   }
@@ -416,10 +465,14 @@ class APIService {
     bool downloadSuccess = false;
     String url = "http://163.22.17.247:3000/api/track/download_track";
     try {
-      final response = await Dio().download(url, savePath);
-      return [downloadSuccess, 'Track file path $savePath'];
+      final response = await Dio().download(url, savePath,
+          queryParameters: content,
+          options: Options(headers: {'cookie': UserData.token}));
+      downloadSuccess = true;
+      return [downloadSuccess, savePath];
     } on DioError catch (err) {
       print(err.message);
+      downloadSuccess = false;
       return [downloadSuccess, err.message];
     }
   }

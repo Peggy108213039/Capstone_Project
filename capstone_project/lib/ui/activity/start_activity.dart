@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/track/track_model.dart';
@@ -5,8 +6,12 @@ import 'package:capstone_project/models/ui_model/warning_time.dart';
 import 'package:capstone_project/services/audio_player.dart';
 import 'package:capstone_project/services/gpx_service.dart';
 import 'package:capstone_project/services/http_service.dart';
+import 'package:capstone_project/services/polyline_coordinates_model.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
+import 'package:capstone_project/services/stream_socket.dart';
 import 'package:capstone_project/ui/activity/activity_map_widget.dart';
+import 'package:capstone_project/ui/activity/socket_warning_distance.dart';
+import 'package:capstone_project/ui/activity/socket_warning_time.dart';
 import 'package:capstone_project/ui/activity/warning_distance_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -23,7 +28,9 @@ import 'package:provider/provider.dart';
 
 class StartActivity extends StatefulWidget {
   final List<LatLng> gpsList;
-  const StartActivity({Key? key, required this.gpsList}) : super(key: key);
+  final List members;
+  const StartActivity({Key? key, required this.gpsList, required this.members})
+      : super(key: key);
 
   @override
   State<StartActivity> createState() => _StartActivityState();
@@ -33,10 +40,11 @@ class _StartActivityState extends State<StartActivity> {
   late Directory? trackDir; // 軌跡資料夾
   final FileProvider fileProvider = FileProvider();
   late List<LatLng> gpsList;
-  // late AudioPlayerService audioPlayerService;
+  late List frindsIDList;
 
   bool isStarted = false;
   bool isPaused = false;
+  bool shareUserPosition = false;
 
   List<Marker> markers = []; // 標記拍照點
 
@@ -63,28 +71,76 @@ class _StartActivityState extends State<StartActivity> {
   @override
   void initState() {
     gpsList = widget.gpsList;
+    frindsIDList = widget.members;
+    buildFriendPolyLine(frindsIDList: frindsIDList);
     getTrackDirPath();
-    // audioPlayerService.getPlayer;
     super.initState();
+  }
+
+  void buildFriendPolyLine({required List frindsIDList}) {
+    if (frindsIDList.isNotEmpty) {
+      for (int i = 0; i < frindsIDList.length; i++) {
+        String memberName = frindsIDList[i]['account'].toString();
+        PolylineCoordinates tempPolyline = PolylineCoordinates();
+        activityPolyLineList
+            .add({"account": memberName, "polyline": tempPolyline});
+      }
+    }
+    print('activityPolyLineList $activityPolyLineList');
   }
 
   @override
   void dispose() {
     print('===== 刪掉 dispose =====');
-    // audioPlayerService.close();
     LocationService.closeService();
+    clearPolylineList();
     super.dispose();
+  }
+
+  void clearPolylineList() {
+    activityPolyLineList.clear();
+  }
+
+  void socketSituation({required Object? socketData}) {
+    final tmpSocketData = jsonDecode(jsonEncode(socketData!));
+    print('socketData $tmpSocketData  type ${tmpSocketData.runtimeType}');
+    if (tmpSocketData.runtimeType != String) {
+      final String ctlMsg = tmpSocketData['ctlmsg'];
+      if (ctlMsg == "broadcast location") {
+        // FIXME client 收到同行者的軌跡
+        for (int i = 0; i < activityPolyLineList.length; i++) {
+          if (tmpSocketData['account_msg'] ==
+              activityPolyLineList[i]['account']) {
+            activityPolyLineList[i]['polyline'].recordCoordinates(UserLocation(
+                latitude: tmpSocketData['location_msg']['latitude'],
+                longitude: tmpSocketData['location_msg']['longitude'],
+                altitude: tmpSocketData['location_msg']['elevation'],
+                currentTime: UserLocation.getCurrentTime()));
+          }
+        }
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // get Socket response
-    final testSocketData = Provider.of<Object?>(context);
-    print('==============');
-    print('開始活動  test Socket Data $testSocketData');
     print('===== 建立活動地圖頁面 START =====');
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
+    shareUserPosition = arguments['shareUserPosition'];
+
+    // get Socket response
+    final testSocketData = Provider.of<Object?>(context);
+    socketSituation(socketData: testSocketData);
+
+    // if (isStarted && !isPaused) {
+    //   if (shareUserPosition) {
+    //     // FIXME 將自己的軌跡送給 server
+    //     // 放到 activity_map_widget
+    //     StreamSocket.uploadUserLocation(
+    //         activityMsg: activityMsg, location: userLocation);
+    //   }
+    // }
 
     if (!isStarted && !isPaused) {
       markers.clear();
@@ -111,6 +167,8 @@ class _StartActivityState extends State<StartActivity> {
             isStarted: isStarted,
             isPaused: isPaused,
             markerList: markers,
+            sharePosition: shareUserPosition,
+            activityMsg: '${arguments['aID']} ${arguments['activity_name']}',
           ),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Column(
@@ -119,7 +177,6 @@ class _StartActivityState extends State<StartActivity> {
                   isStarted: isStarted,
                   isPaused: isPaused,
                   checkTime: 2,
-                  //FIXME:
                   warningTime: int.parse(arguments['warning_time']) * 60,
                   // warningTime: 10,
                 ),
@@ -129,6 +186,14 @@ class _StartActivityState extends State<StartActivity> {
                   gpsList: gpsList,
                   warningDistance: double.parse(arguments['warning_distance']),
                 ),
+                SocketWarningDistance(
+                    isStarted: isStarted,
+                    isPaused: isPaused,
+                    socketMssege: testSocketData),
+                SocketWarningTime(
+                    isStarted: isStarted,
+                    isPaused: isPaused,
+                    socketMssege: testSocketData)
               ],
             ),
           ]),

@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:capstone_project/services/stream_socket.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -12,12 +15,16 @@ class ActivityMap extends StatefulWidget {
   final bool isStarted;
   final bool isPaused;
   final List<Marker> markerList; // 標記拍照點
+  final bool sharePosition; // 使用者是否想要分享位置
+  final String activityMsg; // socket 的 activityMsg
   const ActivityMap(
       {Key? key,
       required this.gpsList,
       required this.isStarted,
       required this.isPaused,
-      required this.markerList})
+      required this.markerList,
+      required this.sharePosition,
+      required this.activityMsg})
       : super(key: key);
 
   @override
@@ -30,6 +37,8 @@ class _ActivityMapState extends State<ActivityMap> {
   late bool isStarted;
   late bool isPaused;
   late List<Marker> markerList;
+  late bool sharePosition;
+  late String activityMsg;
 
   static UserLocation defaultLocation = UserLocation(
       latitude: 23.94981257,
@@ -44,6 +53,8 @@ class _ActivityMapState extends State<ActivityMap> {
   @override
   void initState() {
     gpsList = widget.gpsList;
+    sharePosition = widget.sharePosition;
+    activityMsg = widget.activityMsg;
     super.initState();
   }
 
@@ -72,9 +83,15 @@ class _ActivityMapState extends State<ActivityMap> {
   // 畫使用者的軌跡
   void getUserTrack({required List<LatLng> gpsList}) async {
     if (isStarted && !isPaused) {
-      // FIXME 傳自己的座標給 server
       polyline.recordCoordinates(userLocation);
       print('polyline 我的軌跡 ${polyline.list}');
+
+      // FIXME 傳自己的座標給 server
+      if (sharePosition) {
+        print(activityMsg);
+        StreamSocket.uploadUserLocation(
+            activityMsg: activityMsg, location: userLocation);
+      }
     }
   }
 
@@ -84,13 +101,12 @@ class _ActivityMapState extends State<ActivityMap> {
     isPaused = widget.isPaused;
     userLocation = Provider.of<UserLocation>(context);
     markerList = widget.markerList;
-
+    print('activityMsg $activityMsg');
     if (userLocation != currentLocation) {
       moveCamera(userLocation: userLocation, currentLocation: currentLocation);
     }
 
     if (isStarted && !isPaused) {
-      // FIXME 抓同行者的位置
       getUserTrack(gpsList: gpsList);
     }
 
@@ -120,6 +136,7 @@ class _ActivityMapState extends State<ActivityMap> {
                             ),
                           ))
                 ]),
+        // FIXME 將同行者的 polyline 加進來
         PolylineLayerOptions(polylines: [
           Polyline(
             points: gpsList,

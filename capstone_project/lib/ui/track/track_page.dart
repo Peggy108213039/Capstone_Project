@@ -62,9 +62,6 @@ class _TrackPageState extends State<TrackPage> {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints.expand(),
-      // decoration: const BoxDecoration(
-      //     image: DecorationImage(
-      //         image: defaultBackgroundImage, fit: BoxFit.cover)),
       child: Scaffold(
         backgroundColor: lightGreen0,
         appBar: AppBar(
@@ -100,17 +97,8 @@ class _TrackPageState extends State<TrackPage> {
   getTrackData() async {
     // 抓後端軌跡的資料
     var userID = {'uID': '${UserData.uid}'};
-    List result = await APIService.selectUserAllTrack(userID);
-    print('使用者 server 上所有軌跡的資料 $result');
     queryTrackList = await SqliteHelper.queryAll(tableName: 'track');
     queryTrackList ??= [];
-    print(
-        '=========\ncreate Track Check Table 1 $hasTrackCheckTable \n=========');
-    // FIXME 檢查是否有漏下載的軌跡資料
-    // if (result[0]) {
-    //   checkLostTrackFile(
-    //       serverTrackFiles: result[1], clientTrackFiles: queryTrackList);
-    // }
     print('使用者 sqlite 上所有軌跡的資料 $queryTrackList');
     return queryTrackList;
   }
@@ -123,99 +111,6 @@ class _TrackPageState extends State<TrackPage> {
       }
     }
     return false;
-  }
-
-  void createCheckTable(
-      {required List serverTrackFiles, required List? clientTrackFiles}) {
-    for (int i = 0; i < serverTrackFiles.length; i++) {
-      bool hasAddTID = checkAddTID(
-          tID: serverTrackFiles[i]['tID'].toString(),
-          trackDataList: serverTrackData);
-      if (!hasAddTID) {
-        Map sTrackData = {
-          'tID': serverTrackFiles[i]['tID'].toString(),
-          'track_name': serverTrackFiles[i]['track_name'].toString(),
-          'isDownloaded': false
-        };
-        serverTrackData.add(sTrackData);
-      }
-    }
-  }
-
-  void checkLostFile(
-      {required List serverTrackData,
-      required List serverTrackFiles,
-      required List? clientTrackFiles}) async {
-    if (clientTrackFiles!.isNotEmpty) {
-      for (int s = 0; s < serverTrackData.length; s++) {
-        for (int c = 0; c < clientTrackFiles.length; c++) {
-          if (!serverTrackData[s]['isDownloaded']) {
-            if (serverTrackData[s]['tID'] == clientTrackFiles[c]['tID']) {
-              serverTrackData[s]['isDownloaded'] = true;
-            } else {
-              Map<String, dynamic> downloadTrackID = {
-                'tID': serverTrackData[s]['tID']
-              };
-              String savePath =
-                  '${trackDir!.path}/${serverTrackData[s]['track_name']}';
-              // download server track file
-              List downloadTrackResult = await APIService.downloadTrack(
-                  savePath: savePath, content: downloadTrackID);
-              if (downloadTrackResult[0]) {
-                // insert sqlite track data
-                Track newClientTrackData = Track(
-                    tID: serverTrackFiles[s]['tID'],
-                    uID: UserData.uid.toString(),
-                    track_name: serverTrackFiles[s]['track_name'],
-                    track_locate: serverTrackFiles[s]['track_locate'],
-                    start: serverTrackFiles[s]['start'],
-                    finish: serverTrackFiles[s]['finish'],
-                    total_distance: serverTrackFiles[s]['total_distance'],
-                    time: serverTrackFiles[s]['time'],
-                    track_type: serverTrackFiles[s]['track_type']);
-                List insertClientTrackResult = await SqliteHelper.insert(
-                    tableName: 'track', insertData: newClientTrackData.toMap());
-                if (insertClientTrackResult[0]) {
-                  serverTrackData[s]['isDownloaded'] = true;
-                  print('$s 本機端新增軌跡 ${serverTrackFiles[s]['tID']} 成功');
-                } else {
-                  print('$s 本機端新增軌跡 ${serverTrackFiles[s]['tID']} 失敗');
-                }
-              } else {
-                print(downloadTrackResult[1]);
-                print('$s server 下載軌跡 ${serverTrackFiles[s]['tID']} 失敗');
-              }
-            }
-          }
-        }
-      }
-    } else {
-      print(' download all track files');
-    }
-  }
-
-  //  檢查 server 和 client 端的軌跡資料是否同步
-  void checkLostTrackFile(
-      {required List serverTrackFiles, required List? clientTrackFiles}) {
-    if (serverTrackFiles.isEmpty) {
-      print('server 上沒資料');
-      return;
-    }
-    if (!hasTrackCheckTable) {
-      createCheckTable(
-          serverTrackFiles: serverTrackFiles,
-          clientTrackFiles: clientTrackFiles);
-      hasTrackCheckTable = true;
-    }
-    checkLostFile(
-        serverTrackData: serverTrackData,
-        serverTrackFiles: serverTrackFiles,
-        clientTrackFiles: clientTrackFiles);
-
-    print('SERVER TRACK FILES $serverTrackData');
-    // print('CLIENT TRACK FILES $clientTrackData');
-    print(
-        '=========\ncreate Track Check Table 2 $hasTrackCheckTable \n=========');
   }
 
   Future<void> getAppTrackDirPath() async {
@@ -288,6 +183,7 @@ class _TrackPageState extends State<TrackPage> {
     File trackFile = File(trackData[0]['track_locate']);
     // 把 gpx 檔案轉成 string
     String result = await fileProvider.readFileAsString(file: trackFile);
+    print('GPX 檔案 \n =====$result');
     Map<String, dynamic> gpxResult = GPXService.getGPSList(content: result);
     List<LatLng> latLngList = gpxResult['latLngList']; // LatLng (沒有高度)
     List<ElevationPoint> elevationPointList =
@@ -402,7 +298,8 @@ class _TrackPageState extends State<TrackPage> {
           DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now());
       TrackRequestModel newServerTrackData = TrackRequestModel(
           uID: UserData.uid.toString(),
-          track_name: fileProvider.getFileName(file: newTrackFile),
+          // track_name: fileProvider.getFileName(file: newTrackFile),
+          track_name: trackName,
           track_locate: newTrackFile.path,
           start: DateFormat('yyyy-MM-dd hh:mm').format(startTime),
           finish: DateFormat('yyyy-MM-dd hh:mm').format(finishTime),

@@ -236,6 +236,7 @@ class _TestOfflineMapState extends State<TestOfflineMap> {
             return ListView.builder(
               itemCount: list.length,
               itemBuilder: (context, idx) {
+                print(list[idx]);
                 return Column(
                   children: <Widget>[
                     ListTile(

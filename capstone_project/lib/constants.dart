@@ -74,6 +74,7 @@ List serverTrackData = [];
 late LatLng previousPoint;
 bool havePreviousPoint = false;
 PolylineCoordinates polyline = PolylineCoordinates(); // 紀錄使用者的 polyline
+List<Map<String, dynamic>> activityPolyLineList = []; // 紀錄同行者的 polyline
 
 // 地圖
 UserLocation defaultLocation = UserLocation(

@@ -10,6 +10,7 @@ import 'package:capstone_project/models/friend/friend_model.dart';
 import 'package:capstone_project/models/activity/activity_model.dart';
 import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
+import 'package:provider/provider.dart';
 
 class AddActivityPage extends StatefulWidget {
   const AddActivityPage({Key? key}) : super(key: key);
@@ -409,6 +410,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
     for (var partner in selectedPartner) {
       members.add(partner!.uID);
     }
+    members.add(UserData.uid);
     final ActivityRequestModel newServerActivityData = ActivityRequestModel(
         uID: UserData.uid.toString(),
         activity_name: activName,
@@ -418,12 +420,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
         warning_time: warningTime,
         members: members);
     // 插入資料庫
-    print('newServerActivityData\n$newServerActivityData');
     List result =
         await APIService.addActivity(content: newServerActivityData.toMap());
-    print('result $result');
     if (result[0]) {
-      print('新增活動的 ID ${result[1]['aID']}');
       final Activity newLocalActivityData = Activity(
           aID: result[1]['aID'].toString(),
           uID: UserData.uid.toString(),
@@ -443,6 +442,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
   @override
   Widget build(BuildContext context) {
+    // FIXME get Socket response
+    final testSocketData = Provider.of<Object?>(context);
+    print('==========\n新增活動頁面 socket\n$testSocketData\n==========');
     return Scaffold(
         backgroundColor: activityGreen,
         appBar: AppBar(

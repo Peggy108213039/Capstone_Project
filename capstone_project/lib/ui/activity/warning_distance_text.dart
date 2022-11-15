@@ -43,7 +43,6 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
   void initState() {
     warningDistance = widget.warningDistance;
     gpsList = widget.gpsList;
-    // audioPlayerService.getPlayer;
     super.initState();
   }
 

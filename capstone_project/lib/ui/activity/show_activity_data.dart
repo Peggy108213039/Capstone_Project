@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:capstone_project/constants.dart';
+import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:capstone_project/services/cache_tile_provider.dart';
 import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/ui/activity/start_activity.dart';
@@ -26,6 +28,9 @@ class _ShowActivityDataState extends State<ShowActivityData> {
   List friendList = [];
   String memberString = '';
 
+  // bool? sharePostion = false;
+  late MyAlertDialog sharePositionDialog; // 提醒視窗：問同行者是否要分享位置
+
   @override
   void initState() {
     getSqliteData();
@@ -42,12 +47,14 @@ class _ShowActivityDataState extends State<ShowActivityData> {
 
   void getMemberList(List frindsIDList) {
     memberString = '';
+    friendList.clear();
     for (var member in queryFriendTable!) {
       if (frindsIDList.contains(member['uID'].toString())) {
         friendList.add(member);
         memberString += (member['name'].toString() + '  ');
       }
     }
+    print('展示活動頁面 getMemberList \n$friendList');
   }
 
   @override
@@ -63,26 +70,32 @@ class _ShowActivityDataState extends State<ShowActivityData> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.indigoAccent.shade100,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-          ),
-          onPressed: () {
-            Navigator.pushNamed(context, "/MyBottomBar3");
-          },
-          tooltip: '返回',
-        ),
+        backgroundColor: darkGreen1,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30))),
+        automaticallyImplyLeading: false,
         title: const Center(child: Text('活動資料')),
         actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/EditActivityData',
-                    arguments: arguments['activityData']);
-              },
-              icon: const Icon(Icons.edit))
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/EditActivityData',
+                  arguments: arguments['activityData']);
+            },
+            child: const ImageIcon(
+              editIcon,
+              size: 33,
+            ),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(30, 30),
+              backgroundColor: transparentColor,
+              shadowColor: transparentColor,
+            ),
+          )
         ],
       ),
+      backgroundColor: activityGreen,
       body: SingleChildScrollView(
         child: Container(
           alignment: Alignment.topLeft,
@@ -92,12 +105,15 @@ class _ShowActivityDataState extends State<ShowActivityData> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildText(
-                  content: '活動主辦人 : ${arguments['activityHostData']['name']}',
-                  fontSize: 20,
-                  subText: '',
-                  subTextSize: 0,
-                  width: width),
+                title: '活動主辦人',
+                content: '${arguments['activityHostData']['name']}',
+                fontSize: 20,
+                subText: '',
+                subTextSize: 0,
+                width: width,
+              ),
               buildText(
+                  title: '活動名稱',
                   content:
                       '活動名稱 : ${arguments['activityData']['activity_name']}',
                   fontSize: 20,
@@ -105,8 +121,8 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                   subTextSize: 0,
                   width: width),
               buildText(
-                  content:
-                      '活動時間 : ${arguments['activityData']['activity_time']}',
+                  title: '活動時間',
+                  content: '${arguments['activityData']['activity_time']}',
                   fontSize: 20,
                   subText: '',
                   subTextSize: 0,
@@ -114,33 +130,43 @@ class _ShowActivityDataState extends State<ShowActivityData> {
               showTrack(tID: arguments['activityData']['tID'], width: width),
               // FIXME 同行成員
               buildText(
-                  content: '同行成員 : $memberString',
+                  title: '同行成員',
+                  content: memberString,
                   fontSize: 20,
                   subText: '',
                   subTextSize: 0,
                   width: width),
               buildText(
+                  title: '最遠距離',
                   content:
-                      '最遠距離 : ${arguments['activityData']['warning_distance']} 公尺',
+                      '${arguments['activityData']['warning_distance']} 公尺',
                   fontSize: 20,
                   subText: '補充說明 : 同行成員中，第一位成員與最後一位成員的距離不得超過此距離',
                   subTextSize: 12,
                   width: width),
               buildText(
-                  content:
-                      '停留時間 : ${arguments['activityData']['warning_time']} 分鐘',
+                  title: '停留時間',
+                  content: '${arguments['activityData']['warning_time']} 分鐘',
                   fontSize: 20,
                   subText: '補充說明 : 同行成員中，任何一位成員停留於原地時間不得超過此時間',
                   subTextSize: 12,
                   width: width),
-              mySpace(30),
+              mySpace(15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    child: const Text('開始活動'),
+                    child: const Text(
+                      '開始活動',
+                      style:
+                          TextStyle(fontSize: 23, fontWeight: FontWeight.w500),
+                    ),
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal.shade300),
+                        minimumSize: Size(90, 50),
+                        foregroundColor: darkGreen2,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30))),
                     onPressed: () async {
                       final startActivityReq = {
                         'aID': arguments['activityData']['aID'].toString()
@@ -149,7 +175,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                           await APIService.startActivity(
                               content: startActivityReq);
                       if (startActivityResponse[0]) {
-                        print('開始活動 ${startActivityResponse[1]}');
+                        bool? shareUserPosition = await sharePosition();
                         Navigator.pushNamed(context, '/StartActivity',
                             arguments: {
                               'aID': arguments['activityData']['aID'],
@@ -162,6 +188,8 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                                   ['warning_distance'],
                               'warning_time': arguments['activityData']
                                   ['warning_time'],
+                              'members': friendList,
+                              'shareUserPosition': shareUserPosition,
                             });
                       } else {
                         print('開始活動失敗');
@@ -198,50 +226,67 @@ class _ShowActivityDataState extends State<ShowActivityData> {
   }
 
   Widget buildText(
-      {required String content,
+      {required String title,
+      required String content,
       required double fontSize,
       required String subText,
       required double subTextSize,
       required double width}) {
     String _content = adjustStringLength(str: content);
 
-    return Row(
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _content,
-              style: TextStyle(fontSize: fontSize),
-            ),
-            if (subText != '' && subTextSize != 0) mySpace(6),
-            SizedBox(
-              width: width - 30,
-              child: Text(
-                subText,
-                softWrap: true,
-                style: TextStyle(color: Colors.grey, fontSize: subTextSize),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+      child: Row(
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                    fontSize: fontSize,
+                    color: darkGreen2,
+                    fontWeight: FontWeight.w500),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Container(
-                height: 3,
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                padding: const EdgeInsets.fromLTRB(8, 5, 5, 5),
                 width: width - 30,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: const Color.fromARGB(255, 213, 213, 213)),
+                    color: grassGreen,
+                    border: Border.all(width: 3, color: grassGreen),
+                    borderRadius: BorderRadius.circular(15)),
+                child: Text(
+                  _content,
+                  style: TextStyle(fontSize: fontSize, color: Colors.white),
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+              if (subText != '' && subTextSize != 0) mySpace(6),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   SizedBox mySpace(double num) {
     return SizedBox(height: num);
+  }
+
+  Future<bool?> sharePosition() async {
+    sharePositionDialog = MyAlertDialog(
+        context: context,
+        titleText: '是否要分享位置給同行者？',
+        contentText: '分享後，同行者可以看到你的軌跡\n若沒分享，同行者看不到你的軌跡',
+        btn1Text: '要分享',
+        btn2Text: '不要分享');
+    bool? result = await sharePositionDialog.show();
+    while (result != true && result != false) {
+      result = await sharePositionDialog.show();
+    }
+    print('sharePostion  $result');
+    return result;
   }
 
   Widget showTrack({required String tID, required double width}) {
@@ -259,14 +304,33 @@ class _ShowActivityDataState extends State<ShowActivityData> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '活動軌跡 : ${trackData['track_name']}',
-                style: const TextStyle(fontSize: 20),
+              const Text(
+                '活動軌跡',
+                style: TextStyle(
+                    fontSize: 20,
+                    color: darkGreen2,
+                    fontWeight: FontWeight.w500),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                padding: const EdgeInsets.fromLTRB(8, 5, 5, 5),
+                width: width - 30,
+                decoration: BoxDecoration(
+                    color: grassGreen,
+                    border: Border.all(width: 3, color: grassGreen),
+                    borderRadius: BorderRadius.circular(15)),
+                child: Text(
+                  '${trackData['track_name']}',
+                  style: const TextStyle(fontSize: 20, color: Colors.white),
+                ),
               ),
               mySpace(6),
-              SizedBox(
+              Container(
                 width: width / 10 * 9,
                 height: width / 10 * 9,
+                decoration: BoxDecoration(
+                  border: Border.all(width: 3, color: grassGreen),
+                ),
                 child: FlutterMap(
                   options: MapOptions(
                     center: centerLatLng,
@@ -288,16 +352,6 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                       )
                     ])
                   ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Container(
-                  height: 3,
-                  width: width - 30,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: const Color.fromARGB(255, 213, 213, 213)),
                 ),
               ),
             ],

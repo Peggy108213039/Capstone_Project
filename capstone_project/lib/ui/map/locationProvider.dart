@@ -23,16 +23,18 @@ class LocationProvider extends StatelessWidget {
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
     List<LatLng> gpsList = [];
+    List members = [];
     if (arguments['gpsList'] != null) {
       gpsList = arguments['gpsList'];
+    }
+    if (arguments['members'] != null) {
+      members = arguments['members'];
     }
 
     Widget service;
     print('呈現地圖服務  $mapService');
     if (mapService == 'StartActivity') {
-      service = StartActivity(
-        gpsList: gpsList,
-      );
+      service = StartActivity(gpsList: gpsList, members: members);
     } else if (mapService == 'OfflineMapPage') {
       service = const OfflineMapPage();
       if (arguments['offlineMapData'][0] != null) {
