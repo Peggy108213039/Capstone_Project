@@ -1,3 +1,4 @@
+import 'package:capstone_project/services/notification_service.dart';
 import 'package:capstone_project/services/stream_socket.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +25,8 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  // init Notification
+  NotificationService().initAwesomeNotification();
   // Socket stream
   runApp(StreamProvider(
       create: (BuildContext context) {

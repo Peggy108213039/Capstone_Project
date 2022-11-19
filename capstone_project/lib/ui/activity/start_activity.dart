@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:capstone_project/services/notification_service.dart';
 import 'package:intl/intl.dart';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/track/track_model.dart';
@@ -122,6 +123,22 @@ class _StartActivityState extends State<StartActivity> {
           }
         }
       }
+      if (ctlMsg == "activity warniing") {
+        final String wanringMsg = tmpSocketData['wanring_msg'];
+        // FIXME  某人距離過遠
+        if (wanringMsg == "too far") {
+          print('距離過遠 tmpSocketData $tmpSocketData');
+          // FIXME 在 client 顯示 UI 某人距離過遠
+          NotificationService().showNotification(1, 'main_channel', '同行者距離過遠',
+              '${tmpSocketData['account_msg']} 距離過遠\n${tmpSocketData['location_msg']}');
+        }
+        // FIXME  某人停留時間過久
+        if (wanringMsg == "too long") {
+          print('停留時間過久 tmpSocketData $tmpSocketData');
+          NotificationService().showNotification(1, 'main_channel', '同行者停留時間過久',
+              '${tmpSocketData['account_msg']} 停留時間過久\n${tmpSocketData['location_msg']}');
+        }
+      }
     }
   }
 
@@ -179,14 +196,14 @@ class _StartActivityState extends State<StartActivity> {
                   gpsList: gpsList,
                   warningDistance: double.parse(arguments['warning_distance']),
                 ),
-                SocketWarningDistance(
-                    isStarted: isStarted,
-                    isPaused: isPaused,
-                    socketMssege: testSocketData),
-                SocketWarningTime(
-                    isStarted: isStarted,
-                    isPaused: isPaused,
-                    socketMssege: testSocketData)
+                // SocketWarningDistance(
+                //     isStarted: isStarted,
+                //     isPaused: isPaused,
+                //     socketMssege: testSocketData),
+                // SocketWarningTime(
+                //     isStarted: isStarted,
+                //     isPaused: isPaused,
+                //     socketMssege: testSocketData)
               ],
             ),
           ]),

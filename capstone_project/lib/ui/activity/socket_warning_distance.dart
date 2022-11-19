@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:capstone_project/services/notification_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:capstone_project/services/audio_player.dart';
@@ -45,6 +46,8 @@ class _SocketWarningDistanceState extends State<SocketWarningDistance> {
         if (wanringMsg == "too far") {
           print('距離過遠 tmpSocketData $tmpSocketData');
           // FIXME 在 client 顯示 UI 某人距離過遠
+          NotificationService().showNotification(1, 'main_channel', '同行者距離過遠',
+              '${tmpSocketData['account_msg']} 距離過遠\n${tmpSocketData['location_msg']}');
           warningText +=
               '${tmpSocketData['account_msg']} 距離過遠\n${tmpSocketData['location_msg']}';
           isVisible.value = true;

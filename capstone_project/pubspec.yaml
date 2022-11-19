@@ -76,6 +76,12 @@ dependencies:
   multi_select_flutter: ^4.1.2
   expandable_text: ^2.3.0
   audioplayers: 0.20.1
+  awesome_notifications: ^0.7.4+1
+  flutter_launcher_icons: ^0.11.0
+
+flutter_icons:
+  image_path_android: "assets/images/logo_icons/logo.png"
+  android: true
 
 dev_dependencies:
   flutter_test:

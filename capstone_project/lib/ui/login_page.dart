@@ -1,3 +1,4 @@
+import 'package:capstone_project/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -134,6 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                               });
                               // Socket connect
                               StreamSocket.connectAndListen();
+                              NotificationService().requestPermission();
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

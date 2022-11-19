@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:capstone_project/services/notification_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:capstone_project/services/audio_player.dart';
@@ -45,6 +46,8 @@ class _SocketWarningTimeState extends State<SocketWarningTime> {
         if (wanringMsg == "too long") {
           print('停留時間過久 tmpSocketData $tmpSocketData');
           // FIXME 在 client 顯示 UI 某人停留時間過久
+          NotificationService().showNotification(1, 'main_channel', '同行者停留時間過久',
+              '${tmpSocketData['account_msg']} 停留時間過久\n${tmpSocketData['location_msg']}');
           warningText +=
               '${tmpSocketData['account_msg']} 停留時間過久\n${tmpSocketData['location_msg']}';
           isVisible.value = true;

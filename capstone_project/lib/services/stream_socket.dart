@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/services/http_service.dart';
+import 'package:capstone_project/services/notification_service.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class StreamSocket {
@@ -26,13 +27,18 @@ class StreamSocket {
       _socket.on('account', (accountData) {
         if (accountData.runtimeType != String) {
           if (accountData['ctlmsg'] == "activity update") {
-            print('更新活動 API');
+            List activityMsg =
+                accountData['activity_msg'].toString().split(' ');
+            NotificationService().showNotification(
+                1, 'main_channel', '新增 ${activityMsg[1]} 活動', '可以到活動頁面查看');
             // FIXME : 更新活動資料跟 server 一樣
           }
-          if (accountData['ctlmsg'] == "join activity room") {
-            print('新增活動 socket 訊息   $accountData');
-            // FIXME 原封不動將這個訊息轉送回去給 server
-            _socket.emit('ctlmsg', accountData);
+          if (accountData['ctlmsg'] == "activity start") {
+            List activityMsg =
+                accountData['activity_msg'].toString().split(' ');
+            NotificationService().showNotification(
+                1, 'main_channel', '${activityMsg[1]} 活動開始', '可以去記錄活動了 !');
+            // FIXME : 更新活動資料跟 server 一樣
           }
         }
         _socketResponse.add(accountData);
