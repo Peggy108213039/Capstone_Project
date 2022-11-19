@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/services/notification_service.dart';
@@ -44,11 +45,21 @@ class StreamSocket {
         _socketResponse.add(accountData);
         print(
             'SOCKET ACCOUNT CHANNEL MSG : $accountData  ${accountData.runtimeType}');
+        // 直接在這裡寫進 sqlite
+        // if (json.decode(accountData)['ctlmsg'].toString().isNotEmpty &&  json.decode(accountData)['ctlmsg'].toString() == 'friend request'){
+        //   print('有人對我發送好友邀請');
+        //   print(json.decode(accountData)['account_msg'].toString());
+        //   // SqliteHelper.insert(tableName: 'notification', insertData: {});
+        //   // insert a notification 
+        // } else{
+        //   print('SOCKET ACCOUNT CHANNEL MSG $accountData');
+        // }
       });
       _socket.on('activity', (activityData) {
         if (activityData.runtimeType != String) {}
         _socketResponse.add(activityData);
         print('SOCKET ACTIVITY CHANNEL MSG : $activityData');
+        // 直接在這裡寫在 sqlite
       });
     } catch (error) {
       print('ERROR :\n$error');

@@ -73,11 +73,7 @@ class _SignupPageState extends State<SignupPage> {
               key: globalFormKey,
               child: Column(
                 children: <Widget>[
-                  Text(
-                    "註冊",
-                    style: Theme.of(context).textTheme.headline2,
-                  ),
-                  const VerticalSpacing(percent: 0.05),
+                  const VerticalSpacing(percent: 0.1),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: TextFormField(
@@ -177,6 +173,8 @@ class _SignupPageState extends State<SignupPage> {
                   const VerticalSpacing(percent: 0.05),
                   DefaultWilderButton(
                     text: "註冊",
+                    backgroundColor: unselectedColor,
+                    textColor: darkGreen1,
                     onpressed: () {
                       requestModel.password = checkpassword;
                       //print("INPUT PASSWORD:" + password);

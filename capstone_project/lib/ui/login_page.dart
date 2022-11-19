@@ -1,4 +1,3 @@
-import 'package:capstone_project/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -51,21 +50,18 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       constraints: const BoxConstraints.expand(),
       decoration: const BoxDecoration(
-          image:
-              DecorationImage(image: introBackgroundImage, fit: BoxFit.cover)),
+          image:DecorationImage(image: introBackgroundImage, fit: BoxFit.cover)),
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: transparentColor,
         body: SingleChildScrollView(
           child: Padding(
-              // padding: EdgeInsets.only(top: SizeConfig.noteBarHeight! *2),
               padding: EdgeInsets.symmetric(
                   horizontal: getProportionateScreenWidth(0.1),
                   vertical: SizeConfig.noteBarHeight! * 2),
               child: Form(
                 key: globalFormKey,
                 child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.center, //FIXME：垂直置中問題
                   children: <Widget>[
                     Container(
                       width: width,
@@ -75,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                             image: logoNameImg, fit: BoxFit.contain),
                       ),
                     ),
-                    const VerticalSpacing(percent: 0.1),
+                    const VerticalSpacing(percent: 0.05),
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 20.0),
                       child: TextFormField(
@@ -121,6 +117,8 @@ class _LoginPageState extends State<LoginPage> {
                     const VerticalSpacing(percent: 0.1),
                     DefaultWilderButton(
                       text: "登入",
+                      backgroundColor: unselectedColor,
+                      textColor: darkGreen1,
                       onpressed: () {
                         if (validateAndSave()) {
                           setState(() {
@@ -135,7 +133,6 @@ class _LoginPageState extends State<LoginPage> {
                               });
                               // Socket connect
                               StreamSocket.connectAndListen();
-                              NotificationService().requestPermission();
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -160,6 +157,8 @@ class _LoginPageState extends State<LoginPage> {
                     const VerticalSpacing(percent: 0.02),
                     DefaultWilderButton(
                       text: "註冊",
+                      backgroundColor: unselectedColor,
+                      textColor: darkGreen1,
                       onpressed: () {
                         Navigator.push(
                           context,

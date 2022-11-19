@@ -54,6 +54,7 @@ const logoNameImg = AssetImage('assets/images/logo_icons/logo_and_name.png');
 const addIcon = AssetImage('assets/images/other_icons/add.png');
 const arIcon = AssetImage('assets/images/other_icons/AR.png');
 const backIcon = AssetImage('assets/images/other_icons/back.png');
+const backIcon2 = AssetImage('assets/images/other_icons/back2.png');
 const cameraIcon = AssetImage('assets/images/other_icons/camera.png');
 const deleteIcon = AssetImage('assets/images/other_icons/delete.png');
 const editIcon = AssetImage('assets/images/other_icons/edit.png');

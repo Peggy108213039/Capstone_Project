@@ -7,6 +7,7 @@ class SqliteHelper {
   static const activTable = 'activity';
   static const offlineMapTable = 'offlineMap';
   static const friendTable = 'friend';
+  static const notificationTable = 'notification';
 
   // only have a single app-wide reference to the database
   static Database? db;
@@ -81,6 +82,15 @@ class SqliteHelper {
         );
       ''');
     print('建立好友資料表');
+    await db.execute('''
+        CREATE TABLE $notificationTable (
+        nID integer primary key AUTOINCREMENT,
+        ctlmsg text,
+        account_msg text,
+        friend_msg
+        );
+      ''');
+    print('建立我的通知資料表');
   }
 
   // 新增

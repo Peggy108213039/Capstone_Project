@@ -131,6 +131,8 @@ class APIService {
     }
   }
 
+  // FIXME1118：更新成功後作法
+  // 返回 T/F => 提醒使用者重新登入以更新自己的資料
   Future<bool> updateUserInfo(UpdateInfoRequestModel requestModel) async {
     String url = "$ip";
     final response = await http.post(Uri.parse(url),
@@ -153,7 +155,7 @@ class APIService {
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       var jsonResponse = json.decode(response.body);
-      print("JSON RESPONSE IN SELECTUSERINFO $jsonResponse");
+      print("MY FRIEND：$jsonResponse");
       await SqliteHelper.insert(tableName: "friend", insertData: jsonResponse);
       return true;
     } else {
@@ -225,9 +227,7 @@ class APIService {
       print('FRIEND LIST FROM SERVER');
       for (var tmpResponse in jsonResponse) {
         // 使用 uID2 查詢 userInfo 以列出好友清單
-        print(tmpResponse);
-        await selectUserInfo(
-            SelectInfoRequestModel(uid: tmpResponse['uID2'].toString()));
+        await selectUserInfo(SelectInfoRequestModel(uid: tmpResponse['uID2'].toString()));
       }
       print("我的朋友 table");
       print(await SqliteHelper.queryAll(tableName: "friend"));

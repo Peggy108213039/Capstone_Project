@@ -7,29 +7,32 @@ class DefaultWilderButton extends StatelessWidget {
     // button onPressed
     Key? key,
     required this.text,
+    required this.backgroundColor,
+    required this.textColor,
     required this.onpressed,
   }) : super(key: key);
   final String text;
+  final Color backgroundColor;
+  final Color textColor;
   final Function() onpressed;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: getProportionateScreenWidth(0.5),
+      width: getProportionateScreenWidth(0.8),
       // width: double.infinity, //to be as big as my parent allows (double.infinity)
-      height: getProportionateScreenHeight(0.07),
+      height: getProportionateScreenHeight(0.06),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          backgroundColor: PrimaryMiddleYellow,
+          shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          backgroundColor: backgroundColor,
         ),
         onPressed: onpressed,
         child: Text(
           text,
           style: TextStyle(
             fontSize: getProportionateScreenWidth(0.055),
-            color: PrimaryDarkGreen,
+            color: textColor,
           ),
         ),
       ),
@@ -42,28 +45,33 @@ class DefaultSmallButton extends StatelessWidget {
     // button onPressed
     Key? key,
     required this.text,
+    required this.backgroundColor,
+    required this.textColor,
     required this.onpressed,
   }) : super(key: key);
   final String text;
+  final Color backgroundColor;
+  final Color textColor;
   final Function() onpressed;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: getProportionateScreenWidth(0.5),
+      width: getProportionateScreenWidth(0.4),
       // width: double.infinity, //to be as big as my parent allows (double.infinity)
-      height: getProportionateScreenHeight(0.05),
+      height: getProportionateScreenHeight(0.06),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            backgroundColor: PrimaryMiddleYellow),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(80)),
+            backgroundColor: backgroundColor),
         onPressed: onpressed,
         child: Text(
           text,
           style: TextStyle(
-            fontSize: getProportionateScreenWidth(0.2),
-            color: PrimaryDarkGreen,
+            fontWeight: FontWeight.bold,
+            fontSize: getProportionateScreenWidth(0.055),
+            color: textColor,
           ),
         ),
       ),

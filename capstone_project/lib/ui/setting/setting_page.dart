@@ -1,5 +1,7 @@
 // import 'package:my_capstone_project/ui/notification_page.dart';
 // import 'package:my_capstone_project/ui/login_page.dart';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:capstone_project/components/infoBox.dart';
@@ -78,9 +80,7 @@ class _SettingPageState extends State<SettingPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: const <Widget>[
                     DefNotificationIcon(enable: true),
-                    DefSettingIcon(
-                      enable: false,
-                    ),
+                    DefSettingIcon(enable: false,),
                   ],
                 ),
                 Container(
@@ -267,6 +267,8 @@ class _SettingPageState extends State<SettingPage> {
                 const VerticalSpacing(percent: 0.01),
                 DefaultWilderButton(
                   text: "登出",
+                  backgroundColor: menuDarkGreenColor.withOpacity(0.8),
+                  textColor: selectedColor,
                   onpressed: () {
                     Navigator.push(
                       context,
@@ -291,42 +293,69 @@ class _SettingPageState extends State<SettingPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: PrimaryLightYellow,
-          title: const Text('修改信箱'),
+          backgroundColor: darkGreen2,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(30))),
+          title: const Text(
+            '修改信箱',
+            style: TextStyle(color: unselectedColor),
+          ),
           content: Form(
             key: globalFormKeyofEmail,
             child: TextFormField(
+              style: const TextStyle(color: unselectedColor),
               keyboardType: TextInputType.emailAddress,
               validator: (input) {
                 if (input!.isEmpty ||
                     !RegExp(r'[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+')
                         .hasMatch(input)) {
                   //allow upper and lower case alphabets and space
-                  return "Phone number should be valid";
+                  return "Email number should be valid";
                 } else {
                   return null;
                 }
                 ;
               },
-              //validator: (input) => !input!.contains("@") ? "Email should be Valid" : null, // 檢查 email 格式
               onSaved: (input) => requestModel.email = input!,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: "Your new email here",
-                prefixIcon: Icon(Icons.email),
-                // labelText: "New Email",
+                hintStyle: TextStyle(color: unselectedColor.withOpacity(0.7)),
+                prefixIcon: const Icon(Icons.email, color: unselectedColor,),
+                enabledBorder: const UnderlineInputBorder(      
+                  borderSide: BorderSide(color: unselectedColor),   
+                ),  
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: lightGreen0),
+                ), 
+                focusColor: unselectedColor
               ),
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('取消'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(unselectedColor),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+              ),
+              child: const Text(
+                '取消',
+                style: TextStyle(color: darkGreen2),
+              ),
               onPressed: () {
                 print('【取消】更新個人資料 - 信箱');
                 Navigator.pop(context);
               },
             ),
             TextButton(
-              child: const Text('修改'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(unselectedColor),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+              ),
+              child: const Text(
+                '修改',
+                style: TextStyle(color: darkGreen2),
+              ),
               onPressed: () {
                 if (validateAndSave(globalFormKeyofEmail)) {
                   setState(() {
@@ -355,7 +384,7 @@ class _SettingPageState extends State<SettingPage> {
                   );
                 }
               },
-            )
+            ),
           ],
         );
       },
@@ -367,11 +396,16 @@ class _SettingPageState extends State<SettingPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: PrimaryLightYellow,
-          title: const Text('修改電話號碼'),
+          backgroundColor: darkGreen2,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(30))),
+          title: const Text(
+            '修改電話號碼',
+            style: TextStyle(color: unselectedColor),
+          ),
           content: Form(
             key: globalFormKeyofPhone,
             child: TextFormField(
+              style: const TextStyle(color: unselectedColor),
               keyboardType: TextInputType.phone,
               validator: (input) {
                 if (input!.isEmpty ||
@@ -386,15 +420,27 @@ class _SettingPageState extends State<SettingPage> {
               },
               //validator: (input) => input!.length < 10 ? "Phone Number should be Valid" : null, // 檢查電話號碼格式
               onSaved: (input) => requestModel.phone = input!.toString(),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: "Your new phone here",
-                prefixIcon: Icon(Icons.phone),
-                // labelText: "New Email",
+                hintStyle: TextStyle(color: unselectedColor.withOpacity(0.7)),
+                prefixIcon: const Icon(Icons.phone, color: unselectedColor,),
+                enabledBorder: const UnderlineInputBorder(      
+                  borderSide: BorderSide(color: unselectedColor),   
+                ),  
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: lightGreen0),
+                ), 
+                focusColor: unselectedColor
               ),
             ),
           ),
           actions: <Widget>[
             TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(unselectedColor),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+              ),
               child: const Text('取消'),
               onPressed: () {
                 print('【取消】更新個人資料 - 電話');
@@ -402,6 +448,11 @@ class _SettingPageState extends State<SettingPage> {
               },
             ),
             TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(unselectedColor),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+              ),
               child: const Text('修改'),
               onPressed: () {
                 if (validateAndSave(globalFormKeyofPhone)) {

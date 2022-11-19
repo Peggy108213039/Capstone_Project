@@ -1,5 +1,7 @@
 import 'package:capstone_project/services/socket_service.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
+import 'package:capstone_project/services/stream_socket.dart';
+import 'package:capstone_project/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/infoBox.dart';
 // basic setting
@@ -10,6 +12,8 @@ import 'package:capstone_project/components/default_icons.dart';
 import 'package:capstone_project/services/http_service.dart';
 // model
 import 'package:capstone_project/models/friend/checkFriend_model.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({Key? key}) : super(key: key);
@@ -25,9 +29,10 @@ class _NotificationPageState extends State<NotificationPage> {
   bool hidePassword = true;
   late CheckFriendRequestModel requestModel;
   bool isApiCallProcess = false;
+  late List<Map<String, dynamic>>? notificationList;
   String userName = UserData.userName;
   String userAccount = UserData.userAccount;
-  late List<Map<String, dynamic>>? notificationList; // 通知列表
+  int counter = 0;
 
   @override
   void initState() {
@@ -36,76 +41,69 @@ class _NotificationPageState extends State<NotificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return LoadingAnimation(
-      child: _uiSetup(context),
-      inAsyncCall: isApiCallProcess,
-      opacity: 0.3,
-    );
-  }
-
-  Widget _uiSetup(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
     return Container(
-      constraints: const BoxConstraints.expand(),
       decoration: const BoxDecoration(
-          image: DecorationImage(
-              image: defaultBackgroundImage, fit: BoxFit.cover)),
+        image: DecorationImage(
+          image: defaultBackgroundImage, fit: BoxFit.cover)),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: (width * 0.035), vertical: (height * 0.05)),
+        body: Padding(
+            padding: EdgeInsets.only(
+              top: SizeConfig.noteBarHeight!,
+              left: getProportionateScreenWidth(0.03),
+              right: getProportionateScreenWidth(0.03),
+            ),
             child: Column(
-              children: [
+              children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: const <Widget>[
                     DefNotificationIcon(enable: false),
-                    DefSettingIcon(enable: true),
+                    DefSettingIcon(enable: true,),
                   ],
                 ),
-                Container(
-                  // 使用者 info Box
-                  decoration: BoxDecoration(
-                      border: Border.all(color: PrimaryLightYellow, width: 3)),
-                  height: height * 0.15, // container
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      // Container
-                      double innerHeight = constraints.maxHeight;
-                      double innerWidth = constraints.maxWidth;
-                      // Stack
-                      return InfoBox(
-                        innerHeight: innerHeight,
-                        innerWidth: innerWidth,
-                        visible: false,
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(
-                  height: (height * 0),
-                ),
-                // notification list
                 Expanded(child: SingleChildScrollView(child: FutureBuilder(
                   future: getNotificationList(),
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if(snapshot.hasData) {
-                      return ListView.builder(
+                      return ListView.separated(
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         itemCount: notificationList!.length,
                         itemBuilder: (buildContext, index){
-                          return ListTile(
-                            title: Text(notificationList![index]['account ']),
-                            textColor: PrimaryLightYellow,
-                            onLongPress: () {
-                              print("我按下了" + index.toString() + "號通知");
+                          final item = notificationList?[index];
+                          return Dismissible(
+                            // Each Dismissible must contain a Key. Keys allow Flutter to uniquely identify widgets.
+                            key: Key(notificationList![index]["account"]),
+                            // Provide a function that tells the app
+                            // what to do after an item has been swiped away.
+                            onDismissed: (direction) {
+                              setState(() {
+                                //notificationList?.removeAt(index);
+                                // 並進 sqlite 中將此通知刪除
+                              });
+                              // Then show a snackbar.
+                              Fluttertoast.showToast(msg: "已刪除一項通知");
                             },
+                            // Show a red background as the item is swiped away.
+                            // 列表项被滑出时，显示一个红色背景(Show a red background as the item is swiped away)
+                            background: Container(color: darkGreen2,),
+                            child: ListTile(
+                              title: Text(
+                                notificationList![index]["account"],
+                                style: const TextStyle(color: darkGreen2),
+                              ),
+                              tileColor: unselectedColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
                           );
+                          // return ListTile(
+                          // );
                         },
+                        separatorBuilder: (BuildContext context, int index) =>
+                          const VerticalSpacing(percent: 0.01,)
                       );
                     } else{
                       print("抓資料中");
@@ -114,21 +112,23 @@ class _NotificationPageState extends State<NotificationPage> {
                     }
                   },
                 ),)),
-              ],
+              ]
             ),
-          ),
-        ),
-      ),
+          )
+      )
     );
   }
-  
+
   Future<List<Map<String, dynamic>>?> getNotificationList() async {
-    isApiCallProcess = true;
-    notificationList = await SqliteHelper.queryAll(tableName: "friend");
-    isApiCallProcess = false;
-    print('======\n NOTIFICATION LIST \n $notificationList\n======');
-    return notificationList;
+  isApiCallProcess = true;
+  notificationList = await SqliteHelper.queryAll(tableName: "friend");
+  isApiCallProcess = false;
+  print('======\nfriendList $notificationList\n======');
+  return notificationList;
+  // return Future.delayed(const Duration(seconds: 1), () {
+  // });
   }
+
 
   Future<void> showAlert(BuildContext context) {
     return showDialog<void>(

@@ -23,11 +23,12 @@ class DefBackIcon extends StatelessWidget {
           ),
         );
       },
-      icon: const Icon(
-        Icons.arrow_back,
-        color: PrimaryBrown,
-        size: 30.0,
-      ),
+      icon: const ImageIcon(backIcon2),
+      // icon: const Icon(
+      //   Icons.arrow_back,
+      //   color: PrimaryBrown,
+      //   size: 30.0,
+      // ),
     );
   }
 }

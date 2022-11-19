@@ -22,7 +22,7 @@ class InfoBox extends StatelessWidget {
       children: [
         Positioned(
           top: innerHeight * 0.2,
-          left: innerWidth * 0.1,
+          left: innerWidth * 0.05,
           child: SizedBox(
             height: innerHeight, //0.15*0.5
             width: innerWidth,
@@ -34,7 +34,6 @@ class InfoBox extends StatelessWidget {
                     color: darkGreen2,
                     fontSize: 25.0,
                     fontWeight: FontWeight.bold,
-                    // fontFamily: 'popFonts'
                   ),
                 ),
                 const VerticalSpacing(percent: 0.01),
@@ -53,14 +52,13 @@ class InfoBox extends StatelessWidget {
         Positioned(
           top: innerHeight * 0.125,
           left: innerWidth * 0.05,
-          //right: 0,
           child: Center(
             child: Container(
               width: innerWidth * 0.25,
               height: innerWidth * 0.25,
               decoration: BoxDecoration(
-                color: PrimaryLightYellow,
-                border: Border.all(width: 1, color: PrimaryLightYellow),
+                color: unselectedColor,
+                border: Border.all(width: 1, color: unselectedColor),
                 shape: BoxShape.circle,
                 image: const DecorationImage(
                   fit: BoxFit.fill,
@@ -71,16 +69,20 @@ class InfoBox extends StatelessWidget {
           ),
         ),
         Positioned(
-            top: innerHeight * 0,
+            top: innerHeight * 0.3,
             right: innerWidth * 0.015,
-            //right: 0,
             child: Visibility(
               visible: visible,
               child: TextButton(
                 child: const Text('編輯'),
-                style: TextButton.styleFrom(
-                  foregroundColor: darkGreen2,
-                  backgroundColor: lightGreen2,
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(darkGreen2),
+                  foregroundColor: MaterialStateProperty.all(lightGreen0),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    )
+                  )
                 ),
                 onPressed: () {
                   print('【按下】更新個人資料 - infoBox');
