@@ -167,9 +167,10 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                               height: 8,
                               builder: ((BuildContext context) => Container(
                                     decoration: BoxDecoration(
-                                        color: const Color.fromARGB(
-                                            255, 255, 7, 7),
-                                        borderRadius: BorderRadius.circular(8)),
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                            width: 1.5, color: Colors.white)),
                                   )))
                       ])
                     ],

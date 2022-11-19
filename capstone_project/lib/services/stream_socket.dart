@@ -25,22 +25,24 @@ class StreamSocket {
       // 監聽頻道
       _socket.on('account', (accountData) {
         if (accountData.runtimeType != String) {
+          if (accountData['ctlmsg'] == "activity update") {
+            print('更新活動 API');
+            // FIXME : 更新活動資料跟 server 一樣
+          }
           if (accountData['ctlmsg'] == "join activity room") {
-            _socket.emit('ctlmsg', accountData); // FIXME 原封不動將這個訊息轉送回去給 server
+            print('新增活動 socket 訊息   $accountData');
+            // FIXME 原封不動將這個訊息轉送回去給 server
+            _socket.emit('ctlmsg', accountData);
           }
         }
         _socketResponse.add(accountData);
         print(
-            'SOCKET ACCOUNT CHANNEL MSG：$accountData  ${accountData.runtimeType}');
+            'SOCKET ACCOUNT CHANNEL MSG : $accountData  ${accountData.runtimeType}');
       });
       _socket.on('activity', (activityData) {
-        if (activityData.runtimeType != String) {
-          if (activityData['ctlmsg'] == "join activity room") {
-            _socket.emit('ctlmsg', activityData); // FIXME 原封不動將這個訊息轉送回去給 server
-          }
-        }
+        if (activityData.runtimeType != String) {}
         _socketResponse.add(activityData);
-        print('SOCKET ACTIVITY CHANNEL MSG：$activityData');
+        print('SOCKET ACTIVITY CHANNEL MSG : $activityData');
       });
     } catch (error) {
       print('ERROR :\n$error');

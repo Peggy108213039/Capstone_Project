@@ -32,6 +32,7 @@ class _SocketWarningDistanceState extends State<SocketWarningDistance> {
   @override
   void dispose() {
     audioPlayerService.close();
+    isVisible.dispose();
     super.dispose();
   }
 

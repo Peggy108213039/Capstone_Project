@@ -7,6 +7,7 @@ import 'package:capstone_project/ui/activity/start_activity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:intl/intl.dart';
 
 import 'package:capstone_project/services/gpx_service.dart';
 import 'package:capstone_project/services/file_provider.dart';
@@ -30,11 +31,18 @@ class _ShowActivityDataState extends State<ShowActivityData> {
 
   // bool? sharePostion = false;
   late MyAlertDialog sharePositionDialog; // 提醒視窗：問同行者是否要分享位置
+  ValueNotifier<bool> isVisible = ValueNotifier<bool>(false); // 是否顯示開始活動的按鈕
 
   @override
   void initState() {
     getSqliteData();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    isVisible.dispose();
+    super.dispose();
   }
 
   void getSqliteData() async {
@@ -54,7 +62,9 @@ class _ShowActivityDataState extends State<ShowActivityData> {
         memberString += (member['name'].toString() + '  ');
       }
     }
-    print('展示活動頁面 getMemberList \n$friendList');
+    if (memberString.isEmpty) {
+      memberString = "無";
+    }
   }
 
   @override
@@ -68,6 +78,22 @@ class _ShowActivityDataState extends State<ShowActivityData> {
     frindsIDList = arguments['activityData']['members'].toString().split(', ');
     getMemberList(frindsIDList);
 
+    // FIXME 顯示 主辦人有 開始按鈕
+    if (arguments['activityData']['uID'] == UserData.uid.toString()) {
+      isVisible.value = true;
+    } else if (arguments['activityData']['finish_activity_time'] != 'null') {
+      isVisible.value = false;
+    } else {
+      if (arguments['activityData']['start_activity_time'] == 'null') {
+        isVisible.value = false;
+      } else {
+        isVisible.value = true;
+      }
+    }
+    print('${arguments['activityData']}');
+    print('isVisible   ${isVisible.value}');
+
+    // if (arguments['activityData']['sta'])
     return Scaffold(
       appBar: AppBar(
         backgroundColor: darkGreen1,
@@ -128,7 +154,6 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                   subTextSize: 0,
                   width: width),
               showTrack(tID: arguments['activityData']['tID'], width: width),
-              // FIXME 同行成員
               buildText(
                   title: '同行成員',
                   content: memberString,
@@ -155,47 +180,26 @@ class _ShowActivityDataState extends State<ShowActivityData> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    child: const Text(
-                      '開始活動',
-                      style:
-                          TextStyle(fontSize: 23, fontWeight: FontWeight.w500),
+                  ValueListenableBuilder(
+                    valueListenable: isVisible,
+                    builder: (context, bool value, child) => Visibility(
+                      visible: value,
+                      child: ElevatedButton(
+                        child: const Text(
+                          '開始活動',
+                          style: TextStyle(
+                              fontSize: 23, fontWeight: FontWeight.w500),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(90, 50),
+                            foregroundColor: darkGreen2,
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30))),
+                        onPressed: () =>
+                            pushStartActivityBtn(arguments: arguments),
+                      ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                        minimumSize: Size(90, 50),
-                        foregroundColor: darkGreen2,
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30))),
-                    onPressed: () async {
-                      final startActivityReq = {
-                        'aID': arguments['activityData']['aID'].toString()
-                      };
-                      List startActivityResponse =
-                          await APIService.startActivity(
-                              content: startActivityReq);
-                      if (startActivityResponse[0]) {
-                        bool? shareUserPosition = await sharePosition();
-                        Navigator.pushNamed(context, '/StartActivity',
-                            arguments: {
-                              'aID': arguments['activityData']['aID'],
-                              'activity_name': arguments['activityData']
-                                  ['activity_name'],
-                              'activity_time': arguments['activityData']
-                                  ['activity_time'],
-                              'gpsList': gpsList,
-                              'warning_distance': arguments['activityData']
-                                  ['warning_distance'],
-                              'warning_time': arguments['activityData']
-                                  ['warning_time'],
-                              'members': friendList,
-                              'shareUserPosition': shareUserPosition,
-                            });
-                      } else {
-                        print('開始活動失敗');
-                        print('失敗 ${startActivityResponse[1]}');
-                      }
-                    },
                   ),
                 ],
               ),
@@ -204,6 +208,47 @@ class _ShowActivityDataState extends State<ShowActivityData> {
         ),
       ),
     );
+  }
+
+  Future<void> pushStartActivityBtn(
+      {required Map<dynamic, dynamic> arguments}) async {
+    if (arguments['activityData']['uID'] == UserData.uid.toString()) {
+      print('TRUE 是活動創辦人');
+      final startActivityReq = {
+        'aID': arguments['activityData']['aID'].toString()
+      };
+      List startActivityResponse =
+          await APIService.startActivity(content: startActivityReq);
+      if (startActivityResponse[0]) {
+        print('開始活動成功');
+        String sqliteStartActivityTime =
+            DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+        Map<String, dynamic> updateActivityStartTime = {
+          'start_activity_time': sqliteStartActivityTime
+        };
+        await SqliteHelper.update(
+            tableName: 'activity',
+            updateData: updateActivityStartTime,
+            tableIdName: 'aID',
+            updateID: int.parse(arguments['activityData']['aID']));
+      } else {
+        print('開始活動失敗');
+        print('失敗 ${startActivityResponse[1]}');
+      }
+    } else {
+      print('FALSE 不是活動創辦人');
+    }
+    bool? shareUserPosition = await sharePosition();
+    Navigator.pushNamed(context, '/StartActivity', arguments: {
+      'aID': arguments['activityData']['aID'],
+      'activity_name': arguments['activityData']['activity_name'],
+      'activity_time': arguments['activityData']['activity_time'],
+      'gpsList': gpsList,
+      'warning_distance': arguments['activityData']['warning_distance'],
+      'warning_time': arguments['activityData']['warning_time'],
+      'members': friendList,
+      'shareUserPosition': shareUserPosition,
+    });
   }
 
   String adjustStringLength({required String str}) {

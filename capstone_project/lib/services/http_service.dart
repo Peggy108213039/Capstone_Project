@@ -14,8 +14,6 @@ import 'package:capstone_project/models/login_model.dart';
 import 'package:capstone_project/models/signup_model.dart';
 import 'package:capstone_project/models/userInfo/selectInfo_model.dart';
 import 'package:capstone_project/models/userInfo/updateInfo_model.dart';
-import 'package:capstone_project/models/activity/finishActivity_model.dart';
-import 'package:capstone_project/models/activity/startActivity_model.dart';
 import 'package:capstone_project/models/friend/acceptFriend_model.dart';
 import 'package:capstone_project/models/friend/selectFriend_model.dart';
 import 'package:capstone_project/models/friend/deleteFriend_model.dart';
@@ -306,6 +304,23 @@ class APIService {
   }
 
   // 抓某使用者 (uID) 的相關資料
+  // static Future<List> selectSpecificActivity(
+  //     {required Map<String, dynamic> content}) async {
+  //   String url =
+  //       "http://163.22.17.247:3000/api/activity/select_specific_activity";
+  //   print(content);
+  //   final response = await http.post(Uri.parse(url),
+  //       headers: {'cookie': UserData.token}, body: content);
+  //   final responseString = jsonDecode(response.body);
+  //   if (response.statusCode == 200 || response.statusCode == 400) {
+  //     return [responseString];
+  //   } else {
+  //     print('失敗 $responseString response.statusCode ${response.statusCode}');
+  //     return [responseString];
+  //   }
+  // }
+
+  // 抓某使用者 (uID) 的相關資料
   static Future<List> selectUidMemberData(
       {required Map<String, dynamic> content}) async {
     String url = "http://163.22.17.247:3000/api/member/select_uid_member";
@@ -345,7 +360,7 @@ class APIService {
         // 下載軌跡
         String savePath = '${trackDir.path}/${_track['track_name']}';
         // download server track file
-        Map<String, dynamic> downloadTrackID = {'tID': _track['tID']};
+        Map<String, dynamic> downloadTrackID = {'tid': _track['tID']};
         List downloadTrackResult =
             await downloadTrack(savePath: savePath, content: downloadTrackID);
         print('下載成功   ${downloadTrackResult[0]}');
@@ -465,7 +480,7 @@ class APIService {
     bool downloadSuccess = false;
     String url = "http://163.22.17.247:3000/api/track/download_track";
     try {
-      final response = await Dio().download(url, savePath,
+      final Response response = await Dio().download(url, savePath,
           queryParameters: content,
           options: Options(headers: {'cookie': UserData.token}));
       downloadSuccess = true;

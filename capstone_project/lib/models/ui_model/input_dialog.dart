@@ -26,7 +26,7 @@ class InputDialog {
       required this.btn1Text,
       required this.btn2Text}) {
     inputValue = defaultText;
-    inputField = TextField(
+    inputField = TextFormField(
       // 在輸入欄位顯示檔案名稱
       controller: TextEditingController()..text = defaultText,
       onChanged: (String value) {

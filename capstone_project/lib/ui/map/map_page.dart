@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:capstone_project/constants.dart';
+import 'package:capstone_project/services/http_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -50,7 +51,7 @@ class MapPageState extends State<MapPage> {
 
   // button style
   final raisedBtnStyle = ElevatedButton.styleFrom(
-      minimumSize: const Size(55, 55),
+      minimumSize: const Size(50, 50),
       shape: const CircleBorder(),
       backgroundColor: darkGreen1);
   final startBtnStyle = ElevatedButton.styleFrom(
@@ -96,6 +97,7 @@ class MapPageState extends State<MapPage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: const Center(child: Text('地圖頁面')),
           backgroundColor: darkGreen1,
@@ -136,19 +138,10 @@ class MapPageState extends State<MapPage> {
                       onPressed: () => takePhoto(markers),
                       child: const ImageIcon(
                         cameraIcon,
-                        size: 38,
+                        size: 35,
                       ),
                       style: raisedBtnStyle,
                     ),
-                    // ElevatedButton(
-                    //   onPressed: () {
-                    //     print('離線地圖清單');
-                    //     // Navigator.pushNamed(context, '/OfflineMapPage');
-                    //     Navigator.pushNamed(context, '/TestOfflineMap');
-                    //   },
-                    //   child: const Icon(Icons.map),
-                    //   style: raisedBtnStyle,
-                    // ),
                   ],
                 ),
               ),
@@ -252,36 +245,63 @@ class MapPageState extends State<MapPage> {
               time: UserLocation.getCurrentTime(),
               userLocationList: polyline.userLocationList);
           String newFilePath = '${trackDir!.path}/$newName.gpx';
-          await fileProvider.writeFileAsString(
+          File newTrackFile = await fileProvider.writeFileAsString(
               content: gpxFile, path: newFilePath);
           bool writeSuccess =
               await fileProvider.fileIsExists(file: File(newFilePath));
           if (writeSuccess) {
-            final newTrackData = Track(
-                    tID: '', // FIXME: tID
-                    uID: '1',
+            TrackRequestModel newServerTrackData = TrackRequestModel(
+                uID: UserData.uid.toString(),
+                track_name: newName,
+                track_locate: newFilePath,
+                start: polyline.userLocationList[0].currentTime,
+                finish: polyline.userLocationList.last.currentTime,
+                total_distance: polyline.totalDistance.toStringAsFixed(3),
+                time: UserLocation.getCurrentTime(),
+                track_type: '1');
+            List insertTrackResponse =
+                await APIService.insertTrack(newServerTrackData);
+            if (insertTrackResponse[0]) {
+              String tID = insertTrackResponse[1]["tID"].toString();
+              Map<String, String> trackID = {'tID': tID};
+              List uploadTrackResponse =
+                  await APIService.uploadTrack(newTrackFile, trackID);
+              if (uploadTrackResponse[0]) {
+                final Track newTrackData = Track(
+                    tID: tID,
+                    uID: UserData.uid.toString(),
                     track_name: newName,
                     track_locate: newFilePath,
                     start: polyline.userLocationList[0].currentTime,
                     finish: polyline.userLocationList.last.currentTime,
                     total_distance: polyline.totalDistance.toStringAsFixed(3),
                     time: UserLocation.getCurrentTime(),
-                    track_type: 'ownTrack')
-                .toMap();
-            await SqliteHelper.insert(
-                tableName: 'track', insertData: newTrackData);
-            saveFileSuccessDialog = MyAlertDialog(
-                context: context,
-                titleText: '檔案儲存成功',
-                contentText: '可以到軌跡頁面查看檔案',
-                btn1Text: '確認',
-                btn2Text: '');
-            saveFileSuccessDialog.show();
-            setState(() {
-              isPaused = false;
-              isStarted = false;
-            });
-            return;
+                    track_type: '1');
+                List insertClientTrackResult = await SqliteHelper.insert(
+                    tableName: 'track', insertData: newTrackData.toMap());
+                if (insertClientTrackResult[0]) {
+                  saveFileSuccessDialog = MyAlertDialog(
+                      context: context,
+                      titleText: '檔案儲存成功',
+                      contentText: '可以到軌跡頁面查看檔案',
+                      btn1Text: '確認',
+                      btn2Text: '');
+                  await saveFileSuccessDialog.show();
+                  setState(() {
+                    isPaused = false;
+                    isStarted = false;
+                  });
+                  polyline.clearList(); // 清空 polyline list
+                  return;
+                } else {
+                  print('sqlite 新增軌跡資料失敗 ${insertClientTrackResult[1]}');
+                }
+              } else {
+                print('server 上傳軌跡資料失敗 ${uploadTrackResponse[1]}');
+              }
+            } else {
+              print('server 插入軌跡資料失敗 ${insertTrackResponse[1]}');
+            }
           } else {
             print('寫入失敗 writeSuccess $writeSuccess');
           }

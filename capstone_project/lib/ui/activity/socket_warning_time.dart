@@ -1,13 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:provider/provider.dart';
-import 'dart:math';
 
 import 'package:capstone_project/services/audio_player.dart';
-import 'package:capstone_project/models/map/user_location.dart';
 
 class SocketWarningTime extends StatefulWidget {
   final bool isStarted;
@@ -37,6 +32,7 @@ class _SocketWarningTimeState extends State<SocketWarningTime> {
   @override
   void dispose() {
     audioPlayerService.close();
+    isVisible.dispose();
     super.dispose();
   }
 

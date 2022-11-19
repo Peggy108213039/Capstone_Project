@@ -46,6 +46,8 @@ class SqliteHelper {
         uID text,
         activity_name text,
         activity_time text,
+        start_activity_time text,
+        finish_activity_time text,
         tID text,
         warning_distance text,
         warning_time text,

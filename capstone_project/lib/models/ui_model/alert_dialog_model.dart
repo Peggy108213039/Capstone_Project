@@ -1,3 +1,4 @@
+import 'package:capstone_project/constants.dart';
 import 'package:flutter/material.dart';
 
 class MyAlertDialog {
@@ -21,30 +22,55 @@ class MyAlertDialog {
     if (titleText == '') {
       titleWidget = const SizedBox.shrink();
     } else {
-      titleWidget = Text(titleText);
+      titleWidget = Text(
+        titleText,
+        style: const TextStyle(
+            color: Colors.white, fontSize: 30, fontWeight: FontWeight.w500),
+      );
     }
     if (contentText == '') {
       contentWidget = const SizedBox.shrink();
     } else {
-      contentWidget = Text(contentText);
+      contentWidget = Text(
+        contentText,
+        style: const TextStyle(
+            color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
+      );
     }
     if (btn1Text == '') {
       btn1 = const SizedBox.shrink();
     } else {
-      btn1 = TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(true);
-          },
-          child: Text(btn1Text));
+      btn1 = ElevatedButton(
+        child: Text(
+          btn1Text,
+          style: const TextStyle(fontSize: 17),
+        ),
+        style: ElevatedButton.styleFrom(
+            minimumSize: const Size(70, 40),
+            foregroundColor: darkGreen2,
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30))),
+        onPressed: () {
+          Navigator.of(context).pop(true);
+        },
+      );
     }
     if (btn2Text == '') {
       btn2 = const SizedBox.shrink();
     } else {
-      btn2 = TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(false);
-          },
-          child: Text(btn2Text));
+      btn2 = ElevatedButton(
+        child: Text(btn2Text),
+        style: ElevatedButton.styleFrom(
+            minimumSize: const Size(70, 40),
+            foregroundColor: darkGreen2,
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30))),
+        onPressed: () {
+          Navigator.of(context).pop(false);
+        },
+      );
     }
   }
 
@@ -53,9 +79,17 @@ class MyAlertDialog {
         context: context,
         builder: (context) {
           return AlertDialog(
+            backgroundColor: darkGreen1,
             title: titleWidget,
             content: contentWidget,
-            actions: [btn1, btn2],
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [btn1, btn2],
+              )
+            ],
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(24))),
           );
         });
   }

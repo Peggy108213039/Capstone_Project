@@ -42,7 +42,7 @@ class _ArScreenState extends State<ArScreen> {
       key: _scaffoldKey,
       backgroundColor: middleGreen,
       appBar: AppBar(
-        title: const Text('Ar Screen'),
+        title: const Text('AR Screen'),
         backgroundColor: middleGreen,
         shadowColor: transparentColor,
         shape: const RoundedRectangleBorder(

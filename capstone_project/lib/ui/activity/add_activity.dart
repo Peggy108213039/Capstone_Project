@@ -20,27 +20,25 @@ class AddActivityPage extends StatefulWidget {
 }
 
 class _AddActivityPageState extends State<AddActivityPage> {
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<FormFieldState> multiSelectKey = GlobalKey<FormFieldState>();
+
   String activName = '';
   String activTrack = '';
   String warningDistance = '50';
   var warningTime = '3';
 
-  late MyAlertDialog noTrackListDialog; // 提醒視窗：沒有軌跡清單
-  late MyAlertDialog noFriendListDialog; // 提醒視窗：沒有朋友清單
-
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  // DateTime? activTime;
   TextEditingController timeinput = TextEditingController();
   final ValueNotifier<bool> timeValidate = ValueNotifier<bool>(false);
   final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
   final int lastYear = 2050;
 
-  List<DropdownMenuItem<String>> activTrackList = [];
+  late MyAlertDialog noTrackListDialog; // 提醒視窗：沒有軌跡清單
+  late MyAlertDialog noFriendListDialog; // 提醒視窗：沒有朋友清單
 
+  List<DropdownMenuItem<String>> activTrackList = [];
   List<MultiSelectItem<FriendModel>> friendSelectItems = []; // 朋友清單轉為下拉式選單
   List<FriendModel?> selectedPartner = []; // 選中的同行者
-  final GlobalKey<FormFieldState> multiSelectKey = GlobalKey<FormFieldState>();
 
   List<DropdownMenuItem<String>> warnDistance = const [
     DropdownMenuItem(child: Text("50 公尺"), value: "50"),
@@ -309,30 +307,25 @@ class _AddActivityPageState extends State<AddActivityPage> {
         separateSelectedItems: true,
         searchable: true,
         onConfirm: (values) {
-          print('onConfirm');
-          setState(() {
-            selectedPartner = values;
-          });
+          selectedPartner = values;
         },
         onSaved: (newValue) {
           print('onSaved');
           selectedPartner = newValue!;
         },
-        validator: (value) {
-          if (value!.isEmpty) {
-            return '請選同行者';
-          }
-        },
+        // validator: (value) {
+        //   if (value!.isEmpty) {
+        //     return '請選同行者';
+        //   }
+        // },
         chipDisplay: MultiSelectChipDisplay(
           chipColor: Colors.white,
           textStyle: const TextStyle(color: darkGreen2),
           icon: const Icon(Icons.cancel_outlined, color: grassGreen),
           scroll: true,
           onTap: (value) {
-            print('onTap');
-            setState(() {
-              selectedPartner.remove(value);
-            });
+            selectedPartner.remove(value);
+            return selectedPartner;
           },
         ),
       ),
@@ -395,7 +388,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
   void pushSubmitBtn() async {
     if (!formKey.currentState!.validate() ||
-        !multiSelectKey.currentState!.validate() ||
+        // !multiSelectKey.currentState!.validate() ||
         timeinput.text.isEmpty) {
       if (timeinput.text.isEmpty) {
         timeValidate.value = true;
@@ -407,8 +400,10 @@ class _AddActivityPageState extends State<AddActivityPage> {
     formKey.currentState!.save();
     multiSelectKey.currentState!.save();
     List<int> members = [];
-    for (var partner in selectedPartner) {
-      members.add(partner!.uID);
+    if (selectedPartner.isNotEmpty) {
+      for (var partner in selectedPartner) {
+        members.add(partner!.uID);
+      }
     }
     members.add(UserData.uid);
     final ActivityRequestModel newServerActivityData = ActivityRequestModel(
@@ -428,6 +423,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
           uID: UserData.uid.toString(),
           activity_name: activName,
           activity_time: timeinput.text,
+          finish_activity_time: 'null',
+          start_activity_time: 'null',
           tID: activTrack,
           warning_distance: warningDistance,
           warning_time: warningTime,
@@ -442,9 +439,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
   @override
   Widget build(BuildContext context) {
-    // FIXME get Socket response
-    final testSocketData = Provider.of<Object?>(context);
-    print('==========\n新增活動頁面 socket\n$testSocketData\n==========');
     return Scaffold(
         backgroundColor: activityGreen,
         appBar: AppBar(

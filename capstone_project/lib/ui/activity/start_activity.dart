@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:intl/intl.dart';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/track/track_model.dart';
 import 'package:capstone_project/models/ui_model/warning_time.dart';
@@ -56,17 +57,19 @@ class _StartActivityState extends State<StartActivity> {
 
   // button style
   final raisedBtnStyle = ElevatedButton.styleFrom(
-      minimumSize: const Size(55, 55),
+      minimumSize: const Size(50, 50),
       shape: const CircleBorder(),
-      backgroundColor: Colors.indigoAccent.shade100);
+      backgroundColor: darkGreen1);
   final startBtnStyle = ElevatedButton.styleFrom(
-      minimumSize: const Size(55, 55),
+      minimumSize: const Size(60, 60),
       shape: const CircleBorder(),
-      backgroundColor: Colors.teal);
+      foregroundColor: Colors.amber,
+      backgroundColor: Colors.white);
   final stopBtnStyle = ElevatedButton.styleFrom(
-      minimumSize: const Size(55, 55),
+      minimumSize: const Size(60, 60),
       shape: const CircleBorder(),
-      backgroundColor: Colors.red);
+      foregroundColor: Colors.redAccent,
+      backgroundColor: Colors.white);
 
   @override
   void initState() {
@@ -106,8 +109,8 @@ class _StartActivityState extends State<StartActivity> {
     print('socketData $tmpSocketData  type ${tmpSocketData.runtimeType}');
     if (tmpSocketData.runtimeType != String) {
       final String ctlMsg = tmpSocketData['ctlmsg'];
+      // FIXME client 收到同行者的軌跡
       if (ctlMsg == "broadcast location") {
-        // FIXME client 收到同行者的軌跡
         for (int i = 0; i < activityPolyLineList.length; i++) {
           if (tmpSocketData['account_msg'] ==
               activityPolyLineList[i]['account']) {
@@ -133,15 +136,6 @@ class _StartActivityState extends State<StartActivity> {
     final testSocketData = Provider.of<Object?>(context);
     socketSituation(socketData: testSocketData);
 
-    // if (isStarted && !isPaused) {
-    //   if (shareUserPosition) {
-    //     // FIXME 將自己的軌跡送給 server
-    //     // 放到 activity_map_widget
-    //     StreamSocket.uploadUserLocation(
-    //         activityMsg: activityMsg, location: userLocation);
-    //   }
-    // }
-
     if (!isStarted && !isPaused) {
       markers.clear();
     }
@@ -153,13 +147,12 @@ class _StartActivityState extends State<StartActivity> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Center(child: Text('開始紀錄活動')),
-          backgroundColor: Colors.indigoAccent.shade100,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
-            tooltip: '返回',
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+          title: const Center(child: Text('活動開始')),
+          backgroundColor: darkGreen1,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30))),
         ),
         body: Stack(children: [
           ActivityMap(
@@ -231,8 +224,7 @@ class _StartActivityState extends State<StartActivity> {
                 ],
               ),
             ),
-            mySpace(height: height, num: 0.01),
-            mySpace(height: height, num: 0.035),
+            mySpace(height: height, num: 0.06),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -243,19 +235,19 @@ class _StartActivityState extends State<StartActivity> {
                         context: context, aID: arguments['aID'].toString());
                   },
                   child: isStarted
-                      ? const Icon(
-                          Icons.stop_rounded,
-                          size: 42.0,
+                      ? const ImageIcon(
+                          endIcon,
+                          size: 33,
                         )
-                      : const Icon(
-                          Icons.play_arrow_rounded,
-                          size: 42.0,
+                      : const ImageIcon(
+                          startIcon,
+                          size: 40.0,
                         ),
                   style: isStarted ? stopBtnStyle : startBtnStyle,
                 ),
               ],
             ),
-            mySpace(height: height, num: 0.05),
+            mySpace(height: height, num: 0.025),
           ],
         ),
       ),
@@ -326,6 +318,16 @@ class _StartActivityState extends State<StartActivity> {
         if (finishActivityResponse[0]) {
           print('結束活動 成功');
           print(finishActivityResponse[1]);
+          String sqliteStartActivityTime =
+              DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+          Map<String, dynamic> updateActivityStartTime = {
+            'start_activity_time': sqliteStartActivityTime
+          };
+          await SqliteHelper.update(
+              tableName: 'activity',
+              updateData: updateActivityStartTime,
+              tableIdName: 'aID',
+              updateID: int.parse(aID));
         } else {
           print('結束活動 失敗');
           print(finishActivityResponse[1]);
@@ -351,36 +353,64 @@ class _StartActivityState extends State<StartActivity> {
               time: UserLocation.getCurrentTime(),
               userLocationList: polyline.userLocationList);
           String newFilePath = '${trackDir!.path}/$newName.gpx';
-          await fileProvider.writeFileAsString(
+          File newTrackFile = await fileProvider.writeFileAsString(
               content: gpxFile, path: newFilePath);
           bool writeSuccess =
               await fileProvider.fileIsExists(file: File(newFilePath));
           if (writeSuccess) {
-            final newTrackData = Track(
-              uID: '1',
-              tID: '', // FIXME: tID
-              track_name: newName,
-              track_locate: newFilePath,
-              start: polyline.userLocationList[0].currentTime,
-              finish: polyline.userLocationList.last.currentTime,
-              total_distance: polyline.totalDistance.toStringAsFixed(3),
-              time: UserLocation.getCurrentTime(),
-              track_type: 'ownTrack',
-            ).toMap();
-            await SqliteHelper.insert(
-                tableName: 'track', insertData: newTrackData);
-            saveFileSuccessDialog = MyAlertDialog(
-                context: context,
-                titleText: '檔案儲存成功',
-                contentText: '可以到軌跡頁面查看檔案',
-                btn1Text: '確認',
-                btn2Text: '');
-            await saveFileSuccessDialog.show();
-            setState(() {
-              isPaused = false;
-              isStarted = false;
-            });
-            return;
+            TrackRequestModel newServerTrackData = TrackRequestModel(
+                uID: UserData.uid.toString(),
+                track_name: newName,
+                track_locate: newFilePath,
+                start: polyline.userLocationList[0].currentTime,
+                finish: polyline.userLocationList.last.currentTime,
+                total_distance: polyline.totalDistance.toStringAsFixed(3),
+                time: UserLocation.getCurrentTime(),
+                track_type: '2');
+            List insertTrackResponse =
+                await APIService.insertTrack(newServerTrackData);
+            if (insertTrackResponse[0]) {
+              String tID = insertTrackResponse[1]["tID"].toString();
+              Map<String, String> trackID = {'tID': tID};
+              List uploadTrackResponse =
+                  await APIService.uploadTrack(newTrackFile, trackID);
+              if (uploadTrackResponse[0]) {
+                final Track newTrackData = Track(
+                  tID: tID,
+                  uID: UserData.uid.toString(),
+                  track_name: newName,
+                  track_locate: newFilePath,
+                  start: polyline.userLocationList[0].currentTime,
+                  finish: polyline.userLocationList.last.currentTime,
+                  total_distance: polyline.totalDistance.toStringAsFixed(3),
+                  time: UserLocation.getCurrentTime(),
+                  track_type: '2',
+                );
+                List insertClientTrackResult = await SqliteHelper.insert(
+                    tableName: 'track', insertData: newTrackData.toMap());
+                if (insertClientTrackResult[0]) {
+                  saveFileSuccessDialog = MyAlertDialog(
+                      context: context,
+                      titleText: '檔案儲存成功',
+                      contentText: '可以到軌跡頁面查看檔案',
+                      btn1Text: '確認',
+                      btn2Text: '');
+                  await saveFileSuccessDialog.show();
+                  setState(() {
+                    isPaused = false;
+                    isStarted = false;
+                  });
+                  polyline.clearList(); // 清空 polyline list
+                  return;
+                } else {
+                  print('sqlite 新增軌跡資料失敗 ${insertClientTrackResult[1]}');
+                }
+              } else {
+                print('server 上傳軌跡資料失敗 ${uploadTrackResponse[1]}');
+              }
+            } else {
+              print('server 插入軌跡資料失敗 ${insertTrackResponse[1]}');
+            }
           } else {
             print('寫入失敗 writeSuccess $writeSuccess');
           }

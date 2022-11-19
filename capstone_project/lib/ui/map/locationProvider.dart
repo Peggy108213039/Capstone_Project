@@ -1,3 +1,4 @@
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/services/location_service.dart';
 import 'package:capstone_project/ui/activity/start_activity.dart';
@@ -14,11 +15,7 @@ class LocationProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    UserLocation initData = UserLocation(
-        latitude: 23.94981257,
-        longitude: 120.92764976,
-        altitude: 572.92668105,
-        currentTime: UserLocation.getCurrentTime());
+    UserLocation initData = defaultLocation;
 
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
@@ -50,11 +47,18 @@ class LocationProvider extends StatelessWidget {
       service = const MapPage();
     }
     LocationService.locating();
-    LocationService.getLocation;
+    // getCurrentLocation(initData);
     return StreamProvider(
       create: (context) => LocationService.locationStream(),
       initialData: initData,
       child: service,
     );
   }
+
+  // Future<void> getCurrentLocation(UserLocation initData) async {
+  //   UserLocation? tempLocation = await LocationService.getLocation;
+  //   if (tempLocation != null) {
+  //     initData = tempLocation;
+  //   }
+  // }
 }
