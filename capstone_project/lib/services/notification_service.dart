@@ -13,7 +13,7 @@ class NotificationService {
   Future<void> initAwesomeNotification() async {
     // print('===========\n初始化 Notification Service\n===========');
     AwesomeNotifications().initialize(
-      'resource://drawable/logo',
+      'resource://drawable/ic_launcher',
       [
         NotificationChannel(
           channelKey: 'main_channel',
