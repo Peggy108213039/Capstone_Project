@@ -258,7 +258,9 @@ class _DownloadOfflineMapState extends State<DownloadOfflineMap> {
     inputOfflineMapNameDialog = InputDialog(
         context: context,
         myTitle: '新增離線地圖資料',
+        myTitleFontSize: 30,
         myContent: '幫你的離線地圖取一個名字',
+        myContentFontSize: 20,
         defaultText: '離線地圖名稱',
         inputFieldName: '離線地圖名稱',
         btn1Text: '確認',

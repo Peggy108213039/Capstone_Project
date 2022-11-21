@@ -84,7 +84,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
       noTrackListDialog = MyAlertDialog(
           context: context,
           titleText: '沒有軌跡清單',
+          titleFontSize: 30,
           contentText: '請到軌跡頁面匯入軌跡',
+          contentFontSize: 20,
           btn1Text: '確認',
           btn2Text: '');
       await noTrackListDialog.show();
@@ -95,7 +97,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
       noFriendListDialog = MyAlertDialog(
           context: context,
           titleText: '沒有朋友清單',
+          titleFontSize: 30,
           contentText: '請到朋友頁面新增好友',
+          contentFontSize: 20,
           btn1Text: '確認',
           btn2Text: '');
       await noFriendListDialog.show();
@@ -218,7 +222,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
     if (time == null) return '';
     final DateTime dateTime =
         DateTime(date.year, date.month, date.day, time.hour, time.minute);
-
     return dateFormat.format(dateTime);
   }
 
@@ -431,7 +434,13 @@ class _AddActivityPageState extends State<AddActivityPage> {
           members: members.join(', '));
       await SqliteHelper.insert(
           tableName: 'activity', insertData: newLocalActivityData.toMap());
-      Navigator.pushNamed(context, "/MyBottomBar3");
+      // Navigator.of(context)
+      //     .popUntil(ModalRoute.withName("/MyBottomBar2_firstTime"));
+      // Navigator.of(context).pushNamedAndRemoveUntil(
+      //     '/MyBottomBar3', ModalRoute.withName('/MyBottomBar2_firstTime'));
+      // Navigator.of(context)
+      //     .popUntil(ModalRoute.withName("/MyBottomBar2_firstTime"));
+      Navigator.pop(context);
     } else {
       print('$result 在 server 新增活動失敗');
     }

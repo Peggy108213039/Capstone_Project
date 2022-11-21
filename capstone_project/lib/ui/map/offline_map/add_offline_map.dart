@@ -294,7 +294,9 @@ class _TestOfflineMapState extends State<TestOfflineMap> {
     deleteOfflineMapDialog = MyAlertDialog(
         context: context,
         titleText: '刪除離線地圖',
+        titleFontSize: 30,
         contentText: '確定要刪除 ${deleteOfflienMap[0]['offline_map_name']} ?',
+        contentFontSize: 20,
         btn1Text: '刪除',
         btn2Text: '取消');
     bool? toDelete = await deleteOfflineMapDialog.show();
@@ -317,7 +319,9 @@ class _TestOfflineMapState extends State<TestOfflineMap> {
         deleteFailDialog = MyAlertDialog(
             context: context,
             titleText: '刪除離線地圖失敗',
+            titleFontSize: 30,
             contentText: '找不到檔案',
+            contentFontSize: 20,
             btn1Text: '確認',
             btn2Text: '');
         deleteFailDialog.show();

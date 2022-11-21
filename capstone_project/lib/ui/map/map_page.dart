@@ -29,18 +29,6 @@ class MapPage extends StatefulWidget {
 class MapPageState extends State<MapPage> {
   late Directory? trackDir; // 軌跡資料夾
   final FileProvider fileProvider = FileProvider();
-  // 紀錄使用者的 polyline
-  PolylineCoordinates polyline = PolylineCoordinates();
-
-  bool isStarted = false;
-  bool isPaused = false;
-
-  // static UserLocation defaultLocation = UserLocation(
-  //     latitude: 23.94981257,
-  //     longitude: 120.92764976,
-  //     altitude: 572.92668105,
-  //     currentTime: UserLocation.getCurrentTime());
-  // late UserLocation userLocation; // 抓使用者裝置位置
   List<Marker> markers = []; // 標記拍照點
 
   late MyAlertDialog pauseDialog; // 提醒視窗：暫停紀錄
@@ -76,6 +64,9 @@ class MapPageState extends State<MapPage> {
   void dispose() {
     print('===== 刪掉 dispose =====');
     LocationService.closeService();
+    mapIsStarted = false;
+    mapIsPaused = false;
+    mapPolyline.clearList();
     super.dispose();
   }
 
@@ -83,7 +74,7 @@ class MapPageState extends State<MapPage> {
   Widget build(BuildContext context) {
     print('===== 建立地圖頁面 =====');
 
-    if (!isStarted && !isPaused) {
+    if (!mapIsStarted && !mapIsPaused) {
       markers.clear();
     }
 
@@ -108,16 +99,16 @@ class MapPageState extends State<MapPage> {
         ),
         body: Stack(children: [
           ShowFlutterMap(
-              isStarted: isStarted,
-              isPaused: isPaused,
-              polyline: polyline,
+              isStarted: mapIsStarted,
+              isPaused: mapIsPaused,
+              polyline: mapPolyline,
               markerList: markers),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               WarningTime(
-                isStarted: isStarted,
-                isPaused: isPaused,
+                isStarted: mapIsStarted,
+                isPaused: mapIsPaused,
                 checkTime: 2,
                 warningTime: 10,
               ),
@@ -153,7 +144,7 @@ class MapPageState extends State<MapPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () => pushRecordBtn(context),
-                      child: isStarted
+                      child: mapIsStarted
                           ? const ImageIcon(
                               endIcon,
                               size: 33,
@@ -162,7 +153,7 @@ class MapPageState extends State<MapPage> {
                               startIcon,
                               size: 40.0,
                             ),
-                      style: isStarted ? stopBtnStyle : startBtnStyle,
+                      style: mapIsStarted ? stopBtnStyle : startBtnStyle,
                     ),
                   ]),
               mySpace(0.025)
@@ -181,22 +172,24 @@ class MapPageState extends State<MapPage> {
 
   void pushRecordBtn(BuildContext context) async {
     // 剛開始 (預設值)
-    if (!isStarted && !isPaused) {
+    if (!mapIsStarted && !mapIsPaused) {
       setState(() {
-        isStarted = !isStarted;
+        mapIsStarted = !mapIsStarted;
       });
       return;
     }
     // 開始後，按暫停 (開始)
-    if (isStarted && !isPaused) {
-      isPaused = true;
+    if (mapIsStarted && !mapIsPaused) {
+      mapIsPaused = true;
     }
     // 暫停後，確認要繼續或停止紀錄 (暫停)
-    if (isStarted && isPaused) {
+    if (mapIsStarted && mapIsPaused) {
       pauseDialog = MyAlertDialog(
           context: context,
           titleText: '暫停紀錄軌跡',
+          titleFontSize: 30,
           contentText: '',
+          contentFontSize: 20,
           btn1Text: '繼續記錄', // true
           btn2Text: '結束紀錄'); // false
       bool? result = await pauseDialog.show();
@@ -204,22 +197,24 @@ class MapPageState extends State<MapPage> {
         result = await pauseDialog.show();
       }
 
-      isStarted = result!;
+      mapIsStarted = result!;
       // 如果是停止紀錄
-      if (!isStarted && isPaused) {
-        if (polyline.userLocationList.length < 2) {
+      if (!mapIsStarted && mapIsPaused) {
+        if (mapPolyline.userLocationList.length < 2) {
           dataNotEnoughDialog = MyAlertDialog(
               context: context,
               titleText: '移動距離太短，無法紀錄',
+              titleFontSize: 30,
               contentText: '',
+              contentFontSize: 20,
               btn1Text: '確認',
               btn2Text: '');
           await dataNotEnoughDialog.show();
-          polyline.clearList(); // 清空 polyline list
+          mapPolyline.clearList(); // 清空 polyline list
           // 切換成開始狀態
           setState(() {
-            isStarted = false;
-            isPaused = false;
+            mapIsStarted = false;
+            mapIsPaused = false;
           });
           return;
         }
@@ -227,7 +222,9 @@ class MapPageState extends State<MapPage> {
         inputTrackNameDialog = InputDialog(
             context: context,
             myTitle: '新增軌跡資料',
+            myTitleFontSize: 30,
             myContent: '幫你的軌跡取一個名字',
+            myContentFontSize: 20,
             defaultText: '軌跡名稱',
             inputFieldName: '軌跡名稱',
             btn1Text: '確認',
@@ -243,7 +240,7 @@ class MapPageState extends State<MapPage> {
           String gpxFile = GPXService.writeGPX(
               trackName: newName,
               time: UserLocation.getCurrentTime(),
-              userLocationList: polyline.userLocationList);
+              userLocationList: mapPolyline.userLocationList);
           String newFilePath = '${trackDir!.path}/$newName.gpx';
           File newTrackFile = await fileProvider.writeFileAsString(
               content: gpxFile, path: newFilePath);
@@ -254,9 +251,9 @@ class MapPageState extends State<MapPage> {
                 uID: UserData.uid.toString(),
                 track_name: newName,
                 track_locate: newFilePath,
-                start: polyline.userLocationList[0].currentTime,
-                finish: polyline.userLocationList.last.currentTime,
-                total_distance: polyline.totalDistance.toStringAsFixed(3),
+                start: mapPolyline.userLocationList[0].currentTime,
+                finish: mapPolyline.userLocationList.last.currentTime,
+                total_distance: mapPolyline.totalDistance.toStringAsFixed(3),
                 time: UserLocation.getCurrentTime(),
                 track_type: '1');
             List insertTrackResponse =
@@ -272,9 +269,10 @@ class MapPageState extends State<MapPage> {
                     uID: UserData.uid.toString(),
                     track_name: newName,
                     track_locate: newFilePath,
-                    start: polyline.userLocationList[0].currentTime,
-                    finish: polyline.userLocationList.last.currentTime,
-                    total_distance: polyline.totalDistance.toStringAsFixed(3),
+                    start: mapPolyline.userLocationList[0].currentTime,
+                    finish: mapPolyline.userLocationList.last.currentTime,
+                    total_distance:
+                        mapPolyline.totalDistance.toStringAsFixed(3),
                     time: UserLocation.getCurrentTime(),
                     track_type: '1');
                 List insertClientTrackResult = await SqliteHelper.insert(
@@ -283,15 +281,17 @@ class MapPageState extends State<MapPage> {
                   saveFileSuccessDialog = MyAlertDialog(
                       context: context,
                       titleText: '檔案儲存成功',
+                      titleFontSize: 30,
                       contentText: '可以到軌跡頁面查看檔案',
+                      contentFontSize: 20,
                       btn1Text: '確認',
                       btn2Text: '');
                   await saveFileSuccessDialog.show();
                   setState(() {
-                    isPaused = false;
-                    isStarted = false;
+                    mapIsPaused = false;
+                    mapIsStarted = false;
                   });
-                  polyline.clearList(); // 清空 polyline list
+                  mapPolyline.clearList(); // 清空 polyline list
                   return;
                 } else {
                   print('sqlite 新增軌跡資料失敗 ${insertClientTrackResult[1]}');
@@ -308,10 +308,10 @@ class MapPageState extends State<MapPage> {
         } else {
           print('不要儲存軌跡 result?[0] ${result?[0]}');
         }
-        polyline.clearList(); // 清空 polyline list
+        mapPolyline.clearList(); // 清空 polyline list
       } // 如果要繼續記錄
       // 切換成開始狀態
-      isPaused = false;
+      mapIsPaused = false;
     }
     setState(() {});
   }
@@ -329,7 +329,7 @@ class MapPageState extends State<MapPage> {
         await GallerySaver.saveImage(imageFile.path, albumName: '與山同行');
     saveSuccess ??= false;
     print('照片儲存成功 $saveSuccess');
-    print('polyline.userLocationList ${polyline.userLocationList}');
+    print('polyline.userLocationList ${mapPolyline.userLocationList}');
     UserLocation? photoLocation = userLocation;
     print('拍照位置 $photoLocation');
 
@@ -349,7 +349,9 @@ class MapPageState extends State<MapPage> {
       takePhotoDialog = MyAlertDialog(
           context: context,
           titleText: '照片儲存成功',
+          titleFontSize: 30,
           contentText: '可以到手機的相簿中查看',
+          contentFontSize: 20,
           btn1Text: '確認',
           btn2Text: '');
       await takePhotoDialog.show();
@@ -358,7 +360,9 @@ class MapPageState extends State<MapPage> {
       takePhotoDialog = MyAlertDialog(
           context: context,
           titleText: '照片儲存失敗',
+          titleFontSize: 30,
           contentText: '',
+          contentFontSize: 20,
           btn1Text: '確認',
           btn2Text: '');
       await takePhotoDialog.show();

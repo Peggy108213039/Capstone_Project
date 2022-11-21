@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:location/location.dart';
-import 'dart:io';
 
 class LocationService {
   // static int sleepTime = 10;
@@ -54,6 +54,21 @@ class LocationService {
         currentTime: UserLocation.getCurrentTime()));
     print(
         '使用者位置 經度 : ${locationData.latitude!} 緯度 : ${locationData.longitude!}');
+    if (mapIsBackground) {
+      if (mapIsStarted && !mapIsPaused) {
+        print('地圖頁面 背景記錄軌跡');
+        mapPolyline.recordCoordinates(userLocation);
+        print('polyline 我的軌跡 ${mapPolyline.list.length}');
+      }
+    }
+
+    if (activityIsBackground) {
+      if (activityIsStarted && !activityIsPaused) {
+        print('活動頁面 背景記錄軌跡');
+        activPolyline.recordCoordinates(userLocation);
+        print('polyline 我的軌跡 ${activPolyline.list.length}');
+      }
+    }
   }
 
   static Stream<UserLocation> locationStream() {

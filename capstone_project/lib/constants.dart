@@ -72,12 +72,19 @@ bool hasTrackCheckTable = false;
 List serverTrackData = [];
 
 // 開始活動
+bool activityIsStarted = false;
+bool activityIsPaused = false;
+bool activityIsBackground = false;
 late LatLng previousPoint;
 bool havePreviousPoint = false;
-PolylineCoordinates polyline = PolylineCoordinates(); // 紀錄使用者的 polyline
+PolylineCoordinates activPolyline = PolylineCoordinates(); // 紀錄使用者的 polyline
 List<Map<String, dynamic>> activityPolyLineList = []; // 紀錄同行者的 polyline
 
 // 地圖
+bool mapIsStarted = false;
+bool mapIsPaused = false;
+bool mapIsBackground = false;
+PolylineCoordinates mapPolyline = PolylineCoordinates(); // 紀錄使用者的 polyline
 UserLocation defaultLocation = UserLocation(
     latitude: 23.94981257,
     longitude: 120.92764976,

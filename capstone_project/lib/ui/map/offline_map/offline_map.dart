@@ -239,7 +239,9 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
       pauseDialog = MyAlertDialog(
           context: context,
           titleText: '暫停紀錄軌跡',
+          titleFontSize: 30,
           contentText: '',
+          contentFontSize: 20,
           btn1Text: '繼續記錄', // true
           btn2Text: '結束紀錄'); // false
       bool? result = await pauseDialog.show();
@@ -255,7 +257,9 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
           dataNotEnoughDialog = MyAlertDialog(
               context: context,
               titleText: '移動距離太短，無法紀錄',
+              titleFontSize: 30,
               contentText: '',
+              contentFontSize: 20,
               btn1Text: '確認',
               btn2Text: '');
           await dataNotEnoughDialog.show();
@@ -271,7 +275,9 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
         inputTrackNameDialog = InputDialog(
             context: context,
             myTitle: '新增軌跡資料',
+            myTitleFontSize: 30,
             myContent: '幫你的軌跡取一個名字',
+            myContentFontSize: 20,
             defaultText: '軌跡名稱',
             inputFieldName: '軌跡名稱',
             btn1Text: '確認',
@@ -310,7 +316,9 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
             saveFileSuccessDialog = MyAlertDialog(
                 context: context,
                 titleText: '檔案儲存成功',
+                titleFontSize: 30,
                 contentText: '可以到軌跡頁面查看檔案',
+                contentFontSize: 20,
                 btn1Text: '確認',
                 btn2Text: '');
             saveFileSuccessDialog.show();
@@ -385,7 +393,9 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
           takePhotoDialog = MyAlertDialog(
               context: context,
               titleText: '照片儲存成功',
+              titleFontSize: 30,
               contentText: '可以到手機的相簿中查看',
+              contentFontSize: 20,
               btn1Text: '確認',
               btn2Text: '');
           takePhotoDialog.show();
@@ -394,7 +404,9 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
           takePhotoDialog = MyAlertDialog(
               context: context,
               titleText: '照片儲存失敗',
+              titleFontSize: 30,
               contentText: '',
+              contentFontSize: 20,
               btn1Text: '確認',
               btn2Text: '');
           takePhotoDialog.show();

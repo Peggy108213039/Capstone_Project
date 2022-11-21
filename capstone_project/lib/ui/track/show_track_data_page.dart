@@ -240,7 +240,9 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
     editTrackNameDialog = InputDialog(
         context: context,
         myTitle: '重新命名軌跡名稱',
+        myTitleFontSize: 30,
         myContent: '',
+        myContentFontSize: 20,
         defaultText: originalFileName,
         inputFieldName: '軌跡名稱',
         btn1Text: '確認',

@@ -28,10 +28,13 @@ class _ShowActivityDataState extends State<ShowActivityData> {
   late List<String> frindsIDList;
   List friendList = [];
   String memberString = '';
+  final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
   // bool? sharePostion = false;
   late MyAlertDialog sharePositionDialog; // 提醒視窗：問同行者是否要分享位置
   ValueNotifier<bool> isVisible = ValueNotifier<bool>(false); // 是否顯示開始活動的按鈕
+  ValueNotifier<bool> editBtnIsVisible =
+      ValueNotifier<bool>(false); // 是否顯示編輯活動的按鈕
 
   @override
   void initState() {
@@ -42,6 +45,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
   @override
   void dispose() {
     isVisible.dispose();
+    editBtnIsVisible.dispose();
     super.dispose();
   }
 
@@ -78,9 +82,10 @@ class _ShowActivityDataState extends State<ShowActivityData> {
     frindsIDList = arguments['activityData']['members'].toString().split(', ');
     getMemberList(frindsIDList);
 
-    // FIXME 顯示 主辦人有 開始按鈕
+    // 顯示 主辦人有 開始按鈕
     if (arguments['activityData']['uID'] == UserData.uid.toString()) {
       isVisible.value = true;
+      editBtnIsVisible.value = true;
     } else if (arguments['activityData']['finish_activity_time'] != 'null') {
       isVisible.value = false;
     } else {
@@ -90,10 +95,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
         isVisible.value = true;
       }
     }
-    print('${arguments['activityData']}');
-    print('isVisible   ${isVisible.value}');
 
-    // if (arguments['activityData']['sta'])
     return Scaffold(
       appBar: AppBar(
         backgroundColor: darkGreen1,
@@ -104,19 +106,25 @@ class _ShowActivityDataState extends State<ShowActivityData> {
         automaticallyImplyLeading: false,
         title: const Center(child: Text('活動資料')),
         actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/EditActivityData',
-                  arguments: arguments['activityData']);
-            },
-            child: const ImageIcon(
-              editIcon,
-              size: 33,
-            ),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(30, 30),
-              backgroundColor: transparentColor,
-              shadowColor: transparentColor,
+          ValueListenableBuilder(
+            valueListenable: editBtnIsVisible,
+            builder: (context, bool value, child) => Visibility(
+              visible: value,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/EditActivityData',
+                      arguments: arguments['activityData']);
+                },
+                child: const ImageIcon(
+                  editIcon,
+                  size: 33,
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(30, 30),
+                  backgroundColor: transparentColor,
+                  shadowColor: transparentColor,
+                ),
+              ),
             ),
           )
         ],
@@ -148,7 +156,8 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                   width: width),
               buildText(
                   title: '活動時間',
-                  content: '${arguments['activityData']['activity_time']}',
+                  content: dateFormat.format(DateTime.parse(
+                      arguments['activityData']['activity_time'])),
                   fontSize: 20,
                   subText: '',
                   subTextSize: 0,
@@ -323,7 +332,9 @@ class _ShowActivityDataState extends State<ShowActivityData> {
     sharePositionDialog = MyAlertDialog(
         context: context,
         titleText: '是否要分享位置給同行者？',
+        titleFontSize: 25,
         contentText: '分享後，同行者可以看到你的軌跡\n若沒分享，同行者看不到你的軌跡',
+        contentFontSize: 18,
         btn1Text: '要分享',
         btn2Text: '不要分享');
     bool? result = await sharePositionDialog.show();

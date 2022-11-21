@@ -30,6 +30,7 @@ class TrackPage extends StatefulWidget {
 class _TrackPageState extends State<TrackPage> {
   File? gpxFile;
   String trackName = ''; // 使用者輸入的軌跡名稱
+  final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
   final FileProvider fileProvider = FileProvider();
   late Directory? trackDir; // 軌跡資料夾
@@ -127,7 +128,9 @@ class _TrackPageState extends State<TrackPage> {
     deleteTrackDialog = MyAlertDialog(
         context: context,
         titleText: '刪除軌跡',
+        titleFontSize: 30,
         contentText: '確定要刪除 ${deleteTrackData[0]['track_name']} ?',
+        contentFontSize: 20,
         btn1Text: '刪除',
         btn2Text: '取消');
     bool? toDelete = await deleteTrackDialog.show();
@@ -156,7 +159,9 @@ class _TrackPageState extends State<TrackPage> {
           deleteServerTrackFailDialog = MyAlertDialog(
               context: context,
               titleText: 'server 刪除軌跡資料失敗',
+              titleFontSize: 30,
               contentText: deleteServerTrackResult[1],
+              contentFontSize: 20,
               btn1Text: '確認',
               btn2Text: '');
           deleteServerTrackFailDialog.show();
@@ -165,7 +170,9 @@ class _TrackPageState extends State<TrackPage> {
         deleteClientTrackFailDialog = MyAlertDialog(
             context: context,
             titleText: '刪除失敗',
+            titleFontSize: 30,
             contentText: '找不到軌跡檔案',
+            contentFontSize: 20,
             btn1Text: '確認',
             btn2Text: '');
         deleteClientTrackFailDialog.show();
@@ -221,7 +228,9 @@ class _TrackPageState extends State<TrackPage> {
       noFileAlertDialog = MyAlertDialog(
           context: context,
           titleText: '沒有選擇檔案匯入',
+          titleFontSize: 30,
           contentText: '',
+          contentFontSize: 20,
           btn1Text: '返回',
           btn2Text: '');
       noFileAlertDialog.show();
@@ -237,7 +246,9 @@ class _TrackPageState extends State<TrackPage> {
       reChooseAlertDialog = MyAlertDialog(
           context: context,
           titleText: '請重新選擇檔案',
+          titleFontSize: 30,
           contentText: '你選擇的檔案類型不是 .gpx 或 .kml\n請重新選擇',
+          contentFontSize: 20,
           btn1Text: '返回',
           btn2Text: '');
       reChooseAlertDialog.show();
@@ -246,7 +257,9 @@ class _TrackPageState extends State<TrackPage> {
       nameFileDialog = InputDialog(
           context: context,
           myTitle: '新增軌跡資料',
+          myTitleFontSize: 30,
           myContent: '幫你要匯入的軌跡取一個名字',
+          myContentFontSize: 20,
           defaultText: basenameWithoutExtension(file.name),
           inputFieldName: '軌跡名稱',
           btn1Text: '確認',
@@ -334,7 +347,9 @@ class _TrackPageState extends State<TrackPage> {
             insertClientTrackFailDialog = MyAlertDialog(
                 context: context,
                 titleText: '本機端新增軌跡失敗',
+                titleFontSize: 30,
                 contentText: insertClientTrackResult[1].toString(),
+                contentFontSize: 20,
                 btn1Text: '確認',
                 btn2Text: '');
             insertClientTrackFailDialog.show();
@@ -345,7 +360,9 @@ class _TrackPageState extends State<TrackPage> {
           uploadServerTrackFailDialog = MyAlertDialog(
               context: context,
               titleText: '上傳軌跡失敗',
+              titleFontSize: 30,
               contentText: uploadTrackResponse[1].toString(),
+              contentFontSize: 20,
               btn1Text: '確認',
               btn2Text: '');
           uploadServerTrackFailDialog.show();
@@ -354,7 +371,9 @@ class _TrackPageState extends State<TrackPage> {
         insertServerTrackFailDialog = MyAlertDialog(
             context: context,
             titleText: 'server 新增軌跡失敗',
+            titleFontSize: 30,
             contentText: insertTrackResponse[1].toString(),
+            contentFontSize: 20,
             btn1Text: '確認',
             btn2Text: '');
         insertServerTrackFailDialog.show();
@@ -418,7 +437,8 @@ class _TrackPageState extends State<TrackPage> {
                           subtitle: Container(
                             padding: const EdgeInsets.only(top: 5.0),
                             child: Text(
-                              list[idx]['time'],
+                              dateFormat
+                                  .format(DateTime.parse(list[idx]['time'])),
                               style: TextStyle(color: Colors.grey.shade300),
                             ),
                           ),

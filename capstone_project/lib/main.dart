@@ -76,6 +76,8 @@ class MyApp extends StatelessWidget {
           // '/ShowTrackDataPage': (context) => const ShowTrackDataPage(),
           '/MyBottomBar1': ((context) =>
               const MyBottomBar(i: 1, firstTime: false)),
+          '/MyBottomBar2_firstTime': ((context) =>
+              const MyBottomBar(i: 2, firstTime: true)),
           '/MyBottomBar3': ((context) =>
               const MyBottomBar(i: 3, firstTime: false)),
           '/MyBottomBar0': ((context) =>

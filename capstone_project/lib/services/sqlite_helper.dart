@@ -118,6 +118,15 @@ class SqliteHelper {
     return result;
   }
 
+  // 抓所有資料
+  static Future<List<Map<String, dynamic>>> queryAllTrackDataList(
+      {required List<String> columns}) async {
+    final Database? database = await open;
+    var result = await database?.query('track', columns: columns);
+    result ??= [];
+    return result;
+  }
+
   // 抓特定資料
   static Future<List<Map<String, dynamic>>?> queryRow(
       {required String tableName,

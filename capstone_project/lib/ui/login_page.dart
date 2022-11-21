@@ -50,7 +50,8 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       constraints: const BoxConstraints.expand(),
       decoration: const BoxDecoration(
-          image:DecorationImage(image: introBackgroundImage, fit: BoxFit.cover)),
+          image:
+              DecorationImage(image: introBackgroundImage, fit: BoxFit.cover)),
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: transparentColor,

@@ -44,8 +44,8 @@ class _StartActivityState extends State<StartActivity> {
   late List<LatLng> gpsList;
   late List frindsIDList;
 
-  bool isStarted = false;
-  bool isPaused = false;
+  // bool isStarted = false;
+  // bool isPaused = false;
   bool shareUserPosition = false;
 
   List<Marker> markers = []; // 標記拍照點
@@ -98,6 +98,8 @@ class _StartActivityState extends State<StartActivity> {
     print('===== 刪掉 dispose =====');
     LocationService.closeService();
     clearPolylineList();
+    activityIsStarted = false;
+    activityIsPaused = false;
     super.dispose();
   }
 
@@ -153,7 +155,7 @@ class _StartActivityState extends State<StartActivity> {
     final testSocketData = Provider.of<Object?>(context);
     socketSituation(socketData: testSocketData);
 
-    if (!isStarted && !isPaused) {
+    if (!activityIsStarted && !activityIsPaused) {
       markers.clear();
     }
 
@@ -174,8 +176,8 @@ class _StartActivityState extends State<StartActivity> {
         body: Stack(children: [
           ActivityMap(
             gpsList: gpsList,
-            isStarted: isStarted,
-            isPaused: isPaused,
+            isStarted: activityIsStarted,
+            isPaused: activityIsPaused,
             markerList: markers,
             sharePosition: shareUserPosition,
             activityMsg: '${arguments['aID']} ${arguments['activity_name']}',
@@ -184,26 +186,18 @@ class _StartActivityState extends State<StartActivity> {
             Column(
               children: [
                 WarningTime(
-                  isStarted: isStarted,
-                  isPaused: isPaused,
+                  isStarted: activityIsStarted,
+                  isPaused: activityIsPaused,
                   checkTime: 2,
                   warningTime: int.parse(arguments['warning_time']) * 60,
                   // warningTime: 10,
                 ),
                 WarningDistanceText(
-                  isStarted: isStarted,
-                  isPaused: isPaused,
+                  isStarted: activityIsStarted,
+                  isPaused: activityIsPaused,
                   gpsList: gpsList,
                   warningDistance: double.parse(arguments['warning_distance']),
                 ),
-                // SocketWarningDistance(
-                //     isStarted: isStarted,
-                //     isPaused: isPaused,
-                //     socketMssege: testSocketData),
-                // SocketWarningTime(
-                //     isStarted: isStarted,
-                //     isPaused: isPaused,
-                //     socketMssege: testSocketData)
               ],
             ),
           ]),
@@ -251,7 +245,7 @@ class _StartActivityState extends State<StartActivity> {
                     pushRecordBtn(
                         context: context, aID: arguments['aID'].toString());
                   },
-                  child: isStarted
+                  child: activityIsStarted
                       ? const ImageIcon(
                           endIcon,
                           size: 33,
@@ -260,7 +254,7 @@ class _StartActivityState extends State<StartActivity> {
                           startIcon,
                           size: 40.0,
                         ),
-                  style: isStarted ? stopBtnStyle : startBtnStyle,
+                  style: activityIsStarted ? stopBtnStyle : startBtnStyle,
                 ),
               ],
             ),
@@ -286,22 +280,24 @@ class _StartActivityState extends State<StartActivity> {
   void pushRecordBtn(
       {required BuildContext context, required String aID}) async {
     // 剛開始 (預設值)
-    if (!isStarted && !isPaused) {
+    if (!activityIsStarted && !activityIsPaused) {
       setState(() {
-        isStarted = !isStarted;
+        activityIsStarted = !activityIsStarted;
       });
       return;
     }
     // 開始後，按暫停 (開始)
-    if (isStarted && !isPaused) {
-      isPaused = true;
+    if (activityIsStarted && !activityIsPaused) {
+      activityIsPaused = true;
     }
     // 暫停後，確認要繼續或停止紀錄 (暫停)
-    if (isStarted && isPaused) {
+    if (activityIsStarted && activityIsPaused) {
       pauseDialog = MyAlertDialog(
           context: context,
           titleText: '暫停紀錄軌跡',
+          titleFontSize: 30,
           contentText: '',
+          contentFontSize: 20,
           btn1Text: '繼續記錄', // true
           btn2Text: '結束紀錄'); // false
       bool? result = await pauseDialog.show();
@@ -309,22 +305,24 @@ class _StartActivityState extends State<StartActivity> {
         result = await pauseDialog.show();
       }
 
-      isStarted = result!;
+      activityIsStarted = result!;
       // 如果是停止紀錄
-      if (!isStarted && isPaused) {
-        if (polyline.userLocationList.length < 2) {
+      if (!activityIsStarted && activityIsPaused) {
+        if (activPolyline.userLocationList.length < 2) {
           dataNotEnoughDialog = MyAlertDialog(
               context: context,
               titleText: '移動距離太短，無法紀錄',
+              titleFontSize: 30,
               contentText: '',
+              contentFontSize: 20,
               btn1Text: '確認',
               btn2Text: '');
           await dataNotEnoughDialog.show();
-          polyline.clearList(); // 清空 polyline list
+          activPolyline.clearList(); // 清空 polyline list
           // 切換成開始狀態
           setState(() {
-            isStarted = false;
-            isPaused = false;
+            activityIsStarted = false;
+            activityIsPaused = false;
           });
           return;
         }
@@ -353,7 +351,9 @@ class _StartActivityState extends State<StartActivity> {
         inputTrackNameDialog = InputDialog(
             context: context,
             myTitle: '新增軌跡資料',
+            myTitleFontSize: 30,
             myContent: '幫你的軌跡取一個名字',
+            myContentFontSize: 20,
             defaultText: '軌跡名稱',
             inputFieldName: '軌跡名稱',
             btn1Text: '確認',
@@ -368,7 +368,7 @@ class _StartActivityState extends State<StartActivity> {
           String gpxFile = GPXService.writeGPX(
               trackName: newName,
               time: UserLocation.getCurrentTime(),
-              userLocationList: polyline.userLocationList);
+              userLocationList: activPolyline.userLocationList);
           String newFilePath = '${trackDir!.path}/$newName.gpx';
           File newTrackFile = await fileProvider.writeFileAsString(
               content: gpxFile, path: newFilePath);
@@ -379,9 +379,9 @@ class _StartActivityState extends State<StartActivity> {
                 uID: UserData.uid.toString(),
                 track_name: newName,
                 track_locate: newFilePath,
-                start: polyline.userLocationList[0].currentTime,
-                finish: polyline.userLocationList.last.currentTime,
-                total_distance: polyline.totalDistance.toStringAsFixed(3),
+                start: activPolyline.userLocationList[0].currentTime,
+                finish: activPolyline.userLocationList.last.currentTime,
+                total_distance: activPolyline.totalDistance.toStringAsFixed(3),
                 time: UserLocation.getCurrentTime(),
                 track_type: '2');
             List insertTrackResponse =
@@ -397,9 +397,10 @@ class _StartActivityState extends State<StartActivity> {
                   uID: UserData.uid.toString(),
                   track_name: newName,
                   track_locate: newFilePath,
-                  start: polyline.userLocationList[0].currentTime,
-                  finish: polyline.userLocationList.last.currentTime,
-                  total_distance: polyline.totalDistance.toStringAsFixed(3),
+                  start: activPolyline.userLocationList[0].currentTime,
+                  finish: activPolyline.userLocationList.last.currentTime,
+                  total_distance:
+                      activPolyline.totalDistance.toStringAsFixed(3),
                   time: UserLocation.getCurrentTime(),
                   track_type: '2',
                 );
@@ -409,15 +410,17 @@ class _StartActivityState extends State<StartActivity> {
                   saveFileSuccessDialog = MyAlertDialog(
                       context: context,
                       titleText: '檔案儲存成功',
+                      titleFontSize: 30,
                       contentText: '可以到軌跡頁面查看檔案',
+                      contentFontSize: 20,
                       btn1Text: '確認',
                       btn2Text: '');
                   await saveFileSuccessDialog.show();
                   setState(() {
-                    isPaused = false;
-                    isStarted = false;
+                    activityIsPaused = false;
+                    activityIsStarted = false;
                   });
-                  polyline.clearList(); // 清空 polyline list
+                  activPolyline.clearList(); // 清空 polyline list
                   return;
                 } else {
                   print('sqlite 新增軌跡資料失敗 ${insertClientTrackResult[1]}');
@@ -434,10 +437,10 @@ class _StartActivityState extends State<StartActivity> {
         } else {
           print('不要儲存軌跡 result?[0] ${result?[0]}');
         }
-        polyline.clearList(); // 清空 polyline list
+        activPolyline.clearList(); // 清空 polyline list
       } // 如果要繼續記錄
       // 切換成開始狀態
-      isPaused = false;
+      activityIsPaused = false;
     }
     setState(() {});
   }
@@ -471,7 +474,9 @@ class _StartActivityState extends State<StartActivity> {
       takePhotoDialog = MyAlertDialog(
           context: context,
           titleText: '照片儲存成功',
+          titleFontSize: 30,
           contentText: '可以到手機的相簿中查看',
+          contentFontSize: 20,
           btn1Text: '確認',
           btn2Text: '');
       await takePhotoDialog.show();
@@ -479,7 +484,9 @@ class _StartActivityState extends State<StartActivity> {
       takePhotoDialog = MyAlertDialog(
           context: context,
           titleText: '照片儲存失敗',
+          titleFontSize: 30,
           contentText: '',
+          contentFontSize: 20,
           btn1Text: '確認',
           btn2Text: '');
       await takePhotoDialog.show();

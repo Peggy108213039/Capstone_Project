@@ -2,6 +2,7 @@ import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ActivityPage extends StatefulWidget {
   const ActivityPage({Key? key}) : super(key: key);
@@ -11,13 +12,20 @@ class ActivityPage extends StatefulWidget {
 }
 
 class _ActivityPageState extends State<ActivityPage> {
-  bool _visible = false;
+  ValueNotifier<bool> isVisible = ValueNotifier<bool>(false); // 是否顯示刪除活動的按鈕
   late List? activTable = []; // 活動資料表下的資料
+  final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
   @override
   void initState() {
     // implement initState
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    isVisible.dispose();
+    super.dispose();
   }
 
   getActivData() async {
@@ -113,6 +121,10 @@ class _ActivityPageState extends State<ActivityPage> {
             return ListView.builder(
               itemCount: list.length,
               itemBuilder: (context, idx) {
+                // 顯示 主辦人有 刪除活動按鈕
+                if (list[idx]['uID'] == UserData.uid.toString()) {
+                  isVisible.value = true;
+                }
                 return Column(
                   children: <Widget>[
                     Card(
@@ -134,18 +146,24 @@ class _ActivityPageState extends State<ActivityPage> {
                           subtitle: Container(
                             padding: const EdgeInsets.only(top: 5.0),
                             child: Text(
-                              '活動時間 ${list[idx]['activity_time']}',
+                              '活動時間 ${dateFormat.format(DateTime.parse(list[idx]['activity_time']))}',
                               style: const TextStyle(
                                   color: Color.fromARGB(180, 255, 255, 255)),
                             ),
                           ),
-                          trailing: ElevatedButton(
-                            child: const ImageIcon(deleteIcon),
-                            onPressed: () => pushDelete(idx, context),
-                            style: ElevatedButton.styleFrom(
-                                shadowColor: transparentColor,
-                                backgroundColor: transparentColor,
-                                minimumSize: const Size(30, 30)),
+                          trailing: ValueListenableBuilder(
+                            valueListenable: isVisible,
+                            builder: (context, bool value, child) => Visibility(
+                              visible: value,
+                              child: ElevatedButton(
+                                child: const ImageIcon(deleteIcon),
+                                onPressed: () => pushDelete(idx, context),
+                                style: ElevatedButton.styleFrom(
+                                    shadowColor: transparentColor,
+                                    backgroundColor: transparentColor,
+                                    minimumSize: const Size(30, 30)),
+                              ),
+                            ),
                           ),
                           onTap: () {
                             checkActivity(activityData: [list[idx]]);
@@ -187,7 +205,10 @@ class _ActivityPageState extends State<ActivityPage> {
           actions: [
             ElevatedButton(
               child: const ImageIcon(addIcon),
-              onPressed: () => Navigator.pushNamed(context, "/AddActivityPage"),
+              onPressed: () {
+                Navigator.pushNamed(context, "/AddActivityPage")
+                    .then((value) => refreshUI());
+              },
               style: ElevatedButton.styleFrom(
                   backgroundColor: transparentColor,
                   shadowColor: transparentColor),
@@ -197,6 +218,10 @@ class _ActivityPageState extends State<ActivityPage> {
         body: showAllActivities(),
       ),
     );
+  }
+
+  void refreshUI() {
+    setState(() {});
   }
 
   void checkActivity({required List<dynamic> activityData}) async {

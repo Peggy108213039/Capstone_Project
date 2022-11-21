@@ -92,6 +92,7 @@ class APIService {
       selectFriend(SelectFriendRequestModel(uID1: tmpResponse.uID.toString()));
       var userID = {'uID': tmpResponse.uID.toString()};
       await selectUserAllTrack(userID);
+      await selectAccountActivity(content: userID);
       return true;
       // 如果 server 回傳 json 格式則應該像下行寫，才能把 server response 的 json 資料抓出來用
       // return LoginResponseModel.fromJson(json.decode(response.body));
@@ -227,7 +228,8 @@ class APIService {
       print('FRIEND LIST FROM SERVER');
       for (var tmpResponse in jsonResponse) {
         // 使用 uID2 查詢 userInfo 以列出好友清單
-        await selectUserInfo(SelectInfoRequestModel(uid: tmpResponse['uID2'].toString()));
+        await selectUserInfo(
+            SelectInfoRequestModel(uid: tmpResponse['uID2'].toString()));
       }
       print("我的朋友 table");
       print(await SqliteHelper.queryAll(tableName: "friend"));
@@ -303,22 +305,64 @@ class APIService {
     }
   }
 
-  // 抓某使用者 (uID) 的相關資料
-  // static Future<List> selectSpecificActivity(
-  //     {required Map<String, dynamic> content}) async {
-  //   String url =
-  //       "http://163.22.17.247:3000/api/activity/select_specific_activity";
-  //   print(content);
-  //   final response = await http.post(Uri.parse(url),
-  //       headers: {'cookie': UserData.token}, body: content);
-  //   final responseString = jsonDecode(response.body);
-  //   if (response.statusCode == 200 || response.statusCode == 400) {
-  //     return [responseString];
-  //   } else {
-  //     print('失敗 $responseString response.statusCode ${response.statusCode}');
-  //     return [responseString];
-  //   }
-  // }
+  // 抓某使用者 (uID) 的活動資料
+  static Future<List> selectAccountActivity(
+      {required Map<String, dynamic> content}) async {
+    String url =
+        "http://163.22.17.247:3000/api/activity/select_account_activity";
+    await SqliteHelper.clear(tableName: "activity");
+
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final serverActivities = jsonDecode(response.body);
+
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      // 抓 sqlite 所有軌跡的 tID
+      List sqliteTidList =
+          await SqliteHelper.queryAllTrackDataList(columns: ['tID']);
+
+      for (var activity in serverActivities) {
+        print(
+            '活動時間 ${activity['activity_time']} ${activity['activity_time'].runtimeType}');
+
+        // 把 server 活動資料加進 sqlite
+        final Activity newLocalActivityData = Activity(
+            aID: activity['aID'].toString(),
+            uID: activity['uID'].toString(),
+            activity_name: activity['activity_name'].toString(),
+            activity_time: activity['activity_time'].toString(),
+            start_activity_time: activity['start_activity_time'].toString(),
+            finish_activity_time: activity['finish_activity_time'].toString(),
+            tID: activity['tID'].toString(),
+            warning_distance: activity['warning_distance'].toString(),
+            warning_time: activity['warning_time'].toString(),
+            members: '');
+        await SqliteHelper.insert(
+            tableName: 'activity', insertData: newLocalActivityData.toMap());
+
+        // 如果 sqliteTrackTidList 沒有活動的 tid 就下載該軌跡
+        bool trackIsDownloaded = false;
+        final String serverActivityTid = activity['tID'].toString();
+        for (var tID in sqliteTidList) {
+          if (tID['tID'].toString() == serverActivityTid) {
+            trackIsDownloaded = true;
+            break;
+          }
+        }
+        if (!trackIsDownloaded) {
+          // 下載該軌跡
+          Map<String, dynamic> specificTrack = {'tID': serverActivityTid};
+          List specificTrackResponse =
+              await selectSpecificTrackAndDownload(content: specificTrack);
+          print(specificTrackResponse);
+        }
+      }
+      return [serverActivities];
+    } else {
+      print('失敗 $serverActivities response.statusCode ${response.statusCode}');
+      return [serverActivities];
+    }
+  }
 
   // 抓某使用者 (uID) 的相關資料
   static Future<List> selectUidMemberData(
@@ -333,6 +377,56 @@ class APIService {
     } else {
       print('失敗 $responseString response.statusCode ${response.statusCode}');
       return [responseString];
+    }
+  }
+
+  // 抓 tID 的軌跡資料並下載
+  static Future<List> selectSpecificTrackAndDownload(
+      {required Map<String, dynamic> content}) async {
+    String url = "http://163.22.17.247:3000/api/track/select_specific_track";
+    // 抓軌跡資料夾的路徑
+    await fileProvider.getAppPath;
+    Directory? trackDir =
+        await fileProvider.getSpecificDir(dirName: 'trackData');
+
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final serverTrack = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      // 下載軌跡
+      String savePath = '${trackDir!.path}/${serverTrack['track_name']}';
+      // download server track file
+      Map<String, dynamic> downloadTrackID = {'tid': serverTrack['tID']};
+      List downloadTrackResult =
+          await downloadTrack(savePath: savePath, content: downloadTrackID);
+      print('下載成功   ${downloadTrackResult[0]}');
+      // 更新 sqlite
+      if (downloadTrackResult[0]) {
+        Track newClientTrackData = Track(
+            tID: serverTrack['tID'].toString(),
+            uID: serverTrack['uID'].toString(),
+            track_name: serverTrack['track_name'],
+            track_locate: savePath,
+            start: serverTrack['start'],
+            finish: serverTrack['finish'],
+            total_distance: serverTrack['total_distance'].toString(),
+            time: serverTrack['time'],
+            track_type: '2'); // 活動軌跡
+        List insertClientTrackResult = await SqliteHelper.insert(
+            tableName: 'track', insertData: newClientTrackData.toMap());
+        if (insertClientTrackResult[0]) {
+          print('本機端新增軌跡 ${serverTrack['tID']} 成功');
+        } else {
+          print('本機端新增軌跡 ${serverTrack['tID']} 失敗');
+        }
+      } else {
+        print("err.message:  ${downloadTrackResult[1]}");
+        print('server 下載軌跡 ${serverTrack['tID']} 失敗');
+      }
+      return [true, serverTrack];
+    } else {
+      print('失敗 $serverTrack response.statusCode ${response.statusCode}');
+      return [false, []];
     }
   }
 

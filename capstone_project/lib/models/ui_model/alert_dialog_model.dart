@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 class MyAlertDialog {
   BuildContext context;
   String titleText;
+  double titleFontSize;
   String contentText;
+  double contentFontSize;
   String btn1Text;
   String btn2Text;
 
@@ -12,20 +14,26 @@ class MyAlertDialog {
   late Widget contentWidget;
   late Widget btn1;
   late Widget btn2;
+  List<Widget> btnList = [];
 
-  MyAlertDialog(
-      {required this.context,
-      required this.titleText,
-      required this.contentText,
-      required this.btn1Text,
-      required this.btn2Text}) {
+  MyAlertDialog({
+    required this.context,
+    required this.titleText,
+    required this.titleFontSize,
+    required this.contentText,
+    required this.contentFontSize,
+    required this.btn1Text,
+    required this.btn2Text,
+  }) {
     if (titleText == '') {
       titleWidget = const SizedBox.shrink();
     } else {
       titleWidget = Text(
         titleText,
-        style: const TextStyle(
-            color: Colors.white, fontSize: 30, fontWeight: FontWeight.w500),
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: titleFontSize,
+            fontWeight: FontWeight.w500),
       );
     }
     if (contentText == '') {
@@ -33,8 +41,10 @@ class MyAlertDialog {
     } else {
       contentWidget = Text(
         contentText,
-        style: const TextStyle(
-            color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: contentFontSize,
+            fontWeight: FontWeight.w500),
       );
     }
     if (btn1Text == '') {
@@ -55,12 +65,16 @@ class MyAlertDialog {
           Navigator.of(context).pop(true);
         },
       );
+      btnList.add(btn1);
     }
     if (btn2Text == '') {
       btn2 = const SizedBox.shrink();
     } else {
       btn2 = ElevatedButton(
-        child: Text(btn2Text),
+        child: Text(
+          btn2Text,
+          style: const TextStyle(fontSize: 17),
+        ),
         style: ElevatedButton.styleFrom(
             minimumSize: const Size(70, 40),
             foregroundColor: darkGreen2,
@@ -71,6 +85,7 @@ class MyAlertDialog {
           Navigator.of(context).pop(false);
         },
       );
+      btnList.add(btn2);
     }
   }
 
@@ -85,7 +100,7 @@ class MyAlertDialog {
             actions: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [btn1, btn2],
+                children: btnList,
               )
             ],
             shape: const RoundedRectangleBorder(

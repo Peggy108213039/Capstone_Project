@@ -29,7 +29,7 @@ class ActivityMap extends StatefulWidget {
   State<ActivityMap> createState() => _ActivityMapState();
 }
 
-class _ActivityMapState extends State<ActivityMap> {
+class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   MapController? mapController;
   late List<LatLng> gpsList;
   late bool isStarted;
@@ -56,6 +56,7 @@ class _ActivityMapState extends State<ActivityMap> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     gpsList = widget.gpsList;
     sharePosition = widget.sharePosition;
     activityMsg = widget.activityMsg;
@@ -64,9 +65,23 @@ class _ActivityMapState extends State<ActivityMap> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     mapController!.dispose();
-    polyline.clearList();
+    activPolyline.clearList();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('========\nstate = $state\n========');
+    if (state == AppLifecycleState.inactive || // 可見、不可操作
+            state == AppLifecycleState.paused || // 不可見、不可操作（進入背景）
+            state == AppLifecycleState.detached // 雖然還在運行，但已經沒有任何存在的頁面
+        ) {
+      activityIsBackground = true;
+    } else {
+      activityIsBackground = false;
+    }
   }
 
   // 抓使用者目前位置
@@ -87,8 +102,8 @@ class _ActivityMapState extends State<ActivityMap> {
   // 畫使用者的軌跡
   void getUserTrack({required List<LatLng> gpsList}) async {
     if (isStarted && !isPaused) {
-      polyline.recordCoordinates(userLocation);
-      print('polyline 我的軌跡 ${polyline.list}');
+      activPolyline.recordCoordinates(userLocation);
+      print('polyline 我的軌跡 ${activPolyline.list.length}');
 
       // FIXME 傳自己的座標給 server
       if (sharePosition) {
@@ -156,7 +171,7 @@ class _ActivityMapState extends State<ActivityMap> {
               strokeWidth: 4,
             ),
             Polyline(
-              points: polyline.list,
+              points: activPolyline.list,
               color: Colors.green,
               strokeWidth: 4,
             )

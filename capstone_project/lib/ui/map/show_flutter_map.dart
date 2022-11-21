@@ -26,7 +26,8 @@ class ShowFlutterMap extends StatefulWidget {
   State<ShowFlutterMap> createState() => _ShowFlutterMapState();
 }
 
-class _ShowFlutterMapState extends State<ShowFlutterMap> {
+class _ShowFlutterMapState extends State<ShowFlutterMap>
+    with WidgetsBindingObserver {
   MapController? mapController;
   late bool isStarted;
   late bool isPaused;
@@ -44,14 +45,29 @@ class _ShowFlutterMapState extends State<ShowFlutterMap> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     mapController!.dispose();
-    // polyline.clearList();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('========\nstate = $state\n========');
+    if (state == AppLifecycleState.inactive || // 可見、不可操作
+            state == AppLifecycleState.paused || // 不可見、不可操作（進入背景）
+            state == AppLifecycleState.detached // 雖然還在運行，但已經沒有任何存在的頁面
+        ) {
+      mapIsBackground = true;
+    } else {
+      mapIsBackground = false;
+    }
+    print('地圖在背景 mapIsBackground');
   }
 
   // 抓使用者目前位置
@@ -73,7 +89,7 @@ class _ShowFlutterMapState extends State<ShowFlutterMap> {
   void getUserTrack() async {
     if (isStarted && !isPaused) {
       polyline.recordCoordinates(userLocation);
-      print('polyline 我的軌跡 ${polyline.list}');
+      print('polyline 我的軌跡 ${polyline.list.length}');
     }
   }
 
