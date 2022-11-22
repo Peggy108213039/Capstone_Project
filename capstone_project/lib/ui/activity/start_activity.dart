@@ -20,6 +20,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
+import 'dart:math';
 
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
@@ -30,8 +31,10 @@ import 'package:provider/provider.dart';
 
 class StartActivity extends StatefulWidget {
   final List<LatLng> gpsList;
-  final List members;
-  const StartActivity({Key? key, required this.gpsList, required this.members})
+  // final List members;
+  const StartActivity({Key? key, required this.gpsList
+      // , required this.members
+      })
       : super(key: key);
 
   @override
@@ -42,7 +45,8 @@ class _StartActivityState extends State<StartActivity> {
   late Directory? trackDir; // 軌跡資料夾
   final FileProvider fileProvider = FileProvider();
   late List<LatLng> gpsList;
-  late List frindsIDList;
+  List frindsIDList = [];
+  List<Polyline> memberPolylines = [];
 
   // bool isStarted = false;
   // bool isPaused = false;
@@ -75,29 +79,30 @@ class _StartActivityState extends State<StartActivity> {
   @override
   void initState() {
     gpsList = widget.gpsList;
-    frindsIDList = widget.members;
-    buildFriendPolyLine(frindsIDList: frindsIDList);
+    // frindsIDList = widget.members;
+    // buildFriendPolyLine(frindsIDList: frindsIDList);
     getTrackDirPath();
     super.initState();
   }
 
-  void buildFriendPolyLine({required List frindsIDList}) {
-    if (frindsIDList.isNotEmpty) {
-      for (int i = 0; i < frindsIDList.length; i++) {
-        String memberName = frindsIDList[i]['account'].toString();
-        PolylineCoordinates tempPolyline = PolylineCoordinates();
-        activityPolyLineList
-            .add({"account": memberName, "polyline": tempPolyline});
-      }
-    }
-    print('activityPolyLineList $activityPolyLineList');
-  }
+  // void buildFriendPolyLine({required List frindsIDList}) {
+  //   if (frindsIDList.isNotEmpty) {
+  //     for (int i = 0; i < frindsIDList.length; i++) {
+  //       String memberName = frindsIDList[i]['account'].toString();
+  //       PolylineCoordinates tempPolyline = PolylineCoordinates();
+  //       activityPolyLineList
+  //           .add({"account": memberName, "polyline": tempPolyline});
+  //     }
+  //   }
+  //   print('activityPolyLineList $activityPolyLineList');
+  // }
 
   @override
   void dispose() {
     print('===== 刪掉 dispose =====');
     LocationService.closeService();
     clearPolylineList();
+    activPolyline.clearList();
     activityIsStarted = false;
     activityIsPaused = false;
     super.dispose();
@@ -107,13 +112,29 @@ class _StartActivityState extends State<StartActivity> {
     activityPolyLineList.clear();
   }
 
-  void socketSituation({required Object? socketData}) {
+  List<Polyline> socketSituation({required Object? socketData}) {
+    List<Polyline> polylineList = [];
     final tmpSocketData = jsonDecode(jsonEncode(socketData!));
     print('socketData $tmpSocketData  type ${tmpSocketData.runtimeType}');
-    if (tmpSocketData.runtimeType != String) {
+    // List<Polyline>
+    if (tmpSocketData.runtimeType != String &&
+        tmpSocketData['ctlmsg'] != null) {
       final String ctlMsg = tmpSocketData['ctlmsg'];
       // FIXME client 收到同行者的軌跡
       if (ctlMsg == "broadcast location") {
+        // 檢查 memberName 有沒有在 frindsIDList 裡
+        // 沒有就新增一個 PolylineCoordinates
+        String memberName = tmpSocketData['account_msg'].toString();
+        if (!frindsIDList.contains(memberName)) {
+          frindsIDList.add(memberName);
+          PolylineCoordinates tempPolyline = PolylineCoordinates();
+          activityPolyLineList.add({
+            "account": memberName,
+            "polyline": tempPolyline,
+            "color": Random().nextInt(Colors.primaries.length)
+          });
+        }
+        // 將 socket 收到的位置記錄起來
         for (int i = 0; i < activityPolyLineList.length; i++) {
           if (tmpSocketData['account_msg'] ==
               activityPolyLineList[i]['account']) {
@@ -124,6 +145,17 @@ class _StartActivityState extends State<StartActivity> {
                 currentTime: UserLocation.getCurrentTime()));
           }
         }
+        // 回傳 List<polyline>
+        if (activityPolyLineList.isNotEmpty) {
+          for (int i = 0; i < activityPolyLineList.length; i++) {
+            polylineList.add(Polyline(
+              points: activityPolyLineList[i]['polyline'].list,
+              color: Colors.primaries[activityPolyLineList[i]['color']],
+              strokeWidth: 4,
+            ));
+          }
+        }
+        print('activityPolyLineList $activityPolyLineList');
       }
       if (ctlMsg == "activity warniing") {
         final String wanringMsg = tmpSocketData['wanring_msg'];
@@ -142,6 +174,7 @@ class _StartActivityState extends State<StartActivity> {
         }
       }
     }
+    return polylineList;
   }
 
   @override
@@ -153,7 +186,7 @@ class _StartActivityState extends State<StartActivity> {
 
     // get Socket response
     final testSocketData = Provider.of<Object?>(context);
-    socketSituation(socketData: testSocketData);
+    memberPolylines = socketSituation(socketData: testSocketData);
 
     if (!activityIsStarted && !activityIsPaused) {
       markers.clear();
@@ -181,6 +214,7 @@ class _StartActivityState extends State<StartActivity> {
             markerList: markers,
             sharePosition: shareUserPosition,
             activityMsg: '${arguments['aID']} ${arguments['activity_name']}',
+            memberPolylines: memberPolylines, // FIXME
           ),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Column(
@@ -190,7 +224,7 @@ class _StartActivityState extends State<StartActivity> {
                   isPaused: activityIsPaused,
                   checkTime: 2,
                   warningTime: int.parse(arguments['warning_time']) * 60,
-                  // warningTime: 10,
+                  // warningTime: 10, // For test
                 ),
                 WarningDistanceText(
                   isStarted: activityIsStarted,

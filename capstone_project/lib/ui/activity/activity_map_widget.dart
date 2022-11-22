@@ -15,6 +15,7 @@ class ActivityMap extends StatefulWidget {
   final List<Marker> markerList; // 標記拍照點
   final bool sharePosition; // 使用者是否想要分享位置
   final String activityMsg; // socket 的 activityMsg
+  final List<Polyline> memberPolylines;
   const ActivityMap(
       {Key? key,
       required this.gpsList,
@@ -22,7 +23,8 @@ class ActivityMap extends StatefulWidget {
       required this.isPaused,
       required this.markerList,
       required this.sharePosition,
-      required this.activityMsg})
+      required this.activityMsg,
+      required this.memberPolylines})
       : super(key: key);
 
   @override
@@ -37,14 +39,15 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   late List<Marker> markerList;
   late bool sharePosition;
   late String activityMsg;
+  late List<Polyline> memberPolylines;
 
-  static UserLocation defaultLocation = UserLocation(
-      latitude: 23.94981257,
-      longitude: 120.92764976,
-      altitude: 572.92668105,
-      currentTime: UserLocation.getCurrentTime());
-  UserLocation currentLocation = defaultLocation;
-  UserLocation userLocation = defaultLocation;
+  // static UserLocation defaultLocation = UserLocation(
+  //     latitude: 23.94981257,
+  //     longitude: 120.92764976,
+  //     altitude: 572.92668105,
+  //     currentTime: UserLocation.getCurrentTime());
+  // UserLocation currentLocation = defaultLocation;
+  // UserLocation userLocation = defaultLocation;
 
   double zoomLevel = 16;
 
@@ -67,7 +70,6 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     mapController!.dispose();
-    activPolyline.clearList();
     super.dispose();
   }
 
@@ -120,6 +122,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     isPaused = widget.isPaused;
     userLocation = Provider.of<UserLocation>(context);
     markerList = widget.markerList;
+    memberPolylines = widget.memberPolylines;
 
     // 去抓使用者手機螢幕的高
     double height = MediaQuery.of(context).size.height;
@@ -164,18 +167,20 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
                     )
                   ]),
           // FIXME 將同行者的 polyline 加進來
-          PolylineLayerOptions(polylines: [
-            Polyline(
-              points: gpsList,
-              color: Colors.amber,
-              strokeWidth: 4,
-            ),
-            Polyline(
-              points: activPolyline.list,
-              color: Colors.green,
-              strokeWidth: 4,
-            )
-          ])
+          PolylineLayerOptions(
+              polylines: memberPolylines +
+                  [
+                    Polyline(
+                      points: gpsList,
+                      color: Colors.amber,
+                      strokeWidth: 4,
+                    ),
+                    Polyline(
+                      points: activPolyline.list,
+                      color: Colors.green,
+                      strokeWidth: 4,
+                    )
+                  ])
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

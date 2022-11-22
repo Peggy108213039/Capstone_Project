@@ -16,7 +16,7 @@ class StreamSocket {
           .setAuth({'account': UserData.userAccount}).setTransports(
               ['websocket']).build());
 
-  static connectAndListen() {
+  static connectAndListen() async {
     print('CONNECT AND LISTEN');
     try {
       _socket.connect();
@@ -25,7 +25,7 @@ class StreamSocket {
         print('CONNECTION ESTABLISHED');
       });
       // 監聽頻道
-      _socket.on('account', (accountData) {
+      _socket.on('account', (accountData) async {
         if (accountData.runtimeType != String) {
           if (accountData['ctlmsg'] == "activity update") {
             List activityMsg =
@@ -33,6 +33,8 @@ class StreamSocket {
             NotificationService().showNotification(
                 1, 'main_channel', '新增 ${activityMsg[1]} 活動', '可以到活動頁面查看');
             // FIXME : 更新活動資料跟 server 一樣
+            var userID = {'uID': UserData.uid.toString()};
+            await APIService.selectAccountActivity(content: userID);
           }
           if (accountData['ctlmsg'] == "activity start") {
             List activityMsg =
@@ -40,6 +42,8 @@ class StreamSocket {
             NotificationService().showNotification(
                 1, 'main_channel', '${activityMsg[1]} 活動開始', '可以去記錄活動了 !');
             // FIXME : 更新活動資料跟 server 一樣
+            var userID = {'uID': UserData.uid.toString()};
+            await APIService.selectAccountActivity(content: userID);
           }
         }
         _socketResponse.add(accountData);
@@ -50,7 +54,7 @@ class StreamSocket {
         //   print('有人對我發送好友邀請');
         //   print(json.decode(accountData)['account_msg'].toString());
         //   // SqliteHelper.insert(tableName: 'notification', insertData: {});
-        //   // insert a notification 
+        //   // insert a notification
         // } else{
         //   print('SOCKET ACCOUNT CHANNEL MSG $accountData');
         // }

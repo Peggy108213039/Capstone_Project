@@ -34,6 +34,7 @@ class _ActivityPageState extends State<ActivityPage> {
     if (activTable == null) {
       return;
     }
+    print('sqlite 活動資廖表\n${activTable!.length}');
     return activTable;
   }
 

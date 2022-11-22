@@ -79,12 +79,16 @@ late LatLng previousPoint;
 bool havePreviousPoint = false;
 PolylineCoordinates activPolyline = PolylineCoordinates(); // 紀錄使用者的 polyline
 List<Map<String, dynamic>> activityPolyLineList = []; // 紀錄同行者的 polyline
+late double activityWarningDistance; // 活動的警告距離
+late List<LatLng> activityGpsList; // 活動匯入的軌跡
 
 // 地圖
 bool mapIsStarted = false;
 bool mapIsPaused = false;
 bool mapIsBackground = false;
 PolylineCoordinates mapPolyline = PolylineCoordinates(); // 紀錄使用者的 polyline
+
+// 使用者位置
 UserLocation defaultLocation = UserLocation(
     latitude: 23.94981257,
     longitude: 120.92764976,

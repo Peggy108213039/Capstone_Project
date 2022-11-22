@@ -31,7 +31,7 @@ class LocationProvider extends StatelessWidget {
     Widget service;
     print('呈現地圖服務  $mapService');
     if (mapService == 'StartActivity') {
-      service = StartActivity(gpsList: gpsList, members: members);
+      service = StartActivity(gpsList: gpsList);
     } else if (mapService == 'OfflineMapPage') {
       service = const OfflineMapPage();
       if (arguments['offlineMapData'][0] != null) {

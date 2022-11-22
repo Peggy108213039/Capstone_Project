@@ -305,9 +305,25 @@ class APIService {
     }
   }
 
+  static Future<List> updateActivity(
+      {required Map<String, dynamic> content}) async {
+    String url = "http://163.22.17.247:3000/api/activity/update_activity";
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      print('更新活動 $responseString');
+      return [true, responseString];
+    } else {
+      print(responseString);
+      return [false, responseString];
+    }
+  }
+
   // 抓某使用者 (uID) 的活動資料
   static Future<List> selectAccountActivity(
       {required Map<String, dynamic> content}) async {
+    print('刷新 sqlite 活動資料表');
     String url =
         "http://163.22.17.247:3000/api/activity/select_account_activity";
     await SqliteHelper.clear(tableName: "activity");
@@ -357,8 +373,10 @@ class APIService {
           print(specificTrackResponse);
         }
       }
+      print('完成 刷新 sqlite 活動資料表');
       return [serverActivities];
     } else {
+      print('失敗 刷新 sqlite 活動資料表');
       print('失敗 $serverActivities response.statusCode ${response.statusCode}');
       return [serverActivities];
     }

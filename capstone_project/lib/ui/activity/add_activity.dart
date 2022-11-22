@@ -93,19 +93,19 @@ class _AddActivityPageState extends State<AddActivityPage> {
       Navigator.of(context).pop(true);
       return;
     }
-    if (queryFriendTable.isEmpty) {
-      noFriendListDialog = MyAlertDialog(
-          context: context,
-          titleText: '沒有朋友清單',
-          titleFontSize: 30,
-          contentText: '請到朋友頁面新增好友',
-          contentFontSize: 20,
-          btn1Text: '確認',
-          btn2Text: '');
-      await noFriendListDialog.show();
-      Navigator.of(context).pop(true);
-      return;
-    }
+    // if (queryFriendTable.isEmpty) {
+    //   noFriendListDialog = MyAlertDialog(
+    //       context: context,
+    //       titleText: '沒有朋友清單',
+    //       titleFontSize: 30,
+    //       contentText: '請到朋友頁面新增好友',
+    //       contentFontSize: 20,
+    //       btn1Text: '確認',
+    //       btn2Text: '');
+    //   await noFriendListDialog.show();
+    //   Navigator.of(context).pop(true);
+    //   return;
+    // }
     setState(() {
       activTrack = queryTrackTable![0]['tID'].toString();
       for (var element in queryTrackTable) {
@@ -434,12 +434,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
           members: members.join(', '));
       await SqliteHelper.insert(
           tableName: 'activity', insertData: newLocalActivityData.toMap());
-      // Navigator.of(context)
-      //     .popUntil(ModalRoute.withName("/MyBottomBar2_firstTime"));
-      // Navigator.of(context).pushNamedAndRemoveUntil(
-      //     '/MyBottomBar3', ModalRoute.withName('/MyBottomBar2_firstTime'));
-      // Navigator.of(context)
-      //     .popUntil(ModalRoute.withName("/MyBottomBar2_firstTime"));
       Navigator.pop(context);
     } else {
       print('$result 在 server 新增活動失敗');

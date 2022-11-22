@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/activity/activity_model.dart';
 import 'package:capstone_project/models/friend/friend_model.dart';
@@ -487,18 +489,33 @@ class _EditActivityState extends State<EditActivity> {
     }
     // 插入 server 資料庫
     members.add(UserData.uid);
-    final ActivityRequestModel newServerActivityData = ActivityRequestModel(
-        uID: UserData.uid.toString(),
-        activity_name: activName,
-        activity_time: timeinput.text,
-        tID: activTrack,
-        warning_distance: warningDistance,
-        warning_time: warningTime,
-        members: members);
+    print('修改 server 活動資料 1');
+    // Map<String, dynamic> newServerActivityData = {
+    //   'uID': UserData.uid.toString(),
+    //   'activity_name': activName,
+    //   'activity_time': timeinput.text,
+    //   'tID': activTrack,
+    //   'warning_distance': warningDistance,
+    //   'warning_time': warningTime,
+    //   'members': members
+    // };
+    final Map<String, dynamic> newServerActivityData = {
+      'uID': UserData.uid.toString(),
+      'activity_name': activName,
+      'activity_time': timeinput.text,
+      'tID': activTrack,
+      'warning_distance': warningDistance,
+      'warning_time': warningTime,
+      'members': jsonEncode(members)
+    };
+    print('修改 server 活動資料 2 $newServerActivityData');
+    // FIXME
     List result =
-        await APIService.addActivity(content: newServerActivityData.toMap());
+        await APIService.updateActivity(content: newServerActivityData);
+    print('修改 server 活動資料 3');
     if (result[0]) {
       final Map<String, String> newActivityData = {
+        'uID': UserData.uid.toString(),
         'activity_name': activName,
         'activity_time': timeinput.text,
         'tID': activTrack,

@@ -1,4 +1,6 @@
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/services/audio_player.dart';
+import 'package:capstone_project/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -42,13 +44,16 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
   @override
   void initState() {
     warningDistance = widget.warningDistance;
+    activityWarningDistance = warningDistance;
     gpsList = widget.gpsList;
+    activityGpsList = gpsList;
     super.initState();
   }
 
   @override
   void dispose() {
     audioPlayerService.close();
+    LocationService.locationServiceAudioPlayer.close();
     super.dispose();
   }
 
