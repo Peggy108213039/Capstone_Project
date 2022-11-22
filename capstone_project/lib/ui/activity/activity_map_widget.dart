@@ -16,6 +16,7 @@ class ActivityMap extends StatefulWidget {
   final bool sharePosition; // 使用者是否想要分享位置
   final String activityMsg; // socket 的 activityMsg
   final List<Polyline> memberPolylines;
+  final double warningDistance;
   const ActivityMap(
       {Key? key,
       required this.gpsList,
@@ -24,7 +25,8 @@ class ActivityMap extends StatefulWidget {
       required this.markerList,
       required this.sharePosition,
       required this.activityMsg,
-      required this.memberPolylines})
+      required this.memberPolylines,
+      required this.warningDistance})
       : super(key: key);
 
   @override
@@ -40,6 +42,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   late bool sharePosition;
   late String activityMsg;
   late List<Polyline> memberPolylines;
+  late double warningDistance;
 
   // static UserLocation defaultLocation = UserLocation(
   //     latitude: 23.94981257,
@@ -63,6 +66,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     gpsList = widget.gpsList;
     sharePosition = widget.sharePosition;
     activityMsg = widget.activityMsg;
+    warningDistance = widget.warningDistance;
     super.initState();
   }
 
@@ -111,7 +115,9 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
       if (sharePosition) {
         print(activityMsg);
         StreamSocket.uploadUserLocation(
-            activityMsg: activityMsg, location: userLocation);
+            activityMsg: activityMsg,
+            warningDistance: warningDistance,
+            location: userLocation);
       }
     }
   }

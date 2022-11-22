@@ -126,12 +126,15 @@ class StreamSocket {
   Future<void> reportAlertNotification() async {}
 
   static Future<void> uploadUserLocation(
-      {required String activityMsg, required UserLocation location}) async {
+      {required String activityMsg,
+      required double warningDistance,
+      required UserLocation location}) async {
     try {
       _socket.emit('ctlmsg', {
         "ctlmsg": "broadcast location",
         "account_msg": UserData.userAccount,
         "activity_msg": activityMsg,
+        "distance_msg": warningDistance,
         "location_msg": {
           "latitude": location.latitude.toString(),
           "longitude": location.longitude.toString(),

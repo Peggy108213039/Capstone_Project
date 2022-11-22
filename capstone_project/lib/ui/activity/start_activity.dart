@@ -164,7 +164,7 @@ class _StartActivityState extends State<StartActivity> {
           print('距離過遠 tmpSocketData $tmpSocketData');
           // FIXME 在 client 顯示 UI 某人距離過遠
           NotificationService().showNotification(1, 'main_channel', '同行者距離過遠',
-              '${tmpSocketData['account_msg']} 距離過遠\n${tmpSocketData['location_msg']}');
+              '${tmpSocketData['account_msg_1']} 和 ${tmpSocketData['account_msg_2']} 距離過遠\n兩人相差的距離 : ${tmpSocketData['long_distance']}');
         }
         // FIXME  某人停留時間過久
         if (wanringMsg == "too long") {
@@ -214,7 +214,9 @@ class _StartActivityState extends State<StartActivity> {
             markerList: markers,
             sharePosition: shareUserPosition,
             activityMsg: '${arguments['aID']} ${arguments['activity_name']}',
-            memberPolylines: memberPolylines, // FIXME
+            memberPolylines: memberPolylines,
+            warningDistance:
+                double.parse(arguments['warning_distance']), // FIXME
           ),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Column(
