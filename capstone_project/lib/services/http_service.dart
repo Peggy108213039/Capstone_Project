@@ -14,7 +14,8 @@ import 'package:capstone_project/models/login_model.dart';
 import 'package:capstone_project/models/signup_model.dart';
 import 'package:capstone_project/models/userInfo/selectInfo_model.dart';
 import 'package:capstone_project/models/userInfo/updateInfo_model.dart';
-import 'package:capstone_project/models/friend/acceptFriend_model.dart';
+import 'package:capstone_project/models/friend/insertFriend_model.dart';
+import 'package:capstone_project/models/friend/inviteFriend_model.dart';
 import 'package:capstone_project/models/friend/selectFriend_model.dart';
 import 'package:capstone_project/models/friend/deleteFriend_model.dart';
 import 'package:capstone_project/models/friend/checkFriend_model.dart';
@@ -64,16 +65,10 @@ class APIService {
   String ip = "http://163.22.17.247:3000";
   static final FileProvider fileProvider = FileProvider();
   Future<bool> login(LoginRequestModel requestModel) async {
-    String url =
-        "$ip/api/login_member"; // 透過此行連線，/api/login_member 即 POST 對應的 API 路徑
-    final response =
-        await http.post(Uri.parse(url), body: requestModel.toJson());
+    String url = "$ip/api/login_member"; // 透過此行連線，/api/login_member 即 POST 對應的 API 路徑
+    final response = await http.post(Uri.parse(url), body: requestModel.toJson());
     var tmpResponse = LoginResponseModel.fromJson(json.decode(response.body));
     if (tmpResponse.result != "LOGIN FAILED") {
-      // 登入成功後直接開始 socket 連線並將使用者加入自己的 room
-      // SocketService socketService = SocketService();
-      // socketService.connectAndListen;
-      // 設定 Session
       UserData(
         response.headers['set-cookie']!,
         tmpResponse.uID,
@@ -89,7 +84,7 @@ class APIService {
       );
       print("登入成功");
       // 以此 uID 查詢好友列表
-      selectFriend(SelectFriendRequestModel(uID1: tmpResponse.uID.toString()));
+      //selectFriend(SelectFriendRequestModel(uID1: tmpResponse.uID.toString()));
       var userID = {'uID': tmpResponse.uID.toString()};
       await selectUserAllTrack(userID);
       await selectAccountActivity(content: userID);
@@ -135,13 +130,17 @@ class APIService {
   // FIXME1118：更新成功後作法
   // 返回 T/F => 提醒使用者重新登入以更新自己的資料
   Future<bool> updateUserInfo(UpdateInfoRequestModel requestModel) async {
-    String url = "$ip";
+    String url = "$ip/api/member/update_member";
     final response = await http.post(Uri.parse(url),
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print(response.body);
-      return true;
-      // return LoginResponseModel.fromJson(json.decode(response.body));
+      var jsonResponse = json.decode(response.body);
+      if(jsonResponse["result"] != "Fail to update member"){
+        return true;
+      } else {
+        print("UPDATE USER INFO RESULT：${jsonResponse["result"]}");
+        return false;
+      }
     } else {
       print(response.body);
       return false;
@@ -168,36 +167,56 @@ class APIService {
 
   // 好友
   // UID2 accept my friend invitation, then call insertFriend
-  Future<bool> acceptFriend(AcceptFriendRequestModel requestModel) async {
+  Future<bool> insertFriend(InsertFriendRequestModel requestModel) async {
     String url = "$ip/api/friend/insert_friend";
-
     final response = await http.post(Uri.parse(url),
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print(response.body);
-      return true;
-      // return LoginResponseModel.fromJson(json.decode(response.body));
+      var jsonResponse = json.decode(response.body);
+      if(jsonResponse["result"] == "Insert success"){
+        return true;
+      } else {
+        print("=====INSERT FRIEND RESULT = ${jsonResponse["result"]}=====");
+        return false;
+      }
     } else {
-      print(response.body);
+      var statusCode = response.statusCode;
+      print("=====INSERT FRIEND API STATUS CODE = ($statusCode)=====");
       return false;
-      // throw Exception("Failed to Load Data");
     }
   }
 
   // 送出好友邀請前先確認 UID1 & UID2 好友關係
   Future<bool> checkFriend(CheckFriendRequestModel requestModel) async {
     String url = "$ip/api/friend/check_friend";
-
     final response = await http.post(Uri.parse(url),
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print(response.body);
-      return true;
-      // return LoginResponseModel.fromJson(json.decode(response.body));
+      var jsonResponse = json.decode(response.body);
+      if(jsonResponse["result"] == "Send friend request"){
+        return true;
+      } else {return false;}
     } else {
-      print(response.body);
+      var statusCode = response.statusCode;
+      print("CHECK FRIEND API STATUS CODE = ($statusCode)");
       return false;
-      // throw Exception("Failed to Load Data");
+    }
+  }
+
+  // 送出好友邀請前先確認 UID1 & UID2 好友關係
+  Future<bool> inviteFriend(InviteFriendRequestModel requestModel) async {
+    String url = "$ip/api/friend/invite_friend";
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: requestModel.toJson());
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      var jsonResponse = json.decode(response.body);
+      if(jsonResponse["result"] == "Invite success"){
+        return true;
+      } else {return false;}
+    } else {
+      var statusCode = response.statusCode;
+      print("INVITE FRIEND API STATUS CODE = ($statusCode)");
+      return false;
     }
   }
 
@@ -207,13 +226,14 @@ class APIService {
     final response = await http.post(Uri.parse(url),
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print(response.body);
-      return true;
-      // return LoginResponseModel.fromJson(json.decode(response.body));
+      var jsonResponse = json.decode(response.body);
+      if(jsonResponse["result"] == "Delete success"){
+        return true;
+      } else {return false;}
     } else {
-      print(response.body);
+      var statusCode = response.statusCode;
+      print("DELETE FRIEND API STATUS CODE = ($statusCode)");
       return false;
-      // throw Exception("Failed to Load Data");
     }
   }
 
@@ -228,8 +248,7 @@ class APIService {
       print('FRIEND LIST FROM SERVER');
       for (var tmpResponse in jsonResponse) {
         // 使用 uID2 查詢 userInfo 以列出好友清單
-        await selectUserInfo(
-            SelectInfoRequestModel(uid: tmpResponse['uID2'].toString()));
+        await selectUserInfo(SelectInfoRequestModel(uid: tmpResponse['uID2'].toString()));
       }
       print("我的朋友 table");
       print(await SqliteHelper.queryAll(tableName: "friend"));
@@ -238,7 +257,6 @@ class APIService {
       print(response.body);
       print("將好友們加入 sqlite 失敗");
       return false;
-      throw Exception("Failed to Load Data");
     }
   }
 

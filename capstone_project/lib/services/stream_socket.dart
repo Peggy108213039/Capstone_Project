@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/services/notification_service.dart';
+import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class StreamSocket {
@@ -35,6 +36,17 @@ class StreamSocket {
             // FIXME : 更新活動資料跟 server 一樣
             var userID = {'uID': UserData.uid.toString()};
             await APIService.selectAccountActivity(content: userID);
+
+            // 寫進 sqlite
+            var activityName = accountData['activity_msg'];
+            var insertData = {
+              "ctlmsg": "activity update",
+              "account_msg": "",
+              "friend_msg": "",
+              "activity_msg": activityName,
+              "info": "你已被加入 $activityName 活動"
+            };
+            await SqliteHelper.insert(tableName: 'notification', insertData: insertData);
           }
           if (accountData['ctlmsg'] == "activity start") {
             List activityMsg =
@@ -44,20 +56,45 @@ class StreamSocket {
             // FIXME : 更新活動資料跟 server 一樣
             var userID = {'uID': UserData.uid.toString()};
             await APIService.selectAccountActivity(content: userID);
+
+            // 寫進 sqlite
+            var activityName = accountData['activity_msg'];
+            var insertData = {
+              "ctlmsg": "activity start",
+              "account_msg": "", 
+              "friend_msg": "", 
+              "activity_msg": activityName,
+              "info": "$activityName 活動開始了"
+            };
+            await SqliteHelper.insert(tableName: 'notification', insertData: insertData);
+          }
+          if (accountData['ctlmsg'] == 'friend request'){
+            var who = accountData['account_msg'];
+            var insertData = {
+              "ctlmsg": "friend request",
+              "account_msg": who,
+              "friend_msg": "",
+              "activity_msg": "",
+              "info": "$who 向你發送好友邀請"
+            };
+            print("有人發好友邀請給我");
+            await SqliteHelper.insert(tableName: 'notification', insertData: insertData);
+          }
+          if (accountData['ctlmsg'] == 'friend response'){
+            var who = accountData['account_msg'];
+            var insertData = {
+              "ctlmsg": "friend response",
+              "account_msg": who,
+              "friend_msg": "",
+              "activity_msg": "",
+              "info": "$who 接受了你的好友邀請"
+            };
+            await SqliteHelper.insert(tableName: 'notification', insertData: insertData);
           }
         }
         _socketResponse.add(accountData);
         print(
             'SOCKET ACCOUNT CHANNEL MSG : $accountData  ${accountData.runtimeType}');
-        // 直接在這裡寫進 sqlite
-        // if (json.decode(accountData)['ctlmsg'].toString().isNotEmpty &&  json.decode(accountData)['ctlmsg'].toString() == 'friend request'){
-        //   print('有人對我發送好友邀請');
-        //   print(json.decode(accountData)['account_msg'].toString());
-        //   // SqliteHelper.insert(tableName: 'notification', insertData: {});
-        //   // insert a notification
-        // } else{
-        //   print('SOCKET ACCOUNT CHANNEL MSG $accountData');
-        // }
       });
       _socket.on('activity', (activityData) {
         if (activityData.runtimeType != String) {}
@@ -85,9 +122,9 @@ class StreamSocket {
       _socket.emit('ctlmsg', {
         'ctlmsg': 'friend request',
         'account_msg': UserData.userAccount, // 發邀請者的 account
-        'friend_msg': 'john1' // 被邀請者 account
+        'friend_msg': friendAccount // 被邀請者 account
       });
-      print('YOU SEND A FRIEND REQUEST TO SOMEBODY');
+      print('FRIEND REQUEST');
     } catch (error) {
       print('ERROR: $error');
     }
@@ -98,24 +135,24 @@ class StreamSocket {
     try {
       _socket.emit('ctlmsg', {
         'ctlmsg': 'friend response',
-        'friend_msg': 'john1', // 欲邀請好友的 account
+        'friend_msg': friendAccount, // 欲邀請好友的 account
         'account_msg': UserData.userAccount // 發邀請者的 account
       });
-      print('YOU RESPONSE FRIEND INVITATION TO SOMEBODY');
+      print('FRIEND RESPONSE');
     } catch (error) {
       print('ERROR: $error');
     }
   }
 
   // emit invitation msg to server
-  Future<void> joinAccountRoom() async {
+  Future<void> joinAccountRoom(String activityName) async {
     try {
       _socket.emit('ctlmsg', {
         'ctlmsg': 'join activity room',
-        'activity_msg': '80 money', // 欲邀請好友的 account
-        'account_msg': UserData.userAccount // 發邀請者的 account
+        'activity_msg': activityName, 
+        'account_msg': UserData.userAccount 
       });
-      print('YOU RESPONSE FRIEND INVITATION TO SOMEBODY');
+      print('JOIN ACCOUNT ROOM');
     } catch (error) {
       print('SOCKET ERROR: $error');
     }
@@ -141,7 +178,6 @@ class StreamSocket {
           "elevation": location.altitude.toString()
         }
       });
-      print('YOU RESPONSE FRIEND INVITATION TO SOMEBODY');
     } catch (error) {
       print('SOCKET ERROR: $error');
     }

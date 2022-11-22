@@ -43,7 +43,6 @@ class _SettingPageState extends State<SettingPage> {
     requestModel = UpdateInfoRequestModel(
         uid: UserData.uid,
         name: '',
-        account: UserData.userAccount,
         password: '',
         email: '',
         phone: '0');
@@ -342,7 +341,6 @@ class _SettingPageState extends State<SettingPage> {
                 style: TextStyle(color: darkGreen2),
               ),
               onPressed: () {
-                print('【取消】更新個人資料 - 信箱');
                 Navigator.pop(context);
               },
             ),
@@ -363,25 +361,22 @@ class _SettingPageState extends State<SettingPage> {
                     isApiCallProcess = true;
                   });
                   APIService apiService = APIService();
-                  apiService.updateUserInfo(requestModel).then(
-                    (value) {
-                      if (value) {
-                        // 修改成功
-                        setState(() {
-                          isApiCallProcess = false;
-                        });
-                        Navigator.of(context).pop(const SettingPage());
-                        print('【成功】更新個人資料 - 信箱');
-                      } else {
-                        print("【失敗】更新個人資料 - 信箱");
-                        setState(() {
-                          isApiCallProcess = false;
-                        });
-                        Fluttertoast.showToast(msg: "更新信箱失敗");
-                        Navigator.pop(context); // 關閉 AlertDialog
-                      }
-                    },
-                  );
+                  apiService.updateUserInfo(requestModel).then((value) {
+                    if (value) {
+                      // 修改成功
+                      setState(() {
+                        isApiCallProcess = false;
+                      });
+                      Fluttertoast.showToast(msg: "更新成功");
+                      Navigator.of(context).pop(const SettingPage());
+                    } else {
+                      setState(() {
+                        isApiCallProcess = false;
+                      });
+                      Fluttertoast.showToast(msg: "更新失敗");
+                      Navigator.pop(context); // 關閉 AlertDialog
+                    }
+                  },);
                 }
               },
             ),
@@ -443,7 +438,6 @@ class _SettingPageState extends State<SettingPage> {
               ),
               child: const Text('取消'),
               onPressed: () {
-                print('【取消】更新個人資料 - 電話');
                 Navigator.pop(context);
               },
             ),
@@ -468,14 +462,13 @@ class _SettingPageState extends State<SettingPage> {
                         setState(() {
                           isApiCallProcess = false;
                         });
+                        Fluttertoast.showToast(msg: "更新成功");
                         Navigator.of(context).pop(const SettingPage());
-                        print('【成功】更新個人資料 - 電話號碼');
                       } else {
-                        print("【失敗】更新個人資料 - 電話號碼");
                         setState(() {
                           isApiCallProcess = false;
                         });
-                        Fluttertoast.showToast(msg: "更新電話號碼失敗");
+                        Fluttertoast.showToast(msg: "更新失敗");
                         Navigator.pop(context); // 關閉 AlertDialog
                       }
                     },

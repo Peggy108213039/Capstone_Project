@@ -1,3 +1,4 @@
+import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -50,8 +51,7 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       constraints: const BoxConstraints.expand(),
       decoration: const BoxDecoration(
-          image:
-              DecorationImage(image: introBackgroundImage, fit: BoxFit.cover)),
+          image:DecorationImage(image: introBackgroundImage, fit: BoxFit.cover)),
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: transparentColor,
@@ -132,6 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                               setState(() {
                                 isApiCallProcess = false;
                               });
+                              SqliteHelper.initDatabase();
                               // Socket connect
                               StreamSocket.connectAndListen();
                               Navigator.push(

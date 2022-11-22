@@ -81,7 +81,8 @@ class _SignupPageState extends State<SignupPage> {
                       onSaved: (input) => requestModel.name = input!,
                       validator: (input) {
                         if (input!.isEmpty ||
-                            !RegExp(r'^[A-Za-z0-9_-]{3,15}$').hasMatch(input)) {
+                            !RegExp(r'^[\u4E00-\u9FFF\u3400-\u4DBF\u20000-\u2A6DF\u2A700-\u2B73F\u2B740-\u2B81F\u2B820-\u2CEAF\u2CEB0-\u2EBEF\u30000-\u3134F\uF900-\uFAFF\u2E80-\u2EFF\u31C0-\u31EF\u3000-\u303F\u2FF0-\u2FFF\u3300-\u33FF\uFE30-\uFE4F\uF900-\uFAFF\u2F800-\u2FA1F\u3200-\u32FF\u1F200-\u1F2FF\u2F00-\u2FDF]{3,15}')
+                            .hasMatch(input)){
                           //allow upper and lower case alphabets and space
                           return "請輸入有效的使用者名稱";
                         } else {
@@ -99,9 +100,13 @@ class _SignupPageState extends State<SignupPage> {
                     child: TextFormField(
                       keyboardType: TextInputType.text,
                       onSaved: (input) => requestModel.account = input!,
-                      validator: (input) => /*!*/ input!.length < 5
-                          ? "帳號長度需大於 5 個字元"
-                          : null,
+                      validator: (input) {
+                        if(input!.isEmpty || !RegExp(r'^[a-z0-9_-]{5,10}$').hasMatch(input)){
+                          return "請輸入有效的帳號（帳號長度需介於 5~10 個字元）";
+                        } else{
+                          return null;
+                        }
+                      },
                       decoration: const InputDecoration(
                         //prefixIcon: Icon(Icons.person),
                         labelText: "Account",
@@ -114,12 +119,15 @@ class _SignupPageState extends State<SignupPage> {
                     child: TextFormField(
                       keyboardType: TextInputType.emailAddress,
                       onSaved: (input) => requestModel.email = input!,
-                      validator: (input) =>
-                          !input!.contains("@") ? "請輸入有效的電子信箱" : null,
+                      validator: (input) {
+                        if(input!.isEmpty || !RegExp(r'[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+').hasMatch(input)){
+                          return "請輸入有效的信箱";
+                        } else{
+                          return null;
+                        }
+                      },
                       decoration: const InputDecoration(
-                        //prefixIcon: Icon(Icons.person),
                         labelText: "Mail",
-                        //hintText: "Your email",
                       ),
                     ),
                   ),
@@ -128,9 +136,13 @@ class _SignupPageState extends State<SignupPage> {
                     child: TextFormField(
                       keyboardType: TextInputType.number,
                       onSaved: (input) => requestModel.phone = input!,
-                      validator: (input) => /*!*/ input!.length != 10
-                          ? "請輸入有效的電話號碼"
-                          : null,
+                      validator: (input) {
+                        if(input!.isEmpty || !RegExp(r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$').hasMatch(input)){
+                          return "請輸入有效的電話號碼";
+                        } else{
+                          return null;
+                        }
+                      },
                       decoration: const InputDecoration(
                         //prefixIcon: Icon(Icons.person),
                         labelText: "Phone Number",

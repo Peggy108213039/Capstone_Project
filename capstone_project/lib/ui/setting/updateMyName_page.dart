@@ -31,7 +31,6 @@ class _UpdateMyInfoPageOneState extends State<UpdateMyInfoPage> {
     requestModel = UpdateInfoRequestModel(
       uid: UserData.uid, 
       name: '', 
-      account: UserData.userAccount, 
       password: UserData.password, 
       email: UserData.userEmail, 
       phone: UserData.userPhone);
@@ -108,9 +107,11 @@ class _UpdateMyInfoPageOneState extends State<UpdateMyInfoPage> {
                         keyboardType: TextInputType.name,
                         onSaved: (input) => requestModel.name = input!,
                         validator: (input) {
-                          if(input!.isEmpty || !RegExp(r'^[a-z0-9_-]{3,15}$').hasMatch(input)){
+                          if(input!.isEmpty || 
+                              !RegExp(r'^[\u4E00-\u9FFF\u3400-\u4DBF\u20000-\u2A6DF\u2A700-\u2B73F\u2B740-\u2B81F\u2B820-\u2CEAF\u2CEB0-\u2EBEF\u30000-\u3134F\uF900-\uFAFF\u2E80-\u2EFF\u31C0-\u31EF\u3000-\u303F\u2FF0-\u2FFF\u3300-\u33FF\uFE30-\uFE4F\uF900-\uFAFF\u2F800-\u2FA1F\u3200-\u32FF\u1F200-\u1F2FF\u2F00-\u2FDF]{3,15}')
+                              .hasMatch(input)){
                             //allow upper and lower case alphabets and space
-                            return "Phone number should be valid";
+                            return "Username should be valid";
                           }else{
                             return null;
                           };
@@ -133,14 +134,13 @@ class _UpdateMyInfoPageOneState extends State<UpdateMyInfoPage> {
                               setState(() {
                                 isApiCallProcess = false;
                               });
+                              Fluttertoast.showToast(msg: "更新成功");
                               Navigator.of(context).pop(const MyBottomBar(i: 2, firstTime: false));
-                              print('【成功】更新個人資料 - 使用者名稱');
                             } else {
-                              print("【失敗】更新個人資料 - 使用者名稱");
                               setState(() {
                                 isApiCallProcess = false;
                               });
-                              Fluttertoast.showToast(msg: "更新使用者名稱失敗");
+                              Fluttertoast.showToast(msg: "更新失敗");
                               Navigator.pop(context); // 關閉 AlertDialog
                             }
                           },);

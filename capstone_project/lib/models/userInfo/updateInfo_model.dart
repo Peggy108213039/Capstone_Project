@@ -37,7 +37,6 @@ class UpdateInfoResponseModel {
 class UpdateInfoRequestModel{
   int uid; 
   String name;
-  String account;
   String password;
   String email;
   String phone;
@@ -45,7 +44,6 @@ class UpdateInfoRequestModel{
   UpdateInfoRequestModel({
     required this.uid,
     required this.name,
-    required this.account,
     required this.password,
     required this.email,
     required this.phone
@@ -56,8 +54,7 @@ class UpdateInfoRequestModel{
   /// helper method `_$UserToJson`.
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = {
-      'uid': UserData.uid.toString(),
-      'account': UserData.userAccount, // account 唯一，不可修改
+      'uID': UserData.uid.toString(),
       'name': name.trim(),
       'password': password.trim(),
       'email': email.trim(),

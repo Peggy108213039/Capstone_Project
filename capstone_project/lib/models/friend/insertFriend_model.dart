@@ -1,25 +1,25 @@
-// let sql="SELECT * FROM `friend` WHERE `uID1`=? AND `uID2`=?";
-class CheckFriendResponseModel {
+// let sql="INSERT INTO `friend`(`uID1`,`uID2`) VALUES (?,?)";
+class InsertFriendResponseModel {
   //String token;
   String error;
 
-  CheckFriendResponseModel({/*required this.token,*/ required this.error});
+  InsertFriendResponseModel({/*required this.token,*/ required this.error});
   
   /// `toJson` is the convention for a class to declare support for serialization
   /// to JSON. The implementation simply calls the private, generated
   /// helper method `_$UserToJson`.
-  factory CheckFriendResponseModel.fromJson(Map<String, dynamic> json) {
-    return CheckFriendResponseModel(/*token: json["token"] != null ? json["token"]: "",*/ error: json["error"] ?? "",);
+  factory InsertFriendResponseModel.fromJson(Map<String, dynamic> json) {
+    return InsertFriendResponseModel(/*token: json["token"] != null ? json["token"]: "",*/ error: json["error"] ?? "",);
   }
   //print(error);
 }
-class CheckFriendRequestModel{
+class InsertFriendRequestModel{
   String uID1;
-  String friendAccount;
+  String account;
 
-  CheckFriendRequestModel({
+  InsertFriendRequestModel({
     required this.uID1,
-    required this.friendAccount,
+    required this.account,
   });
 
   /// `toJson` is the convention for a class to declare support for serialization
@@ -28,7 +28,7 @@ class CheckFriendRequestModel{
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = {
       'uID1': uID1,
-      'friend': friendAccount, // friendAccount 欄位名稱 friend
+      'friend': account,
     };
 
     return map;

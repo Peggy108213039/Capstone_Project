@@ -39,7 +39,6 @@ class _UpdatePwdPageState extends State<UpdatePwdPage> {
     requestModel = UpdateInfoRequestModel(
       uid: UserData.uid, 
       name: UserData.userName, 
-      account: UserData.userAccount, 
       password: "", 
       email: UserData.userEmail, 
       phone: UserData.userPhone);
@@ -78,8 +77,8 @@ class _UpdatePwdPageState extends State<UpdatePwdPage> {
                 children: <Widget>[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      const DefBackIcon(navigatorPage: SettingPage()),
+                    children: const <Widget>[
+                      DefBackIcon(navigatorPage: SettingPage()),
                     ],
                   ),
                   const VerticalSpacing(percent: 0.03),
@@ -91,8 +90,8 @@ class _UpdatePwdPageState extends State<UpdatePwdPage> {
                         prefixIcon: Icon(Icons.password),
                         labelText: "舊密碼",
                       ),
-                      keyboardType: TextInputType.emailAddress,
-                      onSaved: (input) => requestModel.account = input!,
+                      keyboardType: TextInputType.visiblePassword,
+                      onSaved: (input) => requestModel.password = input!,
                       validator: (input) => /*!*/input! != UserData.password ? "與原密碼不符" : null,
                       // check if account contains @
                     ),
@@ -100,7 +99,7 @@ class _UpdatePwdPageState extends State<UpdatePwdPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: TextFormField(
-                      keyboardType: TextInputType.text,
+                      keyboardType: TextInputType.visiblePassword,
                       onChanged: (input) => password = input,
                       onSaved: (input) => requestModel.password = input!,
                       validator: (input) => input!.length<6
@@ -164,6 +163,7 @@ class _UpdatePwdPageState extends State<UpdatePwdPage> {
                             setState(() {
                               isApiCallProcess = false;
                             });
+                            Fluttertoast.showToast(msg: "更新成功");
                             Navigator.of(context).pop(const SettingPage());
                             print('【成功】更新個人資料 - 密碼');
                           } else {
@@ -171,7 +171,7 @@ class _UpdatePwdPageState extends State<UpdatePwdPage> {
                             setState(() {
                               isApiCallProcess = false;
                             });
-                            Fluttertoast.showToast(msg: "更新密碼失敗");
+                            Fluttertoast.showToast(msg: "更新失敗");
                             Navigator.pop(context); // 關閉 AlertDialog
                           }
                         },);

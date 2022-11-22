@@ -1,4 +1,7 @@
 //import 'dart:html';
+import 'dart:ui';
+
+import 'package:capstone_project/models/friend/inviteFriend_model.dart';
 import 'package:capstone_project/services/stream_socket.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:capstone_project/size_config.dart';
@@ -21,17 +24,14 @@ class FriendPage extends StatefulWidget {
 class _FriendPageState extends State<FriendPage> {
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   APIService apiService = APIService();
+  StreamSocket streamSocket = StreamSocket();
   bool isApiCallProcess = false ;
   SelectFriendRequestModel selectFriendRequestModel = SelectFriendRequestModel(uID1: UserData.uid.toString());
   late CheckFriendRequestModel checkRequestModel = CheckFriendRequestModel(uID1: UserData.uid.toString(), friendAccount: "");
+  late InviteFriendRequestModel inviteRequestModel = InviteFriendRequestModel(uID1: UserData.uid.toString(), friendAccount: "");
   late DeleteFriendRequestModel delRequestModel = DeleteFriendRequestModel(uID1: UserData.uid.toString(), uID2: "");
   late List<Map<String, dynamic>>? friendList;
   late var friendAccount = '';
-
-  // @override
-  // Future<void> initState() async {
-  //   super.initState();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -65,30 +65,41 @@ class _FriendPageState extends State<FriendPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: <Widget>[
-              Expanded(child: SingleChildScrollView(child: FutureBuilder(
+              Expanded(child: SingleChildScrollView(
+                padding: EdgeInsets.all(8),
+                child: FutureBuilder(
                 future: getFriendList(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if(snapshot.hasData) {
                     return ListView.builder(
-                      scrollDirection: Axis.vertical,
+                      reverse: true,
                       shrinkWrap: true,
                       itemCount: friendList!.length,
                       itemBuilder: (buildContext, index){
                         return ListTile(
-                          title: Text(friendList![index]["account"]),
+                          title: Text(
+                            friendList![index]["account"],
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
+                          subtitle: Container(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: Text(
+                              friendList![index]["name"],
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
                           textColor: grassGreen,
                           enableFeedback: true,
                           trailing: IconButton(
                             icon: const ImageIcon(deleteIcon),
                             color: unselectedColor,
                             onPressed: () { 
-                              print('【按下】刪除好友');
                               showDeleteFriendAlert(context, index);
                             },
                           ),
-                          onLongPress: () {
-                            print("我按下了" + index.toString() + "號好友");
-                          },
                         );
                       },
                     );
@@ -108,6 +119,7 @@ class _FriendPageState extends State<FriendPage> {
 
   Future<List<Map<String, dynamic>>?> getFriendList() async {
     isApiCallProcess = true;
+    await apiService.selectFriend(SelectFriendRequestModel(uID1: UserData.uid.toString()));
     friendList = await SqliteHelper.queryAll(tableName: "friend");
     isApiCallProcess = false;
     print('======\nfriendList $friendList\n======');
@@ -130,7 +142,7 @@ class _FriendPageState extends State<FriendPage> {
           ),
           content: Text(
             '是否確定刪除 $deleteFriendAccount 好友？',
-            style: TextStyle(color: unselectedColor),
+            style: const TextStyle(color: unselectedColor),
           ),
           actions: <Widget>[
             TextButton(
@@ -144,8 +156,7 @@ class _FriendPageState extends State<FriendPage> {
                 style: TextStyle(color: middleGreen),
               ), 
               onPressed: () {
-                print('已取消動作 - 刪除好友');
-                Navigator.of(context).pop(const FriendPage());
+                Navigator.of(context);
               },
             ),
             TextButton(
@@ -163,7 +174,6 @@ class _FriendPageState extends State<FriendPage> {
                   isApiCallProcess = true;
                   delRequestModel.uID2 = friendList![index]["uID"].toString();
                 });
-                print("確定刪除好友");
                 apiService.deleleFriend(delRequestModel).then((value) {
                   if (value){
                     setState(() {
@@ -239,14 +249,16 @@ class _FriendPageState extends State<FriendPage> {
                 style: TextStyle(color: middleGreen),
               ),
               onPressed: () {
-                // FIXME 1113：需要先 checkFriend
                 APIService apiService = APIService();
                 apiService.checkFriend(checkRequestModel).then((value) {
                   if(value){
-                    print(checkRequestModel.friendAccount);
-                    StreamSocket streamSocket = StreamSocket();
-                    //socketService.friendRequest(checkRequestModel.friendAccount);
-                    streamSocket.joinAccountRoom();
+                    inviteRequestModel.friendAccount = checkRequestModel.friendAccount;
+                    apiService.inviteFriend(inviteRequestModel).then((value) {
+                      if(value) {
+                        Fluttertoast.showToast(msg: "成功發出好友邀請");
+                        streamSocket.friendRequest(inviteRequestModel.friendAccount);
+                      }
+                    });
                     Navigator.pop(context);
                   } else {
                     Fluttertoast.showToast(msg: "無法新增該名好友（已為好友關係 / 已發送過邀請）");                    
