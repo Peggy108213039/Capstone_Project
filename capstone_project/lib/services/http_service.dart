@@ -65,8 +65,10 @@ class APIService {
   String ip = "http://163.22.17.247:3000";
   static final FileProvider fileProvider = FileProvider();
   Future<bool> login(LoginRequestModel requestModel) async {
-    String url = "$ip/api/login_member"; // 透過此行連線，/api/login_member 即 POST 對應的 API 路徑
-    final response = await http.post(Uri.parse(url), body: requestModel.toJson());
+    String url =
+        "$ip/api/login_member"; // 透過此行連線，/api/login_member 即 POST 對應的 API 路徑
+    final response =
+        await http.post(Uri.parse(url), body: requestModel.toJson());
     var tmpResponse = LoginResponseModel.fromJson(json.decode(response.body));
     if (tmpResponse.result != "LOGIN FAILED") {
       UserData(
@@ -135,7 +137,7 @@ class APIService {
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       var jsonResponse = json.decode(response.body);
-      if(jsonResponse["result"] != "Fail to update member"){
+      if (jsonResponse["result"] != "Fail to update member") {
         return true;
       } else {
         print("UPDATE USER INFO RESULT：${jsonResponse["result"]}");
@@ -173,7 +175,7 @@ class APIService {
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       var jsonResponse = json.decode(response.body);
-      if(jsonResponse["result"] == "Insert success"){
+      if (jsonResponse["result"] == "Insert success") {
         return true;
       } else {
         print("=====INSERT FRIEND RESULT = ${jsonResponse["result"]}=====");
@@ -193,9 +195,11 @@ class APIService {
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       var jsonResponse = json.decode(response.body);
-      if(jsonResponse["result"] == "Send friend request"){
+      if (jsonResponse["result"] == "Send friend request") {
         return true;
-      } else {return false;}
+      } else {
+        return false;
+      }
     } else {
       var statusCode = response.statusCode;
       print("CHECK FRIEND API STATUS CODE = ($statusCode)");
@@ -210,9 +214,11 @@ class APIService {
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       var jsonResponse = json.decode(response.body);
-      if(jsonResponse["result"] == "Invite success"){
+      if (jsonResponse["result"] == "Invite success") {
         return true;
-      } else {return false;}
+      } else {
+        return false;
+      }
     } else {
       var statusCode = response.statusCode;
       print("INVITE FRIEND API STATUS CODE = ($statusCode)");
@@ -227,9 +233,11 @@ class APIService {
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       var jsonResponse = json.decode(response.body);
-      if(jsonResponse["result"] == "Delete success"){
+      if (jsonResponse["result"] == "Delete success") {
         return true;
-      } else {return false;}
+      } else {
+        return false;
+      }
     } else {
       var statusCode = response.statusCode;
       print("DELETE FRIEND API STATUS CODE = ($statusCode)");
@@ -248,7 +256,8 @@ class APIService {
       print('FRIEND LIST FROM SERVER');
       for (var tmpResponse in jsonResponse) {
         // 使用 uID2 查詢 userInfo 以列出好友清單
-        await selectUserInfo(SelectInfoRequestModel(uid: tmpResponse['uID2'].toString()));
+        await selectUserInfo(
+            SelectInfoRequestModel(uid: tmpResponse['uID2'].toString()));
       }
       print("我的朋友 table");
       print(await SqliteHelper.queryAll(tableName: "friend"));
@@ -354,11 +363,9 @@ class APIService {
       // 抓 sqlite 所有軌跡的 tID
       List sqliteTidList =
           await SqliteHelper.queryAllTrackDataList(columns: ['tID']);
-
+      print(serverActivities);
+      print('server 活動 長度 ${serverActivities.length}');
       for (var activity in serverActivities) {
-        print(
-            '活動時間 ${activity['activity_time']} ${activity['activity_time'].runtimeType}');
-
         // 把 server 活動資料加進 sqlite
         final Activity newLocalActivityData = Activity(
             aID: activity['aID'].toString(),

@@ -34,7 +34,7 @@ class _ActivityPageState extends State<ActivityPage> {
     if (activTable == null) {
       return;
     }
-    print('sqlite 活動資廖表\n${activTable!.length}');
+    print('活動葉面 sqlite 活動資廖表\n${activTable!.length}');
     return activTable;
   }
 
@@ -221,7 +221,8 @@ class _ActivityPageState extends State<ActivityPage> {
     );
   }
 
-  void refreshUI() {
+  void refreshUI() async {
+    await Future.delayed(const Duration(seconds: 1));
     setState(() {});
   }
 

@@ -15,6 +15,7 @@ class ActivityMap extends StatefulWidget {
   final List<Marker> markerList; // 標記拍照點
   final bool sharePosition; // 使用者是否想要分享位置
   final String activityMsg; // socket 的 activityMsg
+  final List<Marker> memberMarkers;
   final List<Polyline> memberPolylines;
   final double warningDistance;
   const ActivityMap(
@@ -25,6 +26,7 @@ class ActivityMap extends StatefulWidget {
       required this.markerList,
       required this.sharePosition,
       required this.activityMsg,
+      required this.memberMarkers,
       required this.memberPolylines,
       required this.warningDistance})
       : super(key: key);
@@ -41,6 +43,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   late List<Marker> markerList;
   late bool sharePosition;
   late String activityMsg;
+  late List<Marker> memberMarkers;
   late List<Polyline> memberPolylines;
   late double warningDistance;
 
@@ -128,6 +131,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     isPaused = widget.isPaused;
     userLocation = Provider.of<UserLocation>(context);
     markerList = widget.markerList;
+    memberMarkers = widget.memberMarkers;
     memberPolylines = widget.memberPolylines;
 
     // 去抓使用者手機螢幕的高
@@ -158,6 +162,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
               tileProvider: CachedTileProvider()),
           MarkerLayerOptions(
               markers: markerList +
+                  memberMarkers +
                   [
                     Marker(
                       point:

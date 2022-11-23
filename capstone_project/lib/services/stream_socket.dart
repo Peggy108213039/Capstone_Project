@@ -25,6 +25,7 @@ class StreamSocket {
       _socket.onConnect((_) {
         print('CONNECTION ESTABLISHED');
       });
+      print('============\nSOCKET 連線\n============');
       // 監聽頻道
       _socket.on('account', (accountData) async {
         if (accountData.runtimeType != String) {
@@ -46,7 +47,8 @@ class StreamSocket {
               "activity_msg": activityName,
               "info": "你已被加入 $activityName 活動"
             };
-            await SqliteHelper.insert(tableName: 'notification', insertData: insertData);
+            await SqliteHelper.insert(
+                tableName: 'notification', insertData: insertData);
           }
           if (accountData['ctlmsg'] == "activity start") {
             List activityMsg =
@@ -61,14 +63,15 @@ class StreamSocket {
             var activityName = accountData['activity_msg'];
             var insertData = {
               "ctlmsg": "activity start",
-              "account_msg": "", 
-              "friend_msg": "", 
+              "account_msg": "",
+              "friend_msg": "",
               "activity_msg": activityName,
               "info": "$activityName 活動開始了"
             };
-            await SqliteHelper.insert(tableName: 'notification', insertData: insertData);
+            await SqliteHelper.insert(
+                tableName: 'notification', insertData: insertData);
           }
-          if (accountData['ctlmsg'] == 'friend request'){
+          if (accountData['ctlmsg'] == 'friend request') {
             var who = accountData['account_msg'];
             var insertData = {
               "ctlmsg": "friend request",
@@ -78,9 +81,10 @@ class StreamSocket {
               "info": "$who 向你發送好友邀請"
             };
             print("有人發好友邀請給我");
-            await SqliteHelper.insert(tableName: 'notification', insertData: insertData);
+            await SqliteHelper.insert(
+                tableName: 'notification', insertData: insertData);
           }
-          if (accountData['ctlmsg'] == 'friend response'){
+          if (accountData['ctlmsg'] == 'friend response') {
             var who = accountData['account_msg'];
             var insertData = {
               "ctlmsg": "friend response",
@@ -89,7 +93,8 @@ class StreamSocket {
               "activity_msg": "",
               "info": "$who 接受了你的好友邀請"
             };
-            await SqliteHelper.insert(tableName: 'notification', insertData: insertData);
+            await SqliteHelper.insert(
+                tableName: 'notification', insertData: insertData);
           }
         }
         _socketResponse.add(accountData);
@@ -149,8 +154,8 @@ class StreamSocket {
     try {
       _socket.emit('ctlmsg', {
         'ctlmsg': 'join activity room',
-        'activity_msg': activityName, 
-        'account_msg': UserData.userAccount 
+        'activity_msg': activityName,
+        'account_msg': UserData.userAccount
       });
       print('JOIN ACCOUNT ROOM');
     } catch (error) {

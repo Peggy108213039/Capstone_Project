@@ -47,7 +47,7 @@ class _StartActivityState extends State<StartActivity> {
   late List<LatLng> gpsList;
   List frindsIDList = [];
   List<Polyline> memberPolylines = [];
-
+  List<Marker> memberMarkers = [];
   // bool isStarted = false;
   // bool isPaused = false;
   bool shareUserPosition = false;
@@ -143,6 +143,16 @@ class _StartActivityState extends State<StartActivity> {
                 longitude: tmpSocketData['location_msg']['longitude'],
                 altitude: tmpSocketData['location_msg']['elevation'],
                 currentTime: UserLocation.getCurrentTime()));
+            memberMarkers.add(Marker(
+                point: LatLng(tmpSocketData['location_msg']['latitude'],
+                    tmpSocketData['location_msg']['longitude']),
+                builder: (context) => Container(
+                      decoration: BoxDecoration(
+                          color: Colors
+                              .primaries[activityPolyLineList[i]['color']],
+                          shape: BoxShape.circle,
+                          border: Border.all(width: 3, color: Colors.white)),
+                    )));
           }
         }
         // 回傳 List<polyline>
@@ -214,6 +224,7 @@ class _StartActivityState extends State<StartActivity> {
             markerList: markers,
             sharePosition: shareUserPosition,
             activityMsg: '${arguments['aID']} ${arguments['activity_name']}',
+            memberMarkers: memberMarkers,
             memberPolylines: memberPolylines,
             warningDistance:
                 double.parse(arguments['warning_distance']), // FIXME

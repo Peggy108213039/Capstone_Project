@@ -168,10 +168,10 @@ class SqliteHelper {
     return await database?.execute('DELETE FROM `$tableName`;');
   }
 
-    // drop table
+  // drop table
   static Future<void> drop({
     required String tableName,
-    }) async {
+  }) async {
     final Database? database = await open;
     print("已 drop $tableName 資料表");
     return await database?.execute('DROP TABLE `$tableName`;');

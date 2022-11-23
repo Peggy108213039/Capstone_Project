@@ -417,23 +417,24 @@ class _AddActivityPageState extends State<AddActivityPage> {
         warning_distance: warningDistance,
         warning_time: warningTime,
         members: members);
-    // 插入資料庫
+    // 插入 server 資料庫
     List result =
         await APIService.addActivity(content: newServerActivityData.toMap());
     if (result[0]) {
-      final Activity newLocalActivityData = Activity(
-          aID: result[1]['aID'].toString(),
-          uID: UserData.uid.toString(),
-          activity_name: activName,
-          activity_time: timeinput.text,
-          finish_activity_time: 'null',
-          start_activity_time: 'null',
-          tID: activTrack,
-          warning_distance: warningDistance,
-          warning_time: warningTime,
-          members: members.join(', '));
-      await SqliteHelper.insert(
-          tableName: 'activity', insertData: newLocalActivityData.toMap());
+      // 插入 sqlite 資料庫
+      // final Activity newLocalActivityData = Activity(
+      //     aID: result[1]['aID'].toString(),
+      //     uID: UserData.uid.toString(),
+      //     activity_name: activName,
+      //     activity_time: timeinput.text,
+      //     finish_activity_time: 'null',
+      //     start_activity_time: 'null',
+      //     tID: activTrack,
+      //     warning_distance: warningDistance,
+      //     warning_time: warningTime,
+      //     members: members.join(', '));
+      // await SqliteHelper.insert(
+      //     tableName: 'activity', insertData: newLocalActivityData.toMap());
       Navigator.pop(context);
     } else {
       print('$result 在 server 新增活動失敗');
