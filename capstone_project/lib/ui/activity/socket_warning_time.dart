@@ -41,7 +41,7 @@ class _SocketWarningTimeState extends State<SocketWarningTime> {
     final tmpSocketData = jsonDecode(jsonEncode(socketMssege!));
     if (tmpSocketData.runtimeType != String) {
       final String ctlMsg = tmpSocketData['ctlmsg'];
-      if (ctlMsg == "activity warniing") {
+      if (ctlMsg == "activity warning") {
         final String wanringMsg = tmpSocketData['wanring_msg'];
         if (wanringMsg == "too long") {
           print('停留時間過久 tmpSocketData $tmpSocketData');

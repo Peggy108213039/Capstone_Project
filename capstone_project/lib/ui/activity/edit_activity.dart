@@ -500,6 +500,7 @@ class _EditActivityState extends State<EditActivity> {
     //   'members': members
     // };
     final Map<String, dynamic> newServerActivityData = {
+      // 'aID'
       'uID': UserData.uid.toString(),
       'activity_name': activName,
       'activity_time': timeinput.text,

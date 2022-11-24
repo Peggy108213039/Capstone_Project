@@ -41,7 +41,7 @@ class _SocketWarningDistanceState extends State<SocketWarningDistance> {
     final tmpSocketData = jsonDecode(jsonEncode(socketMssege!));
     if (tmpSocketData.runtimeType != String) {
       final String ctlMsg = tmpSocketData['ctlmsg'];
-      if (ctlMsg == "activity warniing") {
+      if (ctlMsg == "activity warning") {
         final String wanringMsg = tmpSocketData['wanring_msg'];
         if (wanringMsg == "too far") {
           print('距離過遠 tmpSocketData $tmpSocketData');

@@ -71,6 +71,27 @@ class StreamSocket {
             await SqliteHelper.insert(
                 tableName: 'notification', insertData: insertData);
           }
+          if (accountData['ctlmsg'] == "activity finish") {
+            List activityMsg =
+                accountData['activity_msg'].toString().split(' ');
+            NotificationService().showNotification(
+                1, 'main_channel', '${activityMsg[1]} 活動已結束', '');
+            // FIXME : 更新活動資料跟 server 一樣
+            var userID = {'uID': UserData.uid.toString()};
+            await APIService.selectAccountActivity(content: userID);
+
+            // 寫進 sqlite
+            var activityName = accountData['activity_msg'];
+            var insertData = {
+              "ctlmsg": "activity start",
+              "account_msg": "",
+              "friend_msg": "",
+              "activity_msg": activityName,
+              "info": "$activityName 活動結束了"
+            };
+            await SqliteHelper.insert(
+                tableName: 'notification', insertData: insertData);
+          }
           if (accountData['ctlmsg'] == 'friend request') {
             var who = accountData['account_msg'];
             var insertData = {
@@ -115,8 +136,7 @@ class StreamSocket {
   static loginSend() async {
     try {
       _socket.emit('ctlmsg',
-          {'ctlmsg': 'join account room',
-          'account_msg': UserData.userAccount});
+          {'ctlmsg': 'join account room', 'account_msg': UserData.userAccount});
     } catch (error) {
       print('ERROR: $error');
     }
@@ -127,8 +147,8 @@ class StreamSocket {
     try {
       _socket.emit('ctlmsg', {
         'ctlmsg': 'join activity room',
-        'activity_msg': activityName, 
-        'account_msg': UserData.userAccount 
+        'activity_msg': activityName,
+        'account_msg': UserData.userAccount
       });
       print('JOIN ACCOUNT ROOM');
     } catch (error) {

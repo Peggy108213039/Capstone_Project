@@ -139,13 +139,19 @@ class _StartActivityState extends State<StartActivity> {
           if (tmpSocketData['account_msg'] ==
               activityPolyLineList[i]['account']) {
             activityPolyLineList[i]['polyline'].recordCoordinates(UserLocation(
-                latitude: tmpSocketData['location_msg']['latitude'],
-                longitude: tmpSocketData['location_msg']['longitude'],
-                altitude: tmpSocketData['location_msg']['elevation'],
+                latitude:
+                    double.parse(tmpSocketData['location_msg']['latitude']),
+                longitude:
+                    double.parse(tmpSocketData['location_msg']['longitude']),
+                altitude:
+                    double.parse(tmpSocketData['location_msg']['elevation']),
                 currentTime: UserLocation.getCurrentTime()));
             memberMarkers.add(Marker(
-                point: LatLng(tmpSocketData['location_msg']['latitude'],
-                    tmpSocketData['location_msg']['longitude']),
+                width: 15,
+                height: 15,
+                point: LatLng(
+                    double.parse(tmpSocketData['location_msg']['latitude']),
+                    double.parse(tmpSocketData['location_msg']['longitude'])),
                 builder: (context) => Container(
                       decoration: BoxDecoration(
                           color: Colors
@@ -167,7 +173,7 @@ class _StartActivityState extends State<StartActivity> {
         }
         print('activityPolyLineList $activityPolyLineList');
       }
-      if (ctlMsg == "activity warniing") {
+      if (ctlMsg == "activity warning") {
         final String wanringMsg = tmpSocketData['wanring_msg'];
         // FIXME  某人距離過遠
         if (wanringMsg == "too far") {
@@ -201,6 +207,11 @@ class _StartActivityState extends State<StartActivity> {
     if (!activityIsStarted && !activityIsPaused) {
       markers.clear();
     }
+    print('===============');
+    print('成員資料   activityPolyLineList\n$activityPolyLineList');
+    print('成員軌跡   memberPolylines\n$memberPolylines');
+    print('成員標記   memberMarkers\n$memberMarkers');
+    print('===============');
 
     // 抓使用者手機螢幕的高
     double height = MediaQuery.of(context).size.height;
@@ -229,25 +240,25 @@ class _StartActivityState extends State<StartActivity> {
             warningDistance:
                 double.parse(arguments['warning_distance']), // FIXME
           ),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Column(
-              children: [
-                WarningTime(
-                  isStarted: activityIsStarted,
-                  isPaused: activityIsPaused,
-                  checkTime: 2,
-                  warningTime: int.parse(arguments['warning_time']) * 60,
-                  // warningTime: 10, // For test
-                ),
-                WarningDistanceText(
-                  isStarted: activityIsStarted,
-                  isPaused: activityIsPaused,
-                  gpsList: gpsList,
-                  warningDistance: double.parse(arguments['warning_distance']),
-                ),
-              ],
-            ),
-          ]),
+          // Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          //   Column(
+          //     children: [
+          //       WarningTime(
+          //         isStarted: activityIsStarted,
+          //         isPaused: activityIsPaused,
+          //         checkTime: 2,
+          //         warningTime: int.parse(arguments['warning_time']) * 60,
+          //         // warningTime: 10, // For test
+          //       ),
+          //       WarningDistanceText(
+          //         isStarted: activityIsStarted,
+          //         isPaused: activityIsPaused,
+          //         gpsList: gpsList,
+          //         warningDistance: double.parse(arguments['warning_distance']),
+          //       ),
+          //     ],
+          //   ),
+          // ]),
         ]),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Column(
@@ -290,7 +301,9 @@ class _StartActivityState extends State<StartActivity> {
                 ElevatedButton(
                   onPressed: () {
                     pushRecordBtn(
-                        context: context, aID: arguments['aID'].toString());
+                        context: context,
+                        aID: arguments['aID'].toString(),
+                        uID: arguments['uID'].toString());
                   },
                   child: activityIsStarted
                       ? const ImageIcon(
@@ -325,7 +338,9 @@ class _StartActivityState extends State<StartActivity> {
   }
 
   void pushRecordBtn(
-      {required BuildContext context, required String aID}) async {
+      {required BuildContext context,
+      required String aID,
+      required String uID}) async {
     // 剛開始 (預設值)
     if (!activityIsStarted && !activityIsPaused) {
       setState(() {
@@ -373,26 +388,28 @@ class _StartActivityState extends State<StartActivity> {
           });
           return;
         }
-        // 結束活動
-        final finishActivityReq = {'aID': aID};
-        List finishActivityResponse =
-            await APIService.finishActivity(content: finishActivityReq);
-        if (finishActivityResponse[0]) {
-          print('結束活動 成功');
-          print(finishActivityResponse[1]);
-          String sqliteStartActivityTime =
-              DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
-          Map<String, dynamic> updateActivityStartTime = {
-            'start_activity_time': sqliteStartActivityTime
-          };
-          await SqliteHelper.update(
-              tableName: 'activity',
-              updateData: updateActivityStartTime,
-              tableIdName: 'aID',
-              updateID: int.parse(aID));
-        } else {
-          print('結束活動 失敗');
-          print(finishActivityResponse[1]);
+        if (UserData.uid.toString() == uID) {
+          // 結束活動
+          final finishActivityReq = {'aID': aID};
+          List finishActivityResponse =
+              await APIService.finishActivity(content: finishActivityReq);
+          if (finishActivityResponse[0]) {
+            print('結束活動 成功');
+            print(finishActivityResponse[1]);
+            String sqliteStartActivityTime =
+                DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+            Map<String, dynamic> updateActivityStartTime = {
+              'start_activity_time': sqliteStartActivityTime
+            };
+            await SqliteHelper.update(
+                tableName: 'activity',
+                updateData: updateActivityStartTime,
+                tableIdName: 'aID',
+                updateID: int.parse(aID));
+          } else {
+            print('結束活動 失敗');
+            print(finishActivityResponse[1]);
+          }
         }
         // 跳出對話框，讓使用者輸入軌跡名稱
         inputTrackNameDialog = InputDialog(
