@@ -8,6 +8,7 @@ import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/components/default_icons.dart';
 import 'package:capstone_project/models/userInfo/updateInfo_model.dart';
 import 'package:capstone_project/services/http_service.dart';
+import 'package:capstone_project/services/notification_service.dart';
 import 'package:capstone_project/size_config.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -134,7 +135,7 @@ class _UpdateMyInfoPageOneState extends State<UpdateMyInfoPage> {
                               setState(() {
                                 isApiCallProcess = false;
                               });
-                              Fluttertoast.showToast(msg: "更新成功");
+                              NotificationService().showNotification(2, 'main_channel', "更新個資成功", "重新登入以更新資料");
                               Navigator.of(context).pop(const MyBottomBar(i: 2, firstTime: false));
                             } else {
                               setState(() {

@@ -225,7 +225,7 @@ class _FriendPageState extends State<FriendPage> {
             // input(search) friend's ID
             style: const TextStyle(color: unselectedColor),
             keyboardType: TextInputType.text,
-            onSaved: (input) => checkRequestModel.friendAccount = input!,
+            onChanged: (input) => checkRequestModel.friendAccount = input,
             validator: (input) => input!.length < 4 ? "帳號長度需大於 5 個字元" : null,
             decoration: const InputDecoration(
                 // hintText: "@ Your Friend's Account",
@@ -277,8 +277,8 @@ class _FriendPageState extends State<FriendPage> {
                     apiService.inviteFriend(inviteRequestModel).then((value) {
                       if (value) {
                         Fluttertoast.showToast(msg: "成功發出好友邀請");
-                        streamSocket
-                            .friendRequest(inviteRequestModel.friendAccount);
+                        // streamSocket
+                        //     .friendRequest(inviteRequestModel.friendAccount);
                       }
                     });
                     Navigator.pop(context);

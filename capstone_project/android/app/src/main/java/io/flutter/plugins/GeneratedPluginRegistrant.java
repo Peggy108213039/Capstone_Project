@@ -31,6 +31,11 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin file_picker, com.mr.flutter.plugin.filepicker.FilePickerPlugin", e);
     }
     try {
+      flutterEngine.getPlugins().add(new fr.g123k.flutterappbadger.FlutterAppBadgerPlugin());
+    } catch(Exception e) {
+      Log.e(TAG, "Error registering plugin flutter_app_badger, fr.g123k.flutterappbadger.FlutterAppBadgerPlugin", e);
+    }
+    try {
       flutterEngine.getPlugins().add(new com.kineapps.flutterarchive.FlutterArchivePlugin());
     } catch(Exception e) {
       Log.e(TAG, "Error registering plugin flutter_archive, com.kineapps.flutterarchive.FlutterArchivePlugin", e);

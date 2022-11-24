@@ -49,7 +49,9 @@ dependencies:
   socket_io_client: ^2.0.0
   # create a new socketChannel
   web_socket_channel: ^2.1.0
-  # flutter_session: ^0.1.1
+  # flutter_session: ^0.1.
+  flutter_app_badger: ^1.5.0 #note_number
+  badges: ^2.0.3 #ring_note_number
   # pick file from storage
   file_picker: ^4.6.1
   open_file: ^3.2.1

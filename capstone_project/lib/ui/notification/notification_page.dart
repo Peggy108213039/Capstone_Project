@@ -100,7 +100,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                 if(noteList![index]["ctlmsg"] == "friend request") {
                                   showResponseAlert(context, noteList![index]["nID"], noteList![index]["account_msg"]);
                                 }
-                                setState(() {});
+                                // setState(() {});
                               },
                               trailing: IconButton(
                                 icon: const ImageIcon(deleteIcon),
@@ -111,7 +111,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                     tableIdName: "nID",
                                     deleteId: noteList![index]["nID"]
                                   );
-                                  Navigator.of(context).pop(const NotificationPage());
+                                  setState(() {});
                                 },
                               ),
                             );
@@ -169,9 +169,11 @@ class _NotificationPageState extends State<NotificationPage> {
               ),
               onPressed: () {
                 // 拒絕時不須呼叫、不須進後端修改 friend table status
-                SqliteHelper.delete(tableName: "notification", tableIdName: "nID", deleteId: nID);
-                print('You Denied Nobody');
-                Navigator.of(context).pop(const NotificationPage());
+                setState(() {
+                  SqliteHelper.delete(tableName: "notification", tableIdName: "nID", deleteId: nID);
+                  setState(() {});
+                  Navigator.of(context).pop();
+                });
               },
             ),
             TextButton(
@@ -185,26 +187,22 @@ class _NotificationPageState extends State<NotificationPage> {
                 style: TextStyle(color: darkGreen2),
               ),
               onPressed: () {
-                setState(() {
-                  // show waiting signal while click accept btn
-                  isApiCallProcess = true;
-                  requestModel.account = who;
-                  print("=====\n INSERT FRIEND REQUEST ：${requestModel.toString()}\n======");
-                });
+                // show waiting signal while click accept btn
+                isApiCallProcess = true;
+                requestModel.account = who;
+                print("=====\n INSERT FRIEND REQUEST ：${requestModel.toString()}\n======");
                 apiService.insertFriend(requestModel).then((value) {
                   if (value) {
                     isApiCallProcess = false;
                     streamSocket.friendResponse(who);
                     SqliteHelper.delete(tableName: "notification", tableIdName: "nID", deleteId: nID);
-                    print('You Denied Nobody');
+                    setState(() { });
                     Navigator.of(context).pop(const NotificationPage());
                     Fluttertoast.showToast(msg: 'You Accepted a Friend');
                   } else {
-                    Navigator.of(context).pop(const NotificationPage());
                     Fluttertoast.showToast(msg: "Accept Friend Invitation Failed");
                   }
-                  },
-                );
+                },);
               },
             ),
           ],

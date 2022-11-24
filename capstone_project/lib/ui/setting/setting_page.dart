@@ -12,6 +12,7 @@ import 'package:capstone_project/components/default_buttons.dart';
 import 'package:capstone_project/components/default_icons.dart';
 import 'package:capstone_project/models/userInfo/updateInfo_model.dart';
 import 'package:capstone_project/services/http_service.dart';
+import 'package:capstone_project/services/stream_socket.dart';
 import 'package:capstone_project/size_config.dart';
 import 'package:capstone_project/ui/setting/aboutUs_page.dart';
 import 'package:capstone_project/ui/setting/assistance_page.dart';
@@ -277,6 +278,7 @@ class _SettingPageState extends State<SettingPage> {
                     );
                     // 一旦登出就把 session 清掉
                     UserData.token = "";
+                    StreamSocket.dispose();
                   },
                 ),
               ],

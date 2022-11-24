@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:badges/badges.dart';
+
+import 'package:capstone_project/constants.dart';
+import 'package:capstone_project/services/badge_counter.dart';
 import 'package:capstone_project/ui/setting/setting_page.dart';
 import 'package:capstone_project/ui/notification/notification_page.dart';
-import 'package:flutter/material.dart';
-import 'package:capstone_project/constants.dart';
-//import 'package:my_capstone_project_ver3/size_config.dart';
-// import 'package:capstone_project/ui/aboutuser/setting_page.dart';
-// import 'package:capstone_project/ui/notification_page.dart';
 
 class DefBackIcon extends StatelessWidget {
   const DefBackIcon({
@@ -24,11 +24,6 @@ class DefBackIcon extends StatelessWidget {
         );
       },
       icon: const ImageIcon(backIcon2),
-      // icon: const Icon(
-      //   Icons.arrow_back,
-      //   color: PrimaryBrown,
-      //   size: 30.0,
-      // ),
     );
   }
 }
@@ -72,7 +67,14 @@ class DefNotificationIcon extends StatelessWidget {
         onPressed: () {},
       );
     } else {
-      return IconButton(
+      return Badge(
+        //showBadge: BadgeCounter.badgeCounter > 0 ? true : false,
+        position: BadgePosition.topEnd(top: 1, end: 3),
+        badgeContent:const Text("9",
+          style: TextStyle(color: unselectedColor),
+        ),
+        badgeColor: Colors.red,
+        child: IconButton(
         onPressed: () {
           Navigator.push(
             context,
@@ -86,7 +88,7 @@ class DefNotificationIcon extends StatelessWidget {
           color: darkGreen2,
           size: 30.0,
         ),
-      );
+      ));
     }
   }
 }

@@ -85,7 +85,7 @@ class StreamSocket {
                 tableName: 'notification', insertData: insertData);
           }
           if (accountData['ctlmsg'] == 'friend response') {
-            var who = accountData['account_msg'];
+            var who = accountData['account_msg'].toString();
             var insertData = {
               "ctlmsg": "friend response",
               "account_msg": who,
@@ -112,12 +112,27 @@ class StreamSocket {
     }
   }
 
-  Future<void> loginSend() async {
+  static loginSend() async {
     try {
       _socket.emit('ctlmsg',
-          {'ctlmsg': 'join account room', 'account_msg': UserData.userAccount});
+          {'ctlmsg': 'join account room',
+          'account_msg': UserData.userAccount});
     } catch (error) {
       print('ERROR: $error');
+    }
+  }
+
+  // emit invitation msg to server
+  Future<void> joinActivityRoom(String activityName) async {
+    try {
+      _socket.emit('ctlmsg', {
+        'ctlmsg': 'join activity room',
+        'activity_msg': activityName, 
+        'account_msg': UserData.userAccount 
+      });
+      print('JOIN ACCOUNT ROOM');
+    } catch (error) {
+      print('SOCKET ERROR: $error');
     }
   }
 
@@ -149,20 +164,6 @@ class StreamSocket {
     }
   }
 
-  // emit invitation msg to server
-  Future<void> joinAccountRoom(String activityName) async {
-    try {
-      _socket.emit('ctlmsg', {
-        'ctlmsg': 'join activity room',
-        'activity_msg': activityName,
-        'account_msg': UserData.userAccount
-      });
-      print('JOIN ACCOUNT ROOM');
-    } catch (error) {
-      print('SOCKET ERROR: $error');
-    }
-  }
-
   Future<void> reportActivityInvitation() async {}
 
   Future<void> reportAlertNotification() async {}
@@ -188,15 +189,10 @@ class StreamSocket {
     }
   }
 
-  Future<void> dispose() async {
+  static dispose() async {
     _socketResponse.close();
     _socket.disconnect();
     _socket.dispose();
     print("SOCKET IO CLIENT CLOSE CONNECTION");
   }
-
-  // static void close() {
-  //   _socketResponse.close();
-  //   _socket.disconnect().close();
-  // }
 }

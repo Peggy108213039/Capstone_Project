@@ -7,12 +7,11 @@ import 'package:capstone_project/components/default_icons.dart';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/userInfo/updateInfo_model.dart';
 import 'package:capstone_project/size_config.dart';
-// import 'package:my_capstone_project_ver3/components/default_buttons.dart';
 import 'package:capstone_project/components/loadingAnimation.dart';
 
 import 'package:capstone_project/ui/setting/setting_page.dart';
-// import 'package:my_capstone_project_ver3/ui/signup_page.dart';
 import 'package:capstone_project/services/http_service.dart';
+import 'package:capstone_project/services/notification_service.dart';
 
 class UpdatePwdPage extends StatefulWidget {
   const UpdatePwdPage({Key? key}) : super(key: key);
@@ -163,7 +162,7 @@ class _UpdatePwdPageState extends State<UpdatePwdPage> {
                             setState(() {
                               isApiCallProcess = false;
                             });
-                            Fluttertoast.showToast(msg: "更新成功");
+                            NotificationService().showNotification(2, 'main_channel', "更新密碼成功", "重新登入以更新資料");
                             Navigator.of(context).pop(const SettingPage());
                             print('【成功】更新個人資料 - 密碼');
                           } else {

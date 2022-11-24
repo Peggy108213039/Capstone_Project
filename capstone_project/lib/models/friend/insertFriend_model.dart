@@ -27,7 +27,7 @@ class InsertFriendRequestModel{
   /// helper method `_$UserToJson`.
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = {
-      'uID1': uID1,
+      'uID2': uID1,
       'friend': account,
     };
 
