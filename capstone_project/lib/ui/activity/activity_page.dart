@@ -25,6 +25,13 @@ class _ActivityPageState extends State<ActivityPage> {
     super.dispose();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   getActivData() async {
     await SqliteHelper.open; // 開啟資料庫
     activTable = await SqliteHelper.queryAll(tableName: 'activity');
@@ -215,6 +222,7 @@ class _ActivityPageState extends State<ActivityPage> {
 
   void refreshUI() async {
     await Future.delayed(const Duration(seconds: 1));
+
     setState(() {});
   }
 
