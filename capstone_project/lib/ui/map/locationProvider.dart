@@ -15,7 +15,7 @@ class LocationProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    UserLocation initData = defaultLocation;
+    UserLocation initData = userLocation;
 
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
@@ -47,18 +47,11 @@ class LocationProvider extends StatelessWidget {
       service = const MapPage();
     }
     LocationService.locating();
-    // getCurrentLocation(initData);
+
     return StreamProvider(
       create: (context) => LocationService.locationStream(),
       initialData: initData,
       child: service,
     );
   }
-
-  // Future<void> getCurrentLocation(UserLocation initData) async {
-  //   UserLocation? tempLocation = await LocationService.getLocation;
-  //   if (tempLocation != null) {
-  //     initData = tempLocation;
-  //   }
-  // }
 }

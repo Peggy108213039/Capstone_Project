@@ -30,6 +30,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
   final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
   late MyAlertDialog sharePositionDialog; // 提醒視窗：問同行者是否要分享位置
+  bool editBtnIsVisible = false; // 是否顯示編輯活動的按鈕
   bool isVisible = false; // 是否顯示開始活動的按鈕
 
   @override
@@ -76,17 +77,22 @@ class _ShowActivityDataState extends State<ShowActivityData> {
     frindsIDList = arguments['activityData']['members'].toString().split(', ');
     getMemberList(frindsIDList);
 
-    // 顯示 主辦人有 開始按鈕
+    // 顯示 主辦人有 開始按鈕、編輯按鈕
     if (arguments['activityData']['uID'] == UserData.uid.toString()) {
+      editBtnIsVisible = true;
       isVisible = true;
-    } else if (arguments['activityData']['finish_activity_time'] != 'null') {
-      isVisible = false;
     } else {
+      // 不是主辦人
       if (arguments['activityData']['start_activity_time'] == 'null') {
         isVisible = false;
       } else {
         isVisible = true;
       }
+    }
+    // 如果活動結束就沒有 開始按鈕、編輯按鈕
+    if (arguments['activityData']['finish_activity_time'] != 'null') {
+      isVisible = false;
+      editBtnIsVisible = false;
     }
 
     return Scaffold(
@@ -100,8 +106,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
         title: const Center(child: Text('活動資料')),
         actions: [
           Visibility(
-            visible:
-                (arguments['activityData']['uID'] == UserData.uid.toString()),
+            visible: editBtnIsVisible,
             child: ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/EditActivityData',
@@ -129,6 +134,10 @@ class _ShowActivityDataState extends State<ShowActivityData> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Visibility(
+                  visible: (arguments['activityData']['finish_activity_time'] !=
+                      'null'),
+                  child: activityFinishText(fontSize: 20, width: width)),
               buildText(
                 title: '活動主辦人',
                 content: '${arguments['activityHostData']['name']}',
@@ -238,6 +247,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
     bool? shareUserPosition = await sharePosition();
     Navigator.pushNamed(context, '/StartActivity', arguments: {
       'aID': arguments['activityData']['aID'],
+      'uID': arguments['activityData']['uID'],
       'activity_name': arguments['activityData']['activity_name'],
       'activity_time': arguments['activityData']['activity_time'],
       'gpsList': gpsList,
@@ -308,6 +318,35 @@ class _ShowActivityDataState extends State<ShowActivityData> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget activityFinishText({required double fontSize, required double width}) {
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+              padding: const EdgeInsets.fromLTRB(8, 5, 5, 5),
+              width: 150,
+              decoration: BoxDecoration(
+                  color: Colors.red.shade600,
+                  border: Border.all(width: 3, color: Colors.red.shade600),
+                  borderRadius: BorderRadius.circular(15)),
+              child: Center(
+                child: Text(
+                  '活動已結束',
+                  style: TextStyle(fontSize: fontSize, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

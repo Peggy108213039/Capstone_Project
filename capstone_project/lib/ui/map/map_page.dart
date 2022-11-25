@@ -63,7 +63,7 @@ class MapPageState extends State<MapPage> {
   @override
   void dispose() {
     print('===== 刪掉 dispose =====');
-    LocationService.closeService();
+    // LocationService.closeService();
     mapIsStarted = false;
     mapIsPaused = false;
     mapPolyline.clearList();

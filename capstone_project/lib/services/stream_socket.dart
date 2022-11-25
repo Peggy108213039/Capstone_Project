@@ -28,14 +28,14 @@ class StreamSocket {
       print('============\nSOCKET 連線\n============');
       // 監聽頻道
       _socket.on('account', (accountData) async {
-        if (accountData.runtimeType != String) {
-          if (accountData['ctlmsg'] == "activity update") {
-            print('活動更新   $accountData');
+        if (accountData.runtimeType != String &&
+            accountData['ctlmsg'] != null) {
+          final String ctlMsg = accountData['ctlmsg'];
+          if (ctlMsg == "activity update") {
             List activityMsg =
                 accountData['activity_msg'].toString().split(' ');
             NotificationService().showNotification(
                 1, 'main_channel', '新增 ${activityMsg[1]} 活動', '可以到活動頁面查看');
-            // FIXME : 更新活動資料跟 server 一樣
             var userID = {'uID': UserData.uid.toString()};
             await APIService.selectAccountActivity(content: userID)
                 .then((value) async {
@@ -52,12 +52,11 @@ class StreamSocket {
                   tableName: 'notification', insertData: insertData);
             });
           }
-          if (accountData['ctlmsg'] == "activity start") {
+          if (ctlMsg == "activity start") {
             List activityMsg =
                 accountData['activity_msg'].toString().split(' ');
             NotificationService().showNotification(
                 1, 'main_channel', '${activityMsg[1]} 活動開始', '可以去記錄活動了 !');
-            // FIXME : 更新活動資料跟 server 一樣
             var userID = {'uID': UserData.uid.toString()};
             await APIService.selectAccountActivity(content: userID);
 
@@ -73,7 +72,7 @@ class StreamSocket {
             await SqliteHelper.insert(
                 tableName: 'notification', insertData: insertData);
           }
-          if (accountData['ctlmsg'] == "activity finish") {
+          if (ctlMsg == "activity finish") {
             List activityMsg =
                 accountData['activity_msg'].toString().split(' ');
             NotificationService().showNotification(
@@ -94,7 +93,7 @@ class StreamSocket {
             await SqliteHelper.insert(
                 tableName: 'notification', insertData: insertData);
           }
-          if (accountData['ctlmsg'] == 'friend request') {
+          if (ctlMsg == 'friend request') {
             var who = accountData['account_msg'];
             var insertData = {
               "ctlmsg": "friend request",
@@ -107,7 +106,7 @@ class StreamSocket {
             await SqliteHelper.insert(
                 tableName: 'notification', insertData: insertData);
           }
-          if (accountData['ctlmsg'] == 'friend response') {
+          if (ctlMsg == 'friend response') {
             var who = accountData['account_msg'].toString();
             var insertData = {
               "ctlmsg": "friend response",
@@ -118,6 +117,28 @@ class StreamSocket {
             };
             await SqliteHelper.insert(
                 tableName: 'notification', insertData: insertData);
+          }
+          if (ctlMsg == "activity warning") {
+            final String wanringMsg = accountData['wanring_msg'];
+            // FIXME  某人距離過遠
+            if (wanringMsg == "too far") {
+              // print('距離過遠 accountData $accountData');
+              // FIXME 在 client 顯示 UI 某人距離過遠
+              NotificationService().showNotification(
+                  1,
+                  'main_channel',
+                  '同行者距離過遠',
+                  '${accountData['account_msg_1']} 和 ${accountData['account_msg_2']} 距離過遠\n兩人相差的距離 : ${accountData['long_distance']}');
+            }
+            // FIXME  某人停留時間過久
+            if (wanringMsg == "too long") {
+              // print('停留時間過久 accountData $accountData');
+              NotificationService().showNotification(
+                  1,
+                  'main_channel',
+                  '同行者停留時間過久',
+                  '${accountData['account_msg']} 停留時間過久\n${accountData['location_msg']}');
+            }
           }
         }
         _socketResponse.add(accountData);
