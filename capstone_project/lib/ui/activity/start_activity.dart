@@ -240,25 +240,25 @@ class _StartActivityState extends State<StartActivity> {
             warningDistance:
                 double.parse(arguments['warning_distance']), // FIXME
           ),
-          // Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          //   Column(
-          //     children: [
-          //       WarningTime(
-          //         isStarted: activityIsStarted,
-          //         isPaused: activityIsPaused,
-          //         checkTime: 2,
-          //         warningTime: int.parse(arguments['warning_time']) * 60,
-          //         // warningTime: 10, // For test
-          //       ),
-          //       WarningDistanceText(
-          //         isStarted: activityIsStarted,
-          //         isPaused: activityIsPaused,
-          //         gpsList: gpsList,
-          //         warningDistance: double.parse(arguments['warning_distance']),
-          //       ),
-          //     ],
-          //   ),
-          // ]),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Column(
+              children: [
+                WarningTime(
+                  isStarted: activityIsStarted,
+                  isPaused: activityIsPaused,
+                  checkTime: 2,
+                  warningTime: int.parse(arguments['warning_time']) * 60,
+                  // warningTime: 10, // For test
+                ),
+                WarningDistanceText(
+                  isStarted: activityIsStarted,
+                  isPaused: activityIsPaused,
+                  gpsList: gpsList,
+                  warningDistance: double.parse(arguments['warning_distance']),
+                ),
+              ],
+            ),
+          ]),
         ]),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Column(

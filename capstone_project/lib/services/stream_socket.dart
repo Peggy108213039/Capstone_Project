@@ -30,25 +30,27 @@ class StreamSocket {
       _socket.on('account', (accountData) async {
         if (accountData.runtimeType != String) {
           if (accountData['ctlmsg'] == "activity update") {
+            print('活動更新   $accountData');
             List activityMsg =
                 accountData['activity_msg'].toString().split(' ');
             NotificationService().showNotification(
                 1, 'main_channel', '新增 ${activityMsg[1]} 活動', '可以到活動頁面查看');
             // FIXME : 更新活動資料跟 server 一樣
             var userID = {'uID': UserData.uid.toString()};
-            await APIService.selectAccountActivity(content: userID);
-
-            // 寫進 sqlite
-            var activityName = accountData['activity_msg'];
-            var insertData = {
-              "ctlmsg": "activity update",
-              "account_msg": "",
-              "friend_msg": "",
-              "activity_msg": activityName,
-              "info": "你已被加入 $activityName 活動"
-            };
-            await SqliteHelper.insert(
-                tableName: 'notification', insertData: insertData);
+            await APIService.selectAccountActivity(content: userID)
+                .then((value) async {
+              // 寫進 sqlite
+              var activityName = accountData['activity_msg'];
+              var insertData = {
+                "ctlmsg": "activity update",
+                "account_msg": "",
+                "friend_msg": "",
+                "activity_msg": activityName,
+                "info": "你已被加入 $activityName 活動"
+              };
+              await SqliteHelper.insert(
+                  tableName: 'notification', insertData: insertData);
+            });
           }
           if (accountData['ctlmsg'] == "activity start") {
             List activityMsg =
