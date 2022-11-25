@@ -32,13 +32,12 @@ class _WarningTimeState extends State<WarningTime> {
 
   late Timer checkTimer;
   late Timer sendWarningTimer;
-  AudioPlayerService audioPlayerService = AudioPlayerService();
+  // AudioPlayerService audioPlayerService = AudioPlayerService();
 
   int stopTimes = 0;
   int distanceRange = 2; // distanceRange 公尺內都算在原地範圍內
   bool isMoved = false; // 使用者是否移動
   ValueNotifier<bool> isVisible = ValueNotifier<bool>(false); // 是否顯示警告訊息
-  // bool isVisible = false;
 
   static UserLocation defaultLocation = UserLocation(
       latitude: 23.94981257,
@@ -68,7 +67,7 @@ class _WarningTimeState extends State<WarningTime> {
       if (isStarted && !isPaused) {
         if (stopTimes >= (warningTime / checkTime)) {
           isVisible.value = true;
-          audioPlayerService.playAudio(); // 播放警示音
+          AudioPlayerService.playAudio(); // 播放警示音
         }
         stopTimes = 0;
       }
@@ -80,7 +79,6 @@ class _WarningTimeState extends State<WarningTime> {
   void dispose() {
     checkTimer.cancel();
     sendWarningTimer.cancel();
-    audioPlayerService.close();
     super.dispose();
   }
 

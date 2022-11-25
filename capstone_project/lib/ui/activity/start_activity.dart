@@ -189,11 +189,11 @@ class _StartActivityState extends State<StartActivity> {
     if (!activityIsStarted && !activityIsPaused) {
       markers.clear();
     }
-    print('===============');
-    print('成員資料   activityPolyLineList\n$activityPolyLineList');
-    print('成員軌跡   memberPolylines\n$memberPolylines');
-    print('成員標記   memberMarkers\n$memberMarkers');
-    print('===============');
+    // print('===============');
+    // print('成員資料   activityPolyLineList\n$activityPolyLineList');
+    // print('成員軌跡   memberPolylines\n$memberPolylines');
+    // print('成員標記   memberMarkers\n$memberMarkers');
+    // print('===============');
 
     // 抓使用者手機螢幕的高
     double height = MediaQuery.of(context).size.height;
@@ -229,8 +229,8 @@ class _StartActivityState extends State<StartActivity> {
                   isStarted: activityIsStarted,
                   isPaused: activityIsPaused,
                   checkTime: 2,
-                  warningTime: int.parse(arguments['warning_time']) * 60,
-                  // warningTime: 10, // For test
+                  // warningTime: int.parse(arguments['warning_time']) * 60,
+                  warningTime: 10, // For test
                 ),
                 WarningDistanceText(
                   isStarted: activityIsStarted,

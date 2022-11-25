@@ -10,7 +10,6 @@ class LocationService {
   // static int sleepTime = 10;
   // static double updateDistancce = 3; // 每 3 公尺更新一次距離
   static int updateInterval = 3000; // 每 3 秒更新一次距離
-  static AudioPlayerService locationServiceAudioPlayer = AudioPlayerService();
 
   // 使用者目前位置
   static late UserLocation currentLocation;
@@ -92,8 +91,8 @@ class LocationService {
           altitude: locationData.altitude!,
           currentTime: UserLocation.getCurrentTime()));
     }
-    print(
-        '使用者位置 經度 : ${locationData.latitude!} 緯度 : ${locationData.longitude!}');
+    // print(
+    //     '使用者位置 經度 : ${locationData.latitude!} 緯度 : ${locationData.longitude!}');
     if (mapIsBackground) {
       if (mapIsStarted && !mapIsPaused) {
         mapPolyline.recordCoordinates(userLocation);
@@ -163,7 +162,7 @@ class LocationService {
     }
     distanceList.sort();
     // FIXME 警示音
-    locationServiceAudioPlayer.playAudio();
+    AudioPlayerService.playAudio();
     return [false, distanceList[0]];
   }
 
