@@ -85,14 +85,13 @@ class APIService {
         tmpResponse.totalTrack,
       );
       print("登入成功");
+      await SqliteHelper.clear(tableName: "notification");
       // 以此 uID 查詢好友列表
-      //selectFriend(SelectFriendRequestModel(uID1: tmpResponse.uID.toString()));
+      selectFriend(SelectFriendRequestModel(uID1: tmpResponse.uID.toString()));
       var userID = {'uID': tmpResponse.uID.toString()};
       await selectUserAllTrack(userID);
       // await selectAccountActivity(content: userID);
       return true;
-      // 如果 server 回傳 json 格式則應該像下行寫，才能把 server response 的 json 資料抓出來用
-      // return LoginResponseModel.fromJson(json.decode(response.body));
     } else {
       print("登入失敗");
       print(tmpResponse.result);
@@ -137,6 +136,9 @@ class APIService {
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       var jsonResponse = json.decode(response.body);
+      print("-----\n UPDATE USER INFO RETURN： \n-----");
+      print("$jsonResponse");
+
       if (jsonResponse["result"] != "Fail to update member") {
         return true;
       } else {
