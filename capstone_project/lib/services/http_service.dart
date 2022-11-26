@@ -85,7 +85,6 @@ class APIService {
         tmpResponse.totalTrack,
       );
       print("登入成功");
-      await SqliteHelper.clear(tableName: "notification");
       // 以此 uID 查詢好友列表
       selectFriend(SelectFriendRequestModel(uID1: tmpResponse.uID.toString()));
       var userID = {'uID': tmpResponse.uID.toString()};

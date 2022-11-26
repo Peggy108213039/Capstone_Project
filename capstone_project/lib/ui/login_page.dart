@@ -133,8 +133,8 @@ class _LoginPageState extends State<LoginPage> {
                                 isApiCallProcess = false;
                               });
                               SqliteHelper.initDatabase();
-                              // Socket connect
-                              StreamSocket.connectAndListen();
+                              SqliteHelper.clear(tableName: "notification");
+                              StreamSocket.connectAndListen(); // Socket connect
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
