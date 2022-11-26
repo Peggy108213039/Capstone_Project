@@ -1,6 +1,8 @@
+
 import 'package:capstone_project/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -14,7 +16,7 @@ class ArScreen extends StatefulWidget {
 
 class _ArScreenState extends State<ArScreen> {
   static final GlobalKey<ScaffoldState> _scaffoldKey =
-      GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState>();
 
   late UnityWidgetController _unityWidgetController;
   double _sliderValue = 0.0;
@@ -32,12 +34,16 @@ class _ArScreenState extends State<ArScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final arguments = (ModalRoute.of(context)?.settings.arguments ??
+    final arguments = (ModalRoute
+        .of(context)
+        ?.settings
+        .arguments ??
         <String, dynamic>{}) as Map;
 
     print('=== AR gpsList ===');
     print(arguments['gpsList']);
     print('============');
+    RouteProvider.get_GPS_route(arguments['gpsList']);
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: middleGreen,
@@ -70,13 +76,18 @@ class _ArScreenState extends State<ArScreen> {
   // Callback that connects the created controller to the unity controller
   void _onUnityCreated(controller) {
     this._unityWidgetController = controller;
-    read().then((value) => setCustomRoute(value));
+    //read().then((value) => setCustomRoute(value));
+    setCustomRoute();
   }
 
-  void setCustomRoute(Content) {
-    print("Post Meg To Unity! \nContent: " + Content);
+  void setCustomRoute() {
+    while (!RouteProvider.done) {
+      print("Waiting route loading....");
+    }
+    String content = RouteProvider.route_string;
+    print("Post Meg To Unity! \nContent: " + content);
     _unityWidgetController.postMessage(
-        'RouteManager', 'GetRouteFromFlutter', Content);
+        'RouteManager', 'GetRouteFromFlutter', content);
   }
 
   void onUnityMessage(message) {
@@ -88,79 +99,28 @@ class _ArScreenState extends State<ArScreen> {
     print('Received scene loaded from unity buildIndex: ${scene.buildIndex}');
   }
 
-  Future<String> read() async {
-    File? file = await FileProvider.getNewFile();
-    print("Success Get File!");
-
-    print("\n-----------------------------------------------\n");
-
-    print("Start To Read File!!!!");
-    String fileText = '';
-    if (file != '') {
-      try {
-        fileText = await file!.readAsString();
-      } catch (e) {
-        print("Couldn't read file!");
-        print("Exception: " + e.toString());
-      }
-    }
-    return fileText;
-    // String text;
-    // try {
-    //   final Directory directory = await getApplicationDocumentsDirectory();
-    //   print("Directory PATH: " + directory.path);
-    //   final File file = File('${directory.path}/customRoute.xml');
-    //   text = await file.readAsString();
-    // }catch(e){
-    //   print("Couldn't read file!");
-    //   print("Exception: " + e.toString());
-    // }
-  }
 }
 
-class FileProvider {
-  static File? newFile;
-  static bool isSavingFile = false;
+class RouteProvider{
+  static bool done = false;
+  static String route_string = "";
 
-  static Future<Directory> getAppDir() async {
-    Directory directory = await getApplicationDocumentsDirectory();
-    Directory dir = Directory('${directory.path}/dirName');
-    var isExist = await dir.exists();
-    if (!isExist) {
-      print("Create dir!!!");
-      await dir.create(recursive: true);
+  static void get_GPS_route(List<LatLng> gps){
+    print("========Get GPS!!===========");
+
+    int len = gps.length;
+    print("gps length: " + len.toString());
+
+    for(int i = 0; i <len ; i++)
+    {
+      print("current index: " + i.toString());
+      print("lat: " + gps[i].latitude.toString());
+      print("lon: " + gps[i].longitude.toString());
+      route_string += gps[i].latitude.toString() + ",";
+      route_string += gps[i].longitude.toString() + " ";
     }
-    print("Directory: " + dir.path);
-    return dir;
-  }
-
-  static Future<File?> saveFile() async {
-    Directory dir = await getAppDir();
-
-    try {
-      String fileName = 'customRoute.kml';
-      Directory? external = await getExternalStorageDirectory();
-      print("External Directory: " + external!.path);
-      final File file = File('${external.path}/$fileName');
-
-      newFile = File('${dir.path}/$fileName');
-      await File(file.path).copy(newFile!.path);
-      isSavingFile = true;
-    } catch (e) {
-      print("Cannot save file!!!!");
-      print("Exception: " + e.toString());
-    }
-
-    return newFile;
-  }
-
-  static Future<File?> getNewFile() async {
-    File? file = await saveFile();
-    if (file == null) {
-      print("File is NULL!!!");
-    } else {
-      print("File path: " + file.path);
-    }
-    return newFile;
+    done = true;
+    print("result: " + route_string);
+    print("=======Get GPS!!==========");
   }
 }
