@@ -108,8 +108,8 @@ class MapPageState extends State<MapPage> {
               WarningTime(
                 isStarted: mapIsStarted,
                 isPaused: mapIsPaused,
-                checkTime: 2,
-                warningTime: 10,
+                checkTime: 10, // FIXME
+                warningTime: 180, // FIXME
               ),
             ],
           ),
@@ -276,15 +276,25 @@ class MapPageState extends State<MapPage> {
                     track_type: '1');
                 List insertClientTrackResult = await SqliteHelper.insert(
                     tableName: 'track', insertData: newTrackData.toMap());
-                // FIXME : server 更新使用者累積距離、時間
+                // server 更新使用者累積距離、時間
                 final totaltime = DateTime.parse(
                         mapPolyline.userLocationList.last.currentTime)
                     .difference(DateTime.parse(
                         mapPolyline.userLocationList[0].currentTime));
-                print('使用者累積時間 ${totaltime.inMinutes}');
-                print(
-                    '使用者累積距離 ${mapPolyline.totalDistance.toStringAsFixed(3)}');
-                // FIXME : server 更新使用者累積軌跡數量
+                Map<String, String> updateMemberDistanceTimeRequest = {
+                  'uID': UserData.uid.toString(),
+                  'total_distance':
+                      mapPolyline.totalDistance.toStringAsFixed(3),
+                  'total_time': totaltime.inMinutes.toString()
+                };
+                await APIService.updateDistanceTimeMember(
+                    content: updateMemberDistanceTimeRequest);
+                // print('使用者累積時間 ${totaltime.inMinutes}');
+                // print(
+                //     '使用者累積距離 ${mapPolyline.totalDistance.toStringAsFixed(3)}');
+                // server 更新使用者累積軌跡數量
+                await APIService.updateTrackMember(
+                    content: {'uID': UserData.uid.toString()});
                 if (insertClientTrackResult[0]) {
                   saveFileSuccessDialog = MyAlertDialog(
                       context: context,
@@ -316,7 +326,18 @@ class MapPageState extends State<MapPage> {
         } else {
           print('不要儲存軌跡 result?[0] ${result?[0]}');
         }
-        // FIXME : server 更新使用者累積距離、時間
+        // server 更新使用者累積距離、時間
+        final totaltime = DateTime.parse(
+                mapPolyline.userLocationList.last.currentTime)
+            .difference(
+                DateTime.parse(mapPolyline.userLocationList[0].currentTime));
+        Map<String, String> updateMemberDistanceTimeRequest = {
+          'uID': UserData.uid.toString(),
+          'total_distance': mapPolyline.totalDistance.toStringAsFixed(3),
+          'total_time': totaltime.inMinutes.toString()
+        };
+        await APIService.updateDistanceTimeMember(
+            content: updateMemberDistanceTimeRequest);
         mapPolyline.clearList(); // 清空 polyline list
       } // 如果要繼續記錄
       // 切換成開始狀態

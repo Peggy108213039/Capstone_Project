@@ -82,7 +82,6 @@ class _StartActivityState extends State<StartActivity> {
   @override
   void dispose() {
     print('===== 刪掉 dispose =====');
-    // LocationService.closeService();
     clearPolylineList();
     activPolyline.clearList();
     activityIsStarted = false;
@@ -218,9 +217,8 @@ class _StartActivityState extends State<StartActivity> {
             sharePosition: shareUserPosition,
             activityMsg: '${arguments['aID']} ${arguments['activity_name']}',
             memberMarkers: memberMarkers,
-            memberPolylines: memberPolylines,
-            warningDistance:
-                double.parse(arguments['warning_distance']), // FIXME
+            // memberPolylines: memberPolylines,
+            warningDistance: double.parse(arguments['warning_distance']),
           ),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Column(
@@ -228,9 +226,9 @@ class _StartActivityState extends State<StartActivity> {
                 WarningTime(
                   isStarted: activityIsStarted,
                   isPaused: activityIsPaused,
-                  checkTime: 2,
-                  // warningTime: int.parse(arguments['warning_time']) * 60,
-                  warningTime: 10, // For test
+                  checkTime: 10,
+                  warningTime: int.parse(arguments['warning_time']) * 60,
+                  // warningTime: 10, // FIXME: For test
                 ),
                 WarningDistanceText(
                   isStarted: activityIsStarted,
@@ -453,9 +451,25 @@ class _StartActivityState extends State<StartActivity> {
                 );
                 List insertClientTrackResult = await SqliteHelper.insert(
                     tableName: 'track', insertData: newTrackData.toMap());
-                // FIXME : server 更新使用者累積距離、時間
-                // FIXME : server 更新使用者累積軌跡數量
-                // FIXME : server 更新使用者累積活動數量
+                // server 更新使用者累積距離、時間
+                final totaltime = DateTime.parse(
+                        activPolyline.userLocationList.last.currentTime)
+                    .difference(DateTime.parse(
+                        activPolyline.userLocationList[0].currentTime));
+                Map<String, String> updateMemberDistanceTimeRequest = {
+                  'uID': UserData.uid.toString(),
+                  'total_distance':
+                      activPolyline.totalDistance.toStringAsFixed(3),
+                  'total_time': totaltime.inMinutes.toString()
+                };
+                await APIService.updateDistanceTimeMember(
+                    content: updateMemberDistanceTimeRequest);
+                // server 更新使用者累積軌跡數量
+                await APIService.updateTrackMember(
+                    content: {'uID': UserData.uid.toString()});
+                // server 更新使用者累積活動數量
+                await APIService.updateActivityMember(
+                    content: {'uID': UserData.uid.toString()});
                 if (insertClientTrackResult[0]) {
                   saveFileSuccessDialog = MyAlertDialog(
                       context: context,
@@ -487,8 +501,21 @@ class _StartActivityState extends State<StartActivity> {
         } else {
           print('不要儲存軌跡 result?[0] ${result?[0]}');
         }
-        // FIXME : server 更新使用者累積距離、時間
-        // FIXME : server 更新使用者累積活動數量
+        // server 更新使用者累積距離、時間
+        final totaltime = DateTime.parse(
+                activPolyline.userLocationList.last.currentTime)
+            .difference(
+                DateTime.parse(activPolyline.userLocationList[0].currentTime));
+        Map<String, String> updateMemberDistanceTimeRequest = {
+          'uID': UserData.uid.toString(),
+          'total_distance': activPolyline.totalDistance.toStringAsFixed(3),
+          'total_time': totaltime.inMinutes.toString()
+        };
+        await APIService.updateDistanceTimeMember(
+            content: updateMemberDistanceTimeRequest);
+        // server 更新使用者累積活動數量
+        await APIService.updateActivityMember(
+            content: {'uID': UserData.uid.toString()});
         activPolyline.clearList(); // 清空 polyline list
       } // 如果要繼續記錄
       // 切換成開始狀態

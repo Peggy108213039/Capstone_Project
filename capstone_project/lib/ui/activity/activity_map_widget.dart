@@ -17,7 +17,7 @@ class ActivityMap extends StatefulWidget {
   final bool sharePosition; // 使用者是否想要分享位置
   final String activityMsg; // socket 的 activityMsg
   final List<Marker> memberMarkers;
-  final List<Polyline> memberPolylines;
+  // final List<Polyline> memberPolylines;
   final double warningDistance;
   const ActivityMap(
       {Key? key,
@@ -28,7 +28,7 @@ class ActivityMap extends StatefulWidget {
       required this.sharePosition,
       required this.activityMsg,
       required this.memberMarkers,
-      required this.memberPolylines,
+      // required this.memberPolylines,
       required this.warningDistance})
       : super(key: key);
 
@@ -45,7 +45,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   late bool sharePosition;
   late String activityMsg;
   late List<Marker> memberMarkers;
-  late List<Polyline> memberPolylines;
+  // late List<Polyline> memberPolylines;
   late double warningDistance;
 
   double zoomLevel = 16;
@@ -142,7 +142,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     userLocation = Provider.of<UserLocation>(context);
     markerList = widget.markerList;
     memberMarkers = widget.memberMarkers;
-    memberPolylines = widget.memberPolylines;
+    // memberPolylines = widget.memberPolylines;
 
     // 去抓使用者手機螢幕的高
     double height = MediaQuery.of(context).size.height;
@@ -171,20 +171,20 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: ['a', 'b', 'c'],
               tileProvider: CachedTileProvider()),
-          PolylineLayerOptions(
-              polylines: memberPolylines +
-                  [
-                    Polyline(
-                      points: gpsList,
-                      color: Colors.amber,
-                      strokeWidth: 4,
-                    ),
-                    Polyline(
-                      points: activPolyline.list,
-                      color: Colors.green,
-                      strokeWidth: 4,
-                    )
-                  ]),
+          PolylineLayerOptions(polylines:
+              // memberPolylines +
+              [
+            Polyline(
+              points: gpsList,
+              color: Colors.amber,
+              strokeWidth: 4,
+            ),
+            Polyline(
+              points: activPolyline.list,
+              color: Colors.green,
+              strokeWidth: 4,
+            )
+          ]),
           MarkerLayerOptions(
               markers: markerList +
                   memberMarkers +
