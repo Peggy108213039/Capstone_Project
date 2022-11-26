@@ -453,6 +453,9 @@ class _StartActivityState extends State<StartActivity> {
                 );
                 List insertClientTrackResult = await SqliteHelper.insert(
                     tableName: 'track', insertData: newTrackData.toMap());
+                // FIXME : server 更新使用者累積距離、時間
+                // FIXME : server 更新使用者累積軌跡數量
+                // FIXME : server 更新使用者累積活動數量
                 if (insertClientTrackResult[0]) {
                   saveFileSuccessDialog = MyAlertDialog(
                       context: context,
@@ -484,6 +487,8 @@ class _StartActivityState extends State<StartActivity> {
         } else {
           print('不要儲存軌跡 result?[0] ${result?[0]}');
         }
+        // FIXME : server 更新使用者累積距離、時間
+        // FIXME : server 更新使用者累積活動數量
         activPolyline.clearList(); // 清空 polyline list
       } // 如果要繼續記錄
       // 切換成開始狀態

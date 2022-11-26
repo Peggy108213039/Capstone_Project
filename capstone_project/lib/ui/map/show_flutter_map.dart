@@ -1,5 +1,6 @@
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
+import 'package:capstone_project/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +47,7 @@ class _ShowFlutterMapState extends State<ShowFlutterMap>
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
+    initCamera();
     super.initState();
   }
 
@@ -78,6 +80,22 @@ class _ShowFlutterMapState extends State<ShowFlutterMap>
     // 當使用者的位置移動時，地圖的 camera 要跟著移動
     if (mapController != null) {
       mapController!.move(currentLocation.toLatLng(), zoomLevel);
+    }
+  }
+
+  // 抓使用者目前位置
+  Future<void> initCamera() async {
+    UserLocation? tempLocation = await LocationService.getLocation;
+    if (tempLocation != null) {
+      userLocation = tempLocation;
+    }
+    // 當使用者的位置移動時，地圖的 camera 要跟著移動
+    if (mapController != null) {
+      await Future.delayed(const Duration(seconds: 2)).then((value) {
+        if (mounted) {
+          mapController!.move(userLocation.toLatLng(), zoomLevel);
+        }
+      });
     }
   }
 

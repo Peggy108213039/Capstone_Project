@@ -44,6 +44,13 @@ class _ShowActivityDataState extends State<ShowActivityData> {
     super.dispose();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   void getSqliteData() async {
     queryFriendTable = await SqliteHelper.queryAll(tableName: 'friend');
     queryFriendTable ??= [];
@@ -110,7 +117,8 @@ class _ShowActivityDataState extends State<ShowActivityData> {
             child: ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/EditActivityData',
-                    arguments: arguments['activityData']);
+                        arguments: arguments['activityData'])
+                    .then((value) => refreshUI());
               },
               child: const ImageIcon(
                 editIcon,
@@ -214,6 +222,12 @@ class _ShowActivityDataState extends State<ShowActivityData> {
         ),
       ),
     );
+  }
+
+  void refreshUI() async {
+    await Future.delayed(const Duration(seconds: 1));
+
+    setState(() {});
   }
 
   Future<void> pushStartActivityBtn(

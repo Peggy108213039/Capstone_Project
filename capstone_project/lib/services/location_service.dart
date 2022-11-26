@@ -127,22 +127,16 @@ class LocationService {
     return currentLocation;
   }
 
-  // static void closeService() {
-  //   if (_locationController != null) {
-  //     if (!_locationController!.isPaused) {
-  //       // _locationController!.close();
-  //       _locationController!.onPause;
-  //     }
-  //   }
-  //   if (locationSubscription != null) {
-  //     // locationSubscription!.cancel();
-  //     if (!locationSubscription!.isPaused) {
-  //       locationSubscription!.pause();
-  //     }
-  //   }
-  //   print('===== 關掉訂位服務 =====');
-  //   return;
-  // }
+  static void closeService() {
+    if (_locationController != null) {
+      _locationController!.close();
+    }
+    if (locationSubscription != null) {
+      locationSubscription!.cancel();
+    }
+    print('===== 關掉訂位服務 =====');
+    return;
+  }
 
   static List inSafeDistance(
       {required double warningDistance,

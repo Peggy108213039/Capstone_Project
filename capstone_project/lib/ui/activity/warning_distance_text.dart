@@ -51,7 +51,6 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
 
   @override
   void dispose() {
-    AudioPlayerService.close();
     super.dispose();
   }
 

@@ -20,8 +20,8 @@ class AudioPlayerService {
     await player.resume();
   }
 
-  static void close() {
-    print('關閉 player');
-    player.dispose();
-  }
+  // static void close() {
+  //   print('關閉 player');
+  //   player.dispose();
+  // }
 }

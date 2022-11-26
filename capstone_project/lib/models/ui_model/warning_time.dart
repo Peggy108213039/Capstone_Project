@@ -32,7 +32,6 @@ class _WarningTimeState extends State<WarningTime> {
 
   late Timer checkTimer;
   late Timer sendWarningTimer;
-  // AudioPlayerService audioPlayerService = AudioPlayerService();
 
   int stopTimes = 0;
   int distanceRange = 2; // distanceRange 公尺內都算在原地範圍內

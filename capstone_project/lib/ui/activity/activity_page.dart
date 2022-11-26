@@ -33,6 +33,8 @@ class _ActivityPageState extends State<ActivityPage> {
   }
 
   getActivData() async {
+    var userID = {'uID': UserData.uid.toString()};
+    await APIService.selectAccountActivity(content: userID);
     await SqliteHelper.open; // 開啟資料庫
     activTable = await SqliteHelper.queryAll(tableName: 'activity');
     if (activTable == null) {
@@ -221,9 +223,9 @@ class _ActivityPageState extends State<ActivityPage> {
   }
 
   void refreshUI() async {
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() {});
+    await Future.delayed(const Duration(seconds: 1)).then((value) {
+      setState(() {});
+    });
   }
 
   void checkActivity({required List<dynamic> activityData}) async {
@@ -234,6 +236,6 @@ class _ActivityPageState extends State<ActivityPage> {
     Navigator.pushNamed(context, '/ShowActivityData', arguments: {
       'activityData': activityData[0],
       'activityHostData': uidMemberDataResponse[0]
-    });
+    }).then((value) => refreshUI());
   }
 }

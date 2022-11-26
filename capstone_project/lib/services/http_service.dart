@@ -89,7 +89,7 @@ class APIService {
       //selectFriend(SelectFriendRequestModel(uID1: tmpResponse.uID.toString()));
       var userID = {'uID': tmpResponse.uID.toString()};
       await selectUserAllTrack(userID);
-      await selectAccountActivity(content: userID);
+      // await selectAccountActivity(content: userID);
       return true;
       // 如果 server 回傳 json 格式則應該像下行寫，才能把 server response 的 json 資料抓出來用
       // return LoginResponseModel.fromJson(json.decode(response.body));
@@ -384,30 +384,34 @@ class APIService {
                   warning_time: activity['warning_time'].toString(),
                   members: '');
               await SqliteHelper.insert(
-                  tableName: 'activity',
-                  insertData: newLocalActivityData.toMap());
-              // 如果 sqliteTrackTidList 沒有活動的 tid 就下載該軌跡
-              bool trackIsDownloaded = false;
-              final String serverActivityTid = activity['tID'].toString();
-              for (var tID in sqliteTidList) {
-                if (tID['tID'].toString() == serverActivityTid) {
-                  trackIsDownloaded = true;
-                  break;
+                      tableName: 'activity',
+                      insertData: newLocalActivityData.toMap())
+                  .then((value) async {
+                // 如果 sqliteTrackTidList 沒有活動的 tid 就下載該軌跡
+                bool trackIsDownloaded = false;
+                final String serverActivityTid = activity['tID'].toString();
+                for (var tID in sqliteTidList) {
+                  if (tID['tID'].toString() == serverActivityTid) {
+                    trackIsDownloaded = true;
+                    break;
+                  }
                 }
-              }
-              // 如果已經下載過，就不用重複下載
-              if (hasDownloadTrackList.contains(serverActivityTid)) {
-                trackIsDownloaded = true;
-              }
-              if (!trackIsDownloaded) {
-                // 下載該軌跡
-                Map<String, dynamic> specificTrack = {'tID': serverActivityTid};
-                List specificTrackResponse =
-                    await selectSpecificTrackAndDownload(
-                        content: specificTrack);
-                hasDownloadTrackList.add(serverActivityTid);
-                print(specificTrackResponse);
-              }
+                // 如果已經下載過，就不用重複下載
+                if (hasDownloadTrackList.contains(serverActivityTid)) {
+                  trackIsDownloaded = true;
+                }
+                if (!trackIsDownloaded) {
+                  // 下載該軌跡
+                  Map<String, dynamic> specificTrack = {
+                    'tID': serverActivityTid
+                  };
+                  List specificTrackResponse =
+                      await selectSpecificTrackAndDownload(
+                          content: specificTrack);
+                  hasDownloadTrackList.add(serverActivityTid);
+                  print(specificTrackResponse);
+                }
+              });
             }
             print('完成 刷新 sqlite 活動資料表');
             return [serverActivities];
@@ -648,6 +652,52 @@ class APIService {
   static Future<List> updateTrackName(
       {required Map<String, dynamic> content}) async {
     String url = "http://163.22.17.247:3000/api/track/update_track";
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      return [true, responseString];
+    } else {
+      print('失敗 $responseString response.statusCode ${response.statusCode}');
+      return [false, responseString];
+    }
+  }
+
+  // 更新使用者累積距離 & 時間
+  static Future<List> updateDistanceTimeMember(
+      {required Map<String, dynamic> content}) async {
+    String url =
+        "http://163.22.17.247:3000/api/member/update_distance_time_member";
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      return [true, responseString];
+    } else {
+      print('失敗 $responseString response.statusCode ${response.statusCode}');
+      return [false, responseString];
+    }
+  }
+
+  // 更新使用者累積軌跡數
+  static Future<List> updateTrackMember(
+      {required Map<String, dynamic> content}) async {
+    String url = "http://163.22.17.247:3000/api/member/update_track_member";
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: content);
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      return [true, responseString];
+    } else {
+      print('失敗 $responseString response.statusCode ${response.statusCode}');
+      return [false, responseString];
+    }
+  }
+
+  // 更新使用者累積活動數
+  static Future<List> updateActivityMember(
+      {required Map<String, dynamic> content}) async {
+    String url = "http://163.22.17.247:3000/api/member/update_activity_member";
     final response = await http.post(Uri.parse(url),
         headers: {'cookie': UserData.token}, body: content);
     final responseString = jsonDecode(response.body);

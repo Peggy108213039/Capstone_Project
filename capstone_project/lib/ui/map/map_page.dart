@@ -56,7 +56,6 @@ class MapPageState extends State<MapPage> {
   @override
   void initState() {
     getTrackDirPath();
-
     super.initState();
   }
 
@@ -277,6 +276,15 @@ class MapPageState extends State<MapPage> {
                     track_type: '1');
                 List insertClientTrackResult = await SqliteHelper.insert(
                     tableName: 'track', insertData: newTrackData.toMap());
+                // FIXME : server 更新使用者累積距離、時間
+                final totaltime = DateTime.parse(
+                        mapPolyline.userLocationList.last.currentTime)
+                    .difference(DateTime.parse(
+                        mapPolyline.userLocationList[0].currentTime));
+                print('使用者累積時間 ${totaltime.inMinutes}');
+                print(
+                    '使用者累積距離 ${mapPolyline.totalDistance.toStringAsFixed(3)}');
+                // FIXME : server 更新使用者累積軌跡數量
                 if (insertClientTrackResult[0]) {
                   saveFileSuccessDialog = MyAlertDialog(
                       context: context,
@@ -308,6 +316,7 @@ class MapPageState extends State<MapPage> {
         } else {
           print('不要儲存軌跡 result?[0] ${result?[0]}');
         }
+        // FIXME : server 更新使用者累積距離、時間
         mapPolyline.clearList(); // 清空 polyline list
       } // 如果要繼續記錄
       // 切換成開始狀態
@@ -328,13 +337,9 @@ class MapPageState extends State<MapPage> {
     bool? saveSuccess =
         await GallerySaver.saveImage(imageFile.path, albumName: '與山同行');
     saveSuccess ??= false;
-    print('照片儲存成功 $saveSuccess');
-    print('polyline.userLocationList ${mapPolyline.userLocationList}');
     UserLocation? photoLocation = userLocation;
-    print('拍照位置 $photoLocation');
 
     if (saveSuccess) {
-      print('======= 儲存這片階段 1 =======');
       markers.add(Marker(
           point: photoLocation.toLatLng(),
           builder: (context) => Transform.translate(
@@ -345,7 +350,6 @@ class MapPageState extends State<MapPage> {
                   color: Color.fromARGB(235, 254, 47, 1),
                 ),
               )));
-      print('======= 儲存這片階段 2 =======');
       takePhotoDialog = MyAlertDialog(
           context: context,
           titleText: '照片儲存成功',
@@ -355,7 +359,6 @@ class MapPageState extends State<MapPage> {
           btn1Text: '確認',
           btn2Text: '');
       await takePhotoDialog.show();
-      print('=======儲存這片階段 3 =======');
     } else {
       takePhotoDialog = MyAlertDialog(
           context: context,

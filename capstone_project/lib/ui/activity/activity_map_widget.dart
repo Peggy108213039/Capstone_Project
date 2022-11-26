@@ -106,7 +106,11 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     }
     // 當使用者的位置移動時，地圖的 camera 要跟著移動
     if (mapController != null) {
-      mapController!.move(userLocation.toLatLng(), zoomLevel);
+      await Future.delayed(const Duration(seconds: 2)).then((value) {
+        if (mounted) {
+          mapController!.move(userLocation.toLatLng(), zoomLevel);
+        }
+      });
     }
   }
 
