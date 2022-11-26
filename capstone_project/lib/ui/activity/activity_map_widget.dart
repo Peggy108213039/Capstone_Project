@@ -1,3 +1,4 @@
+import 'package:capstone_project/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -47,14 +48,6 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   late List<Polyline> memberPolylines;
   late double warningDistance;
 
-  // static UserLocation defaultLocation = UserLocation(
-  //     latitude: 23.94981257,
-  //     longitude: 120.92764976,
-  //     altitude: 572.92668105,
-  //     currentTime: UserLocation.getCurrentTime());
-  // UserLocation currentLocation = defaultLocation;
-  // UserLocation userLocation = defaultLocation;
-
   double zoomLevel = 16;
 
   // button style
@@ -70,6 +63,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     sharePosition = widget.sharePosition;
     activityMsg = widget.activityMsg;
     warningDistance = widget.warningDistance;
+    initCamera();
     super.initState();
   }
 
@@ -101,6 +95,22 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     // 當使用者的位置移動時，地圖的 camera 要跟著移動
     if (mapController != null) {
       mapController!.move(currentLocation.toLatLng(), zoomLevel);
+    }
+  }
+
+  // 抓使用者目前位置
+  Future<void> initCamera() async {
+    UserLocation? tempLocation = await LocationService.getLocation;
+    if (tempLocation != null) {
+      userLocation = tempLocation;
+    }
+    // 當使用者的位置移動時，地圖的 camera 要跟著移動
+    if (mapController != null) {
+      await Future.delayed(const Duration(seconds: 2)).then((value) {
+        if (mounted) {
+          mapController!.move(userLocation.toLatLng(), zoomLevel);
+        }
+      });
     }
   }
 
@@ -147,6 +157,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     if (isStarted && !isPaused) {
       getUserTrack(gpsList: gpsList);
     }
+    print('活動地圖使用者位置  userLocation ${userLocation.toLatLng()}');
 
     return Scaffold(
       body: FlutterMap(
@@ -160,6 +171,20 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: ['a', 'b', 'c'],
               tileProvider: CachedTileProvider()),
+          PolylineLayerOptions(
+              polylines: memberPolylines +
+                  [
+                    Polyline(
+                      points: gpsList,
+                      color: Colors.amber,
+                      strokeWidth: 4,
+                    ),
+                    Polyline(
+                      points: activPolyline.list,
+                      color: Colors.green,
+                      strokeWidth: 4,
+                    )
+                  ]),
           MarkerLayerOptions(
               markers: markerList +
                   memberMarkers +
@@ -177,21 +202,6 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
                       ),
                     )
                   ]),
-          // FIXME 將同行者的 polyline 加進來
-          PolylineLayerOptions(
-              polylines: memberPolylines +
-                  [
-                    Polyline(
-                      points: gpsList,
-                      color: Colors.amber,
-                      strokeWidth: 4,
-                    ),
-                    Polyline(
-                      points: activPolyline.list,
-                      color: Colors.green,
-                      strokeWidth: 4,
-                    )
-                  ])
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

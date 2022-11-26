@@ -36,7 +36,6 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
   UserLocation userLocation = defaultLocation;
   late List<LatLng> gpsList;
   late double warningDistance;
-  AudioPlayerService audioPlayerService = AudioPlayerService();
 
   bool isVisible = false;
   String warningDistanceString = '';
@@ -52,8 +51,6 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
 
   @override
   void dispose() {
-    audioPlayerService.close();
-    LocationService.locationServiceAudioPlayer.close();
     super.dispose();
   }
 
@@ -87,7 +84,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
     }
     distanceList.sort();
     // FIXME 警示音
-    audioPlayerService.playAudio();
+    AudioPlayerService.playAudio();
     return [false, distanceList[0]];
   }
 

@@ -12,8 +12,6 @@ import 'package:capstone_project/services/polyline_coordinates_model.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:capstone_project/services/stream_socket.dart';
 import 'package:capstone_project/ui/activity/activity_map_widget.dart';
-import 'package:capstone_project/ui/activity/socket_warning_distance.dart';
-import 'package:capstone_project/ui/activity/socket_warning_time.dart';
 import 'package:capstone_project/ui/activity/warning_distance_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -48,8 +46,6 @@ class _StartActivityState extends State<StartActivity> {
   List frindsIDList = [];
   List<Polyline> memberPolylines = [];
   List<Marker> memberMarkers = [];
-  // bool isStarted = false;
-  // bool isPaused = false;
   bool shareUserPosition = false;
 
   List<Marker> markers = []; // 標記拍照點
@@ -79,28 +75,14 @@ class _StartActivityState extends State<StartActivity> {
   @override
   void initState() {
     gpsList = widget.gpsList;
-    // frindsIDList = widget.members;
-    // buildFriendPolyLine(frindsIDList: frindsIDList);
     getTrackDirPath();
     super.initState();
   }
 
-  // void buildFriendPolyLine({required List frindsIDList}) {
-  //   if (frindsIDList.isNotEmpty) {
-  //     for (int i = 0; i < frindsIDList.length; i++) {
-  //       String memberName = frindsIDList[i]['account'].toString();
-  //       PolylineCoordinates tempPolyline = PolylineCoordinates();
-  //       activityPolyLineList
-  //           .add({"account": memberName, "polyline": tempPolyline});
-  //     }
-  //   }
-  //   print('activityPolyLineList $activityPolyLineList');
-  // }
-
   @override
   void dispose() {
     print('===== 刪掉 dispose =====');
-    LocationService.closeService();
+    // LocationService.closeService();
     clearPolylineList();
     activPolyline.clearList();
     activityIsStarted = false;
@@ -139,13 +121,19 @@ class _StartActivityState extends State<StartActivity> {
           if (tmpSocketData['account_msg'] ==
               activityPolyLineList[i]['account']) {
             activityPolyLineList[i]['polyline'].recordCoordinates(UserLocation(
-                latitude: tmpSocketData['location_msg']['latitude'],
-                longitude: tmpSocketData['location_msg']['longitude'],
-                altitude: tmpSocketData['location_msg']['elevation'],
+                latitude:
+                    double.parse(tmpSocketData['location_msg']['latitude']),
+                longitude:
+                    double.parse(tmpSocketData['location_msg']['longitude']),
+                altitude:
+                    double.parse(tmpSocketData['location_msg']['elevation']),
                 currentTime: UserLocation.getCurrentTime()));
             memberMarkers.add(Marker(
-                point: LatLng(tmpSocketData['location_msg']['latitude'],
-                    tmpSocketData['location_msg']['longitude']),
+                width: 15,
+                height: 15,
+                point: LatLng(
+                    double.parse(tmpSocketData['location_msg']['latitude']),
+                    double.parse(tmpSocketData['location_msg']['longitude'])),
                 builder: (context) => Container(
                       decoration: BoxDecoration(
                           color: Colors
@@ -167,22 +155,22 @@ class _StartActivityState extends State<StartActivity> {
         }
         print('activityPolyLineList $activityPolyLineList');
       }
-      if (ctlMsg == "activity warniing") {
-        final String wanringMsg = tmpSocketData['wanring_msg'];
-        // FIXME  某人距離過遠
-        if (wanringMsg == "too far") {
-          print('距離過遠 tmpSocketData $tmpSocketData');
-          // FIXME 在 client 顯示 UI 某人距離過遠
-          NotificationService().showNotification(1, 'main_channel', '同行者距離過遠',
-              '${tmpSocketData['account_msg_1']} 和 ${tmpSocketData['account_msg_2']} 距離過遠\n兩人相差的距離 : ${tmpSocketData['long_distance']}');
-        }
-        // FIXME  某人停留時間過久
-        if (wanringMsg == "too long") {
-          print('停留時間過久 tmpSocketData $tmpSocketData');
-          NotificationService().showNotification(1, 'main_channel', '同行者停留時間過久',
-              '${tmpSocketData['account_msg']} 停留時間過久\n${tmpSocketData['location_msg']}');
-        }
-      }
+      // if (ctlMsg == "activity warning") {
+      //   final String wanringMsg = tmpSocketData['wanring_msg'];
+      //   // FIXME  某人距離過遠
+      //   if (wanringMsg == "too far") {
+      //     print('距離過遠 tmpSocketData $tmpSocketData');
+      //     // FIXME 在 client 顯示 UI 某人距離過遠
+      //     NotificationService().showNotification(1, 'main_channel', '同行者距離過遠',
+      //         '${tmpSocketData['account_msg_1']} 和 ${tmpSocketData['account_msg_2']} 距離過遠\n兩人相差的距離 : ${tmpSocketData['long_distance']}');
+      //   }
+      //   // FIXME  某人停留時間過久
+      //   if (wanringMsg == "too long") {
+      //     print('停留時間過久 tmpSocketData $tmpSocketData');
+      //     NotificationService().showNotification(1, 'main_channel', '同行者停留時間過久',
+      //         '${tmpSocketData['account_msg']} 停留時間過久\n${tmpSocketData['location_msg']}');
+      //   }
+      // }
     }
     return polylineList;
   }
@@ -201,6 +189,11 @@ class _StartActivityState extends State<StartActivity> {
     if (!activityIsStarted && !activityIsPaused) {
       markers.clear();
     }
+    // print('===============');
+    // print('成員資料   activityPolyLineList\n$activityPolyLineList');
+    // print('成員軌跡   memberPolylines\n$memberPolylines');
+    // print('成員標記   memberMarkers\n$memberMarkers');
+    // print('===============');
 
     // 抓使用者手機螢幕的高
     double height = MediaQuery.of(context).size.height;
@@ -236,8 +229,8 @@ class _StartActivityState extends State<StartActivity> {
                   isStarted: activityIsStarted,
                   isPaused: activityIsPaused,
                   checkTime: 2,
-                  warningTime: int.parse(arguments['warning_time']) * 60,
-                  // warningTime: 10, // For test
+                  // warningTime: int.parse(arguments['warning_time']) * 60,
+                  warningTime: 10, // For test
                 ),
                 WarningDistanceText(
                   isStarted: activityIsStarted,
@@ -290,7 +283,9 @@ class _StartActivityState extends State<StartActivity> {
                 ElevatedButton(
                   onPressed: () {
                     pushRecordBtn(
-                        context: context, aID: arguments['aID'].toString());
+                        context: context,
+                        aID: arguments['aID'].toString(),
+                        uID: arguments['uID'].toString());
                   },
                   child: activityIsStarted
                       ? const ImageIcon(
@@ -325,7 +320,10 @@ class _StartActivityState extends State<StartActivity> {
   }
 
   void pushRecordBtn(
-      {required BuildContext context, required String aID}) async {
+      {required BuildContext context,
+      required String aID,
+      required String uID}) async {
+    print('紀錄按鈕   aID $aID    uID $uID');
     // 剛開始 (預設值)
     if (!activityIsStarted && !activityIsPaused) {
       setState(() {
@@ -346,7 +344,7 @@ class _StartActivityState extends State<StartActivity> {
           contentText: '',
           contentFontSize: 20,
           btn1Text: '繼續記錄', // true
-          btn2Text: '結束紀錄'); // false
+          btn2Text: '結束紀錄'); // falsepushRecordBtn
       bool? result = await pauseDialog.show();
       while (result != true && result != false) {
         result = await pauseDialog.show();
@@ -373,26 +371,28 @@ class _StartActivityState extends State<StartActivity> {
           });
           return;
         }
-        // 結束活動
-        final finishActivityReq = {'aID': aID};
-        List finishActivityResponse =
-            await APIService.finishActivity(content: finishActivityReq);
-        if (finishActivityResponse[0]) {
-          print('結束活動 成功');
-          print(finishActivityResponse[1]);
-          String sqliteStartActivityTime =
-              DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
-          Map<String, dynamic> updateActivityStartTime = {
-            'start_activity_time': sqliteStartActivityTime
-          };
-          await SqliteHelper.update(
-              tableName: 'activity',
-              updateData: updateActivityStartTime,
-              tableIdName: 'aID',
-              updateID: int.parse(aID));
-        } else {
-          print('結束活動 失敗');
-          print(finishActivityResponse[1]);
+        if (UserData.uid.toString() == uID) {
+          print('結束 server 活動');
+          final finishActivityReq = {'aID': aID};
+          List finishActivityResponse =
+              await APIService.finishActivity(content: finishActivityReq);
+          if (finishActivityResponse[0]) {
+            print('結束活動 成功');
+            print(finishActivityResponse[1]);
+            String sqliteStartActivityTime =
+                DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+            Map<String, dynamic> updateActivityStartTime = {
+              'start_activity_time': sqliteStartActivityTime
+            };
+            await SqliteHelper.update(
+                tableName: 'activity',
+                updateData: updateActivityStartTime,
+                tableIdName: 'aID',
+                updateID: int.parse(aID));
+          } else {
+            print('結束活動 失敗');
+            print(finishActivityResponse[1]);
+          }
         }
         // 跳出對話框，讓使用者輸入軌跡名稱
         inputTrackNameDialog = InputDialog(
@@ -453,6 +453,9 @@ class _StartActivityState extends State<StartActivity> {
                 );
                 List insertClientTrackResult = await SqliteHelper.insert(
                     tableName: 'track', insertData: newTrackData.toMap());
+                // FIXME : server 更新使用者累積距離、時間
+                // FIXME : server 更新使用者累積軌跡數量
+                // FIXME : server 更新使用者累積活動數量
                 if (insertClientTrackResult[0]) {
                   saveFileSuccessDialog = MyAlertDialog(
                       context: context,
@@ -484,6 +487,8 @@ class _StartActivityState extends State<StartActivity> {
         } else {
           print('不要儲存軌跡 result?[0] ${result?[0]}');
         }
+        // FIXME : server 更新使用者累積距離、時間
+        // FIXME : server 更新使用者累積活動數量
         activPolyline.clearList(); // 清空 polyline list
       } // 如果要繼續記錄
       // 切換成開始狀態

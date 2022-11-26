@@ -120,7 +120,7 @@ class SqliteHelper {
     return result;
   }
 
-  // 抓所有資料
+  // 抓所有軌跡的資料
   static Future<List<Map<String, dynamic>>> queryAllTrackDataList(
       {required List<String> columns}) async {
     final Database? database = await open;

@@ -10,7 +10,6 @@ class LocationService {
   // static int sleepTime = 10;
   // static double updateDistancce = 3; // 每 3 公尺更新一次距離
   static int updateInterval = 3000; // 每 3 秒更新一次距離
-  static AudioPlayerService locationServiceAudioPlayer = AudioPlayerService();
 
   // 使用者目前位置
   static late UserLocation currentLocation;
@@ -85,26 +84,24 @@ class LocationService {
       print('定位服務已關閉');
       return;
     }
-    _locationController?.add(UserLocation(
-        latitude: locationData.latitude!,
-        longitude: locationData.longitude!,
-        altitude: locationData.altitude!,
-        currentTime: UserLocation.getCurrentTime()));
-    print(
-        '使用者位置 經度 : ${locationData.latitude!} 緯度 : ${locationData.longitude!}');
+    if (!_locationController!.isClosed) {
+      _locationController?.add(UserLocation(
+          latitude: locationData.latitude!,
+          longitude: locationData.longitude!,
+          altitude: locationData.altitude!,
+          currentTime: UserLocation.getCurrentTime()));
+    }
+    // print(
+    //     '使用者位置 經度 : ${locationData.latitude!} 緯度 : ${locationData.longitude!}');
     if (mapIsBackground) {
       if (mapIsStarted && !mapIsPaused) {
-        print('地圖頁面 背景記錄軌跡');
         mapPolyline.recordCoordinates(userLocation);
-        print('polyline 我的軌跡 ${mapPolyline.list.length}');
       }
     }
 
     if (activityIsBackground) {
       if (activityIsStarted && !activityIsPaused) {
-        print('活動頁面 背景記錄軌跡');
         activPolyline.recordCoordinates(userLocation);
-        print('polyline 我的軌跡 ${activPolyline.list.length}');
         caculateWarningDistance(
             warningDistance: activityWarningDistance, gpsList: activityGpsList);
       }
@@ -159,7 +156,7 @@ class LocationService {
     }
     distanceList.sort();
     // FIXME 警示音
-    locationServiceAudioPlayer.playAudio();
+    AudioPlayerService.playAudio();
     return [false, distanceList[0]];
   }
 
@@ -183,19 +180,5 @@ class LocationService {
         warningDistance: warningDistance,
         currentPoint: LatLng(userLocation.latitude, userLocation.longitude),
         pointList: gpsList);
-    // bool inSafe = result[0];
-    // if (!inSafe) {
-    //   double minDistance = result[1];
-    //   if (minDistance < 1) {
-    //     double distance = double.parse((minDistance * 1000).toStringAsFixed(2));
-    //     warningDistanceString = '偏離軌跡\n距離軌跡 $distance 公尺';
-    //   } else {
-    //     double distance = double.parse(minDistance.toStringAsFixed(2));
-    //     warningDistanceString = '偏離軌跡\n距離軌跡 $distance 公里';
-    //   }
-    // } else {
-    //   isVisible = false;
-    //   warningDistanceString = '';
-    // }
   }
 }

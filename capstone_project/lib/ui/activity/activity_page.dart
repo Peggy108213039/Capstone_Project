@@ -12,29 +12,36 @@ class ActivityPage extends StatefulWidget {
 }
 
 class _ActivityPageState extends State<ActivityPage> {
-  ValueNotifier<bool> isVisible = ValueNotifier<bool>(false); // 是否顯示刪除活動的按鈕
   late List? activTable = []; // 活動資料表下的資料
   final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
   @override
   void initState() {
-    // implement initState
     super.initState();
   }
 
   @override
   void dispose() {
-    isVisible.dispose();
     super.dispose();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   getActivData() async {
+    var userID = {'uID': UserData.uid.toString()};
+    await APIService.selectAccountActivity(content: userID);
     await SqliteHelper.open; // 開啟資料庫
     activTable = await SqliteHelper.queryAll(tableName: 'activity');
     if (activTable == null) {
       return;
     }
-    print('活動葉面 sqlite 活動資廖表\n${activTable!.length}');
+    // print('活動資料表    $activTable');
+    // print('活動葉面 sqlite 活動資廖表\n${activTable!.length}');
     return activTable;
   }
 
@@ -122,10 +129,6 @@ class _ActivityPageState extends State<ActivityPage> {
             return ListView.builder(
               itemCount: list.length,
               itemBuilder: (context, idx) {
-                // 顯示 主辦人有 刪除活動按鈕
-                if (list[idx]['uID'] == UserData.uid.toString()) {
-                  isVisible.value = true;
-                }
                 return Column(
                   children: <Widget>[
                     Card(
@@ -152,18 +155,16 @@ class _ActivityPageState extends State<ActivityPage> {
                                   color: Color.fromARGB(180, 255, 255, 255)),
                             ),
                           ),
-                          trailing: ValueListenableBuilder(
-                            valueListenable: isVisible,
-                            builder: (context, bool value, child) => Visibility(
-                              visible: value,
-                              child: ElevatedButton(
-                                child: const ImageIcon(deleteIcon),
-                                onPressed: () => pushDelete(idx, context),
-                                style: ElevatedButton.styleFrom(
-                                    shadowColor: transparentColor,
-                                    backgroundColor: transparentColor,
-                                    minimumSize: const Size(30, 30)),
-                              ),
+                          trailing: Visibility(
+                            visible: (list[idx]['uID'] ==
+                                UserData.uid.toString()), // 活動主辦人才有刪除活動按鈕
+                            child: ElevatedButton(
+                              child: const ImageIcon(deleteIcon),
+                              onPressed: () => pushDelete(idx, context),
+                              style: ElevatedButton.styleFrom(
+                                  shadowColor: transparentColor,
+                                  backgroundColor: transparentColor,
+                                  minimumSize: const Size(30, 30)),
                             ),
                           ),
                           onTap: () {
@@ -222,8 +223,9 @@ class _ActivityPageState extends State<ActivityPage> {
   }
 
   void refreshUI() async {
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {});
+    await Future.delayed(const Duration(seconds: 1)).then((value) {
+      setState(() {});
+    });
   }
 
   void checkActivity({required List<dynamic> activityData}) async {
@@ -234,6 +236,6 @@ class _ActivityPageState extends State<ActivityPage> {
     Navigator.pushNamed(context, '/ShowActivityData', arguments: {
       'activityData': activityData[0],
       'activityHostData': uidMemberDataResponse[0]
-    });
+    }).then((value) => refreshUI());
   }
 }

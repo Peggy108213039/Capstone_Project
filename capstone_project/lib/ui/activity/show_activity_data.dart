@@ -3,7 +3,6 @@ import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
 import 'package:capstone_project/services/cache_tile_provider.dart';
 import 'package:capstone_project/services/http_service.dart';
-import 'package:capstone_project/ui/activity/start_activity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -30,11 +29,9 @@ class _ShowActivityDataState extends State<ShowActivityData> {
   String memberString = '';
   final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
-  // bool? sharePostion = false;
   late MyAlertDialog sharePositionDialog; // 提醒視窗：問同行者是否要分享位置
-  ValueNotifier<bool> isVisible = ValueNotifier<bool>(false); // 是否顯示開始活動的按鈕
-  ValueNotifier<bool> editBtnIsVisible =
-      ValueNotifier<bool>(false); // 是否顯示編輯活動的按鈕
+  bool editBtnIsVisible = false; // 是否顯示編輯活動的按鈕
+  bool isVisible = false; // 是否顯示開始活動的按鈕
 
   @override
   void initState() {
@@ -44,9 +41,14 @@ class _ShowActivityDataState extends State<ShowActivityData> {
 
   @override
   void dispose() {
-    isVisible.dispose();
-    editBtnIsVisible.dispose();
     super.dispose();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   void getSqliteData() async {
@@ -82,18 +84,22 @@ class _ShowActivityDataState extends State<ShowActivityData> {
     frindsIDList = arguments['activityData']['members'].toString().split(', ');
     getMemberList(frindsIDList);
 
-    // 顯示 主辦人有 開始按鈕
+    // 顯示 主辦人有 開始按鈕、編輯按鈕
     if (arguments['activityData']['uID'] == UserData.uid.toString()) {
-      isVisible.value = true;
-      editBtnIsVisible.value = true;
-    } else if (arguments['activityData']['finish_activity_time'] != 'null') {
-      isVisible.value = false;
+      editBtnIsVisible = true;
+      isVisible = true;
     } else {
+      // 不是主辦人
       if (arguments['activityData']['start_activity_time'] == 'null') {
-        isVisible.value = false;
+        isVisible = false;
       } else {
-        isVisible.value = true;
+        isVisible = true;
       }
+    }
+    // 如果活動結束就沒有 開始按鈕、編輯按鈕
+    if (arguments['activityData']['finish_activity_time'] != 'null') {
+      isVisible = false;
+      editBtnIsVisible = false;
     }
 
     return Scaffold(
@@ -106,27 +112,25 @@ class _ShowActivityDataState extends State<ShowActivityData> {
         automaticallyImplyLeading: false,
         title: const Center(child: Text('活動資料')),
         actions: [
-          ValueListenableBuilder(
-            valueListenable: editBtnIsVisible,
-            builder: (context, bool value, child) => Visibility(
-              visible: value,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/EditActivityData',
-                      arguments: arguments['activityData']);
-                },
-                child: const ImageIcon(
-                  editIcon,
-                  size: 33,
-                ),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(30, 30),
-                  backgroundColor: transparentColor,
-                  shadowColor: transparentColor,
-                ),
+          Visibility(
+            visible: editBtnIsVisible,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/EditActivityData',
+                        arguments: arguments['activityData'])
+                    .then((value) => refreshUI());
+              },
+              child: const ImageIcon(
+                editIcon,
+                size: 33,
+              ),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(30, 30),
+                backgroundColor: transparentColor,
+                shadowColor: transparentColor,
               ),
             ),
-          )
+          ),
         ],
       ),
       backgroundColor: activityGreen,
@@ -138,6 +142,10 @@ class _ShowActivityDataState extends State<ShowActivityData> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Visibility(
+                  visible: (arguments['activityData']['finish_activity_time'] !=
+                      'null'),
+                  child: activityFinishText(fontSize: 20, width: width)),
               buildText(
                 title: '活動主辦人',
                 content: '${arguments['activityHostData']['name']}',
@@ -189,25 +197,22 @@ class _ShowActivityDataState extends State<ShowActivityData> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ValueListenableBuilder(
-                    valueListenable: isVisible,
-                    builder: (context, bool value, child) => Visibility(
-                      visible: value,
-                      child: ElevatedButton(
-                        child: const Text(
-                          '開始活動',
-                          style: TextStyle(
-                              fontSize: 23, fontWeight: FontWeight.w500),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(90, 50),
-                            foregroundColor: darkGreen2,
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30))),
-                        onPressed: () =>
-                            pushStartActivityBtn(arguments: arguments),
+                  Visibility(
+                    visible: isVisible,
+                    child: ElevatedButton(
+                      child: const Text(
+                        '開始活動',
+                        style: TextStyle(
+                            fontSize: 23, fontWeight: FontWeight.w500),
                       ),
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(90, 50),
+                          foregroundColor: darkGreen2,
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30))),
+                      onPressed: () =>
+                          pushStartActivityBtn(arguments: arguments),
                     ),
                   ),
                 ],
@@ -217,6 +222,12 @@ class _ShowActivityDataState extends State<ShowActivityData> {
         ),
       ),
     );
+  }
+
+  void refreshUI() async {
+    await Future.delayed(const Duration(seconds: 1));
+
+    setState(() {});
   }
 
   Future<void> pushStartActivityBtn(
@@ -250,6 +261,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
     bool? shareUserPosition = await sharePosition();
     Navigator.pushNamed(context, '/StartActivity', arguments: {
       'aID': arguments['activityData']['aID'],
+      'uID': arguments['activityData']['uID'],
       'activity_name': arguments['activityData']['activity_name'],
       'activity_time': arguments['activityData']['activity_time'],
       'gpsList': gpsList,
@@ -320,6 +332,35 @@ class _ShowActivityDataState extends State<ShowActivityData> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget activityFinishText({required double fontSize, required double width}) {
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+              padding: const EdgeInsets.fromLTRB(8, 5, 5, 5),
+              width: 150,
+              decoration: BoxDecoration(
+                  color: Colors.red.shade600,
+                  border: Border.all(width: 3, color: Colors.red.shade600),
+                  borderRadius: BorderRadius.circular(15)),
+              child: Center(
+                child: Text(
+                  '活動已結束',
+                  style: TextStyle(fontSize: fontSize, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

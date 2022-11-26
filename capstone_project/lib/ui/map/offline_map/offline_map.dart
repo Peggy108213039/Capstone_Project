@@ -75,7 +75,7 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
   void dispose() {
     print('===== 刪掉 dispose =====');
     mapController!.dispose();
-    LocationService.closeService();
+    // LocationService.closeService();
     super.dispose();
   }
 
