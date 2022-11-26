@@ -1,3 +1,4 @@
+import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart';
 
@@ -48,11 +49,14 @@ class DefCheckIcon extends StatelessWidget {
 }
 
 class DefNotificationIcon extends StatelessWidget {
-  const DefNotificationIcon({
+  DefNotificationIcon({
     Key? key,
     required this.enable,
+    //required this.showBadge
   }) : super(key: key);
   final bool enable;
+  final bool showBadge = true;
+  final Future<List<Map<String, dynamic>>?> noteList = SqliteHelper.queryAll(tableName: "notification");
 
   @override
   Widget build(BuildContext context) {
@@ -68,11 +72,8 @@ class DefNotificationIcon extends StatelessWidget {
       );
     } else {
       return Badge(
-        //showBadge: BadgeCounter.badgeCounter > 0 ? true : false,
+        showBadge: showBadge,
         position: BadgePosition.topEnd(top: 1, end: 3),
-        badgeContent:const Text("9",
-          style: TextStyle(color: unselectedColor),
-        ),
         badgeColor: Colors.red,
         child: IconButton(
         onPressed: () {

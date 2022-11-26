@@ -1,3 +1,5 @@
+import 'package:capstone_project/models/userInfo/getInfo.dart';
+import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
 // basic setting
 import 'package:capstone_project/constants.dart';
@@ -14,12 +16,25 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageOneState extends State<ProfilePage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
-  String userName =
-      UserData.userName.toString(); // catch & print userinfo table
-  String userAccount = UserData.userAccount;
-  String accDistance = UserData.totalDistance.toString();
-  String accTrack = UserData.totalTrack.toString();
-  String accActivity = UserData.totalActivity.toString();
+  APIService apiService = APIService();
+  late getInfoRequestModel requestModel = getInfoRequestModel(uID: UserData.uid.toString());
+
+  String userName = ''; // catch & print userinfo table
+  String userAccount = '';
+  String accDistance = '';
+  String accTrack = '';
+  String accActivity = '';
+
+  @override
+  void initState() {
+    super.initState();
+    getMyInfo();
+    userName = UserData.userName.toString(); // catch & print userinfo table
+    userAccount = UserData.userAccount;
+    accDistance = UserData.totalDistance.toString();
+    accTrack = UserData.totalTrack.toString();
+    accActivity = UserData.totalActivity.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +55,9 @@ class _ProfilePageOneState extends State<ProfilePage> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const <Widget>[
-                    DefNotificationIcon(enable: true),
-                    DefSettingIcon(
-                      enable: true,
-                    ),
+                  children: <Widget>[
+                    DefNotificationIcon(enable: true,),
+                    const DefSettingIcon(enable: true,),
                   ],
                 ),
                 SizedBox(
@@ -244,4 +257,8 @@ class _ProfilePageOneState extends State<ProfilePage> {
       ),
     );
   }
+
+  getMyInfo() async {
+    await apiService.getMyInfo(requestModel);
+  } 
 }

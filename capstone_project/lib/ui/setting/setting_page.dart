@@ -78,9 +78,9 @@ class _SettingPageState extends State<SettingPage> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const <Widget>[
+                  children: <Widget>[
                     DefNotificationIcon(enable: true),
-                    DefSettingIcon(enable: false,),
+                    const DefSettingIcon(enable: false,),
                   ],
                 ),
                 Container(

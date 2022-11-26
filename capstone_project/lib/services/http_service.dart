@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:capstone_project/models/userInfo/getInfo.dart';
 import 'package:intl/intl.dart';
 import 'package:capstone_project/models/activity/activity_model.dart';
 import 'package:capstone_project/services/file_provider.dart';
@@ -127,8 +128,36 @@ class APIService {
     }
   }
 
-  // FIXME1118：更新成功後作法
-  // 返回 T/F => 提醒使用者重新登入以更新自己的資料
+  Future<bool> getMyInfo(getInfoRequestModel requestModel) async {
+    String url =
+        "$ip/api/member/select_member"; // 透過此行連線，/api/login_member 即 POST 對應的 API 路徑
+    final response = await http.post(Uri.parse(url),
+        headers: {'cookie': UserData.token}, body: requestModel.toJson());
+    var tmpResponse = getInfoResponseModel.fromJson(json.decode(response.body));
+    if (tmpResponse.result != "Fail to select uid in member table") {
+      UserData(
+        UserData.token,
+        UserData.uid,
+        UserData.userAccount,
+        tmpResponse.name,
+        tmpResponse.password,
+        tmpResponse.email,
+        tmpResponse.phone,
+        tmpResponse.totalDiatance,
+        tmpResponse.totalTime,
+        tmpResponse.totalActivity,
+        tmpResponse.totalTrack,
+      );
+      print("重整個資");
+      return true;
+    } else {
+      print("登入失敗");
+      print(tmpResponse.result);
+      return false;
+    }
+  }
+
+
   Future<bool> updateUserInfo(UpdateInfoRequestModel requestModel) async {
     String url = "$ip/api/member/update_member";
     final response = await http.post(Uri.parse(url),
