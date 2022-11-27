@@ -106,14 +106,27 @@ class _StartActivityState extends State<StartActivity> {
         // 檢查 memberName 有沒有在 frindsIDList 裡
         // 沒有就新增一個 PolylineCoordinates
         String memberName = tmpSocketData['account_msg'].toString();
+        int randomColor = Random().nextInt(Colors.primaries.length);
         if (!frindsIDList.contains(memberName)) {
           frindsIDList.add(memberName);
           PolylineCoordinates tempPolyline = PolylineCoordinates();
           activityPolyLineList.add({
             "account": memberName,
             "polyline": tempPolyline,
-            "color": Random().nextInt(Colors.primaries.length)
+            "color": randomColor
           });
+          memberMarkers.add(Marker(
+              width: 15,
+              height: 15,
+              point: LatLng(
+                  double.parse(tmpSocketData['location_msg']['latitude']),
+                  double.parse(tmpSocketData['location_msg']['longitude'])),
+              builder: (context) => Container(
+                    decoration: BoxDecoration(
+                        color: Colors.primaries[randomColor],
+                        shape: BoxShape.circle,
+                        border: Border.all(width: 3, color: Colors.white)),
+                  )));
         }
         // 將 socket 收到的位置記錄起來
         for (int i = 0; i < activityPolyLineList.length; i++) {
