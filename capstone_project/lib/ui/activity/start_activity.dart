@@ -127,7 +127,7 @@ class _StartActivityState extends State<StartActivity> {
                 altitude:
                     double.parse(tmpSocketData['location_msg']['elevation']),
                 currentTime: UserLocation.getCurrentTime()));
-            memberMarkers.add(Marker(
+            memberMarkers[i] = Marker(
                 width: 15,
                 height: 15,
                 point: LatLng(
@@ -139,7 +139,7 @@ class _StartActivityState extends State<StartActivity> {
                               .primaries[activityPolyLineList[i]['color']],
                           shape: BoxShape.circle,
                           border: Border.all(width: 3, color: Colors.white)),
-                    )));
+                    ));
           }
         }
         // 回傳 List<polyline>
