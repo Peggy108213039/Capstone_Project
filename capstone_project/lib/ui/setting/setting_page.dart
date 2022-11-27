@@ -34,7 +34,7 @@ class _SettingPageState extends State<SettingPage> {
   late UpdateInfoRequestModel requestModel;
   bool isApiCallProcess = false;
   late List<Map<String, dynamic>>? noteList = [];
-  late bool showBadge = false; 
+  late bool showBadge = false;
 
   String userName = UserData.userName;
   String userAccount = UserData.userAccount;
@@ -45,11 +45,7 @@ class _SettingPageState extends State<SettingPage> {
   void initState() {
     super.initState();
     requestModel = UpdateInfoRequestModel(
-        uid: UserData.uid,
-        name: '',
-        password: '',
-        email: '',
-        phone: '0');
+        uid: UserData.uid, name: '', password: '', email: '', phone: '0');
     getMyInfo();
   }
 
@@ -83,8 +79,13 @@ class _SettingPageState extends State<SettingPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    DefNotificationIcon(enable: true, show: showBadge,),
-                    const DefSettingIcon(enable: false,),
+                    DefNotificationIcon(
+                      enable: true,
+                      show: showBadge,
+                    ),
+                    const DefSettingIcon(
+                      enable: false,
+                    ),
                   ],
                 ),
                 Container(
@@ -150,6 +151,7 @@ class _SettingPageState extends State<SettingPage> {
                               ),
                             ),
                           ),
+                          const VerticalSpacing(percent: 0.02),
                           GestureDetector(
                             onTap: () {
                               modifyPhoneAlert(context);
@@ -171,6 +173,7 @@ class _SettingPageState extends State<SettingPage> {
                               ),
                             ),
                           ),
+                          const VerticalSpacing(percent: 0.02),
                           GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -200,69 +203,69 @@ class _SettingPageState extends State<SettingPage> {
                           const VerticalSpacing(
                             percent: 0.02,
                           ),
-                          const Text(
-                            '其他',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: darkGreen2,
-                              fontSize: 22,
-                            ),
-                          ),
-                          const VerticalSpacing(
-                            percent: 0.01,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const AssistancePage(),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: darkGreen2, width: 1),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(10)),
-                              ),
-                              height:
-                                  getProportionateScreenHeight(0.08), //0.15*0.5
-                              alignment: Alignment.centerLeft,
-                              padding: const EdgeInsets.all(7),
-                              child: const Text(
-                                '協助工具',
-                                style:
-                                    TextStyle(color: lightGreen1, fontSize: 18),
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const AboutUsPage(),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: darkGreen2, width: 1),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(10)),
-                              ),
-                              height:
-                                  getProportionateScreenHeight(0.08), //0.15*0.5
-                              alignment: Alignment.centerLeft,
-                              padding: const EdgeInsets.all(7),
-                              child: const Text(
-                                '關於我們',
-                                style:
-                                    TextStyle(color: lightGreen1, fontSize: 18),
-                              ),
-                            ),
-                          ),
+                          //   const Text(
+                          //     '其他',
+                          //     style: TextStyle(
+                          //       fontWeight: FontWeight.bold,
+                          //       color: darkGreen2,
+                          //       fontSize: 22,
+                          //     ),
+                          //   ),
+                          //   const VerticalSpacing(
+                          //     percent: 0.01,
+                          //   ),
+                          //   GestureDetector(
+                          //     onTap: () {
+                          //       Navigator.push(
+                          //         context,
+                          //         MaterialPageRoute(
+                          //           builder: (context) => const AssistancePage(),
+                          //         ),
+                          //       );
+                          //     },
+                          //     child: Container(
+                          //       decoration: BoxDecoration(
+                          //         border: Border.all(color: darkGreen2, width: 1),
+                          //         borderRadius:
+                          //             const BorderRadius.all(Radius.circular(10)),
+                          //       ),
+                          //       height:
+                          //           getProportionateScreenHeight(0.08), //0.15*0.5
+                          //       alignment: Alignment.centerLeft,
+                          //       padding: const EdgeInsets.all(7),
+                          //       child: const Text(
+                          //         '協助工具',
+                          //         style:
+                          //             TextStyle(color: lightGreen1, fontSize: 18),
+                          //       ),
+                          //     ),
+                          //   ),
+                          //   GestureDetector(
+                          //     onTap: () {
+                          //       Navigator.push(
+                          //         context,
+                          //         MaterialPageRoute(
+                          //           builder: (context) => const AboutUsPage(),
+                          //         ),
+                          //       );
+                          //     },
+                          //     child: Container(
+                          //       decoration: BoxDecoration(
+                          //         border: Border.all(color: darkGreen2, width: 1),
+                          //         borderRadius:
+                          //             const BorderRadius.all(Radius.circular(10)),
+                          //       ),
+                          //       height:
+                          //           getProportionateScreenHeight(0.08), //0.15*0.5
+                          //       alignment: Alignment.centerLeft,
+                          //       padding: const EdgeInsets.all(7),
+                          //       child: const Text(
+                          //         '關於我們',
+                          //         style:
+                          //             TextStyle(color: lightGreen1, fontSize: 18),
+                          //       ),
+                          //     ),
+                          //   ),
                         ],
                       ),
                     ),
@@ -299,7 +302,8 @@ class _SettingPageState extends State<SettingPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: darkGreen2,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(30))),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(30))),
           title: const Text(
             '修改信箱',
             style: TextStyle(color: unselectedColor),
@@ -322,17 +326,19 @@ class _SettingPageState extends State<SettingPage> {
               },
               onSaved: (input) => requestModel.email = input!,
               decoration: InputDecoration(
-                hintText: "Your new email here",
-                hintStyle: TextStyle(color: unselectedColor.withOpacity(0.7)),
-                prefixIcon: const Icon(Icons.email, color: unselectedColor,),
-                enabledBorder: const UnderlineInputBorder(      
-                  borderSide: BorderSide(color: unselectedColor),   
-                ),  
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: lightGreen0),
-                ), 
-                focusColor: unselectedColor
-              ),
+                  hintText: "Your new email here",
+                  hintStyle: TextStyle(color: unselectedColor.withOpacity(0.7)),
+                  prefixIcon: const Icon(
+                    Icons.email,
+                    color: unselectedColor,
+                  ),
+                  enabledBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: unselectedColor),
+                  ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: lightGreen0),
+                  ),
+                  focusColor: unselectedColor),
             ),
           ),
           actions: <Widget>[
@@ -340,7 +346,8 @@ class _SettingPageState extends State<SettingPage> {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(unselectedColor),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30))),
               ),
               child: const Text(
                 '取消',
@@ -354,7 +361,8 @@ class _SettingPageState extends State<SettingPage> {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(unselectedColor),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30))),
               ),
               child: const Text(
                 '修改',
@@ -367,22 +375,24 @@ class _SettingPageState extends State<SettingPage> {
                     isApiCallProcess = true;
                   });
                   APIService apiService = APIService();
-                  apiService.updateUserInfo(requestModel).then((value) {
-                    if (value) {
-                      // 修改成功
-                      setState(() {
-                        isApiCallProcess = false;
-                      });
-                      Fluttertoast.showToast(msg: "更新成功");
-                      Navigator.of(context).pop(const SettingPage());
-                    } else {
-                      setState(() {
-                        isApiCallProcess = false;
-                      });
-                      Fluttertoast.showToast(msg: "更新失敗");
-                      Navigator.pop(context); // 關閉 AlertDialog
-                    }
-                  },);
+                  apiService.updateUserInfo(requestModel).then(
+                    (value) {
+                      if (value) {
+                        // 修改成功
+                        setState(() {
+                          isApiCallProcess = false;
+                        });
+                        Fluttertoast.showToast(msg: "更新成功");
+                        Navigator.of(context).pop(const SettingPage());
+                      } else {
+                        setState(() {
+                          isApiCallProcess = false;
+                        });
+                        Fluttertoast.showToast(msg: "更新失敗");
+                        Navigator.pop(context); // 關閉 AlertDialog
+                      }
+                    },
+                  );
                 }
               },
             ),
@@ -398,7 +408,8 @@ class _SettingPageState extends State<SettingPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: darkGreen2,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(30))),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(30))),
           title: const Text(
             '修改電話號碼',
             style: TextStyle(color: unselectedColor),
@@ -422,17 +433,19 @@ class _SettingPageState extends State<SettingPage> {
               //validator: (input) => input!.length < 10 ? "Phone Number should be Valid" : null, // 檢查電話號碼格式
               onSaved: (input) => requestModel.phone = input!.toString(),
               decoration: InputDecoration(
-                hintText: "Your new phone here",
-                hintStyle: TextStyle(color: unselectedColor.withOpacity(0.7)),
-                prefixIcon: const Icon(Icons.phone, color: unselectedColor,),
-                enabledBorder: const UnderlineInputBorder(      
-                  borderSide: BorderSide(color: unselectedColor),   
-                ),  
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: lightGreen0),
-                ), 
-                focusColor: unselectedColor
-              ),
+                  hintText: "Your new phone here",
+                  hintStyle: TextStyle(color: unselectedColor.withOpacity(0.7)),
+                  prefixIcon: const Icon(
+                    Icons.phone,
+                    color: unselectedColor,
+                  ),
+                  enabledBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: unselectedColor),
+                  ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: lightGreen0),
+                  ),
+                  focusColor: unselectedColor),
             ),
           ),
           actions: <Widget>[
@@ -440,7 +453,8 @@ class _SettingPageState extends State<SettingPage> {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(unselectedColor),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30))),
               ),
               child: const Text('取消'),
               onPressed: () {
@@ -451,7 +465,8 @@ class _SettingPageState extends State<SettingPage> {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(unselectedColor),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30))),
               ),
               child: const Text('修改'),
               onPressed: () {
@@ -497,15 +512,15 @@ class _SettingPageState extends State<SettingPage> {
       return false;
     }
   }
+
   getMyInfo() async {
     noteList = await SqliteHelper.queryAll(tableName: "notification");
-    if(noteList!.isNotEmpty) {
+    if (noteList!.isNotEmpty) {
       showBadge = true;
       print("是否顯示 bagde: $showBadge");
-    } else{
+    } else {
       showBadge = false;
       print("是否顯示 bagde: $showBadge");
     }
-  } 
-
+  }
 }
