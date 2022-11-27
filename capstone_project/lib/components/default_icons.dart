@@ -49,14 +49,13 @@ class DefCheckIcon extends StatelessWidget {
 }
 
 class DefNotificationIcon extends StatelessWidget {
-  DefNotificationIcon({
+  const DefNotificationIcon({
     Key? key,
     required this.enable,
-    //required this.showBadge
+    required this.show
   }) : super(key: key);
   final bool enable;
-  final bool showBadge = true;
-  final Future<List<Map<String, dynamic>>?> noteList = SqliteHelper.queryAll(tableName: "notification");
+  final bool show;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +63,6 @@ class DefNotificationIcon extends StatelessWidget {
       return IconButton(
         icon: const ImageIcon(
           AssetImage("assets/images/other_icons/notification.png"),
-          //Icons.notifications_active_outlined,
           color: darkGreen2,
           size: 30.0,
         ),
@@ -72,9 +70,10 @@ class DefNotificationIcon extends StatelessWidget {
       );
     } else {
       return Badge(
-        showBadge: showBadge,
+        showBadge: show,
         position: BadgePosition.topEnd(top: 1, end: 3),
         badgeColor: Colors.red,
+        badgeContent: const Text("9", style: TextStyle(color: unselectedColor),),
         child: IconButton(
         onPressed: () {
           Navigator.push(

@@ -2,6 +2,7 @@
 // import 'package:my_capstone_project/ui/login_page.dart';
 import 'dart:ffi';
 
+import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:capstone_project/components/infoBox.dart';
@@ -32,6 +33,8 @@ class _SettingPageState extends State<SettingPage> {
   GlobalKey<FormState> globalFormKeyofPhone = GlobalKey<FormState>();
   late UpdateInfoRequestModel requestModel;
   bool isApiCallProcess = false;
+  late List<Map<String, dynamic>>? noteList = [];
+  late bool showBadge = false; 
 
   String userName = UserData.userName;
   String userAccount = UserData.userAccount;
@@ -47,6 +50,7 @@ class _SettingPageState extends State<SettingPage> {
         password: '',
         email: '',
         phone: '0');
+    getMyInfo();
   }
 
   @override
@@ -79,7 +83,7 @@ class _SettingPageState extends State<SettingPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    DefNotificationIcon(enable: true),
+                    DefNotificationIcon(enable: true, show: showBadge,),
                     const DefSettingIcon(enable: false,),
                   ],
                 ),
@@ -493,4 +497,15 @@ class _SettingPageState extends State<SettingPage> {
       return false;
     }
   }
+  getMyInfo() async {
+    noteList = await SqliteHelper.queryAll(tableName: "notification");
+    if(noteList!.isNotEmpty) {
+      showBadge = true;
+      print("是否顯示 bagde: $showBadge");
+    } else{
+      showBadge = false;
+      print("是否顯示 bagde: $showBadge");
+    }
+  } 
+
 }

@@ -283,7 +283,6 @@ class APIService {
         headers: {'cookie': UserData.token}, body: requestModel.toJson());
     if (response.statusCode == 200 || response.statusCode == 400) {
       List jsonResponse = json.decode(response.body); //回傳一個 Map
-      print('FRIEND LIST FROM SERVER');
       for (var tmpResponse in jsonResponse) {
         // 使用 uID2 查詢 userInfo 以列出好友清單
         await selectUserInfo(

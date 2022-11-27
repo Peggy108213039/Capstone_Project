@@ -56,7 +56,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    DefNotificationIcon(enable: false),
+                    DefNotificationIcon(enable: false, show: false,),
                     const DefSettingIcon(enable: true,),
                   ],
                 ),

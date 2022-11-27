@@ -18,6 +18,8 @@ class _ProfilePageOneState extends State<ProfilePage> {
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   APIService apiService = APIService();
   late getInfoRequestModel requestModel = getInfoRequestModel(uID: UserData.uid.toString());
+  late List<Map<String, dynamic>>? noteList = [];
+  late bool showBadge = false; 
 
   String userName = ''; // catch & print userinfo table
   String userAccount = '';
@@ -56,7 +58,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    DefNotificationIcon(enable: true,),
+                    DefNotificationIcon(enable: true,show: showBadge,),
                     const DefSettingIcon(enable: true,),
                   ],
                 ),
@@ -260,5 +262,13 @@ class _ProfilePageOneState extends State<ProfilePage> {
 
   getMyInfo() async {
     await apiService.getMyInfo(requestModel);
+    noteList = await SqliteHelper.queryAll(tableName: "notification");
+    if(noteList!.isNotEmpty) {
+      showBadge = true;
+      print("是否顯示 bagde: $showBadge");
+    } else {
+      showBadge = false;
+      print("是否顯示 badge: $showBadge");
+    }
   } 
 }
