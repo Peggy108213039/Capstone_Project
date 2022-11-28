@@ -464,7 +464,7 @@ class _StartActivityState extends State<StartActivity> {
                 );
                 List insertClientTrackResult = await SqliteHelper.insert(
                     tableName: 'track', insertData: newTrackData.toMap());
-                // server 更新使用者累積距離、時間
+                // FIXME server 更新使用者累積距離、時間
                 final totaltime = DateTime.parse(
                         activPolyline.userLocationList.last.currentTime)
                     .difference(DateTime.parse(
@@ -472,9 +472,10 @@ class _StartActivityState extends State<StartActivity> {
                 Map<String, String> updateMemberDistanceTimeRequest = {
                   'uID': UserData.uid.toString(),
                   'total_distance':
-                      activPolyline.totalDistance.toStringAsFixed(3),
+                      (activPolyline.totalDistance * 1000).round().toString(),
                   'total_time': totaltime.inMinutes.toString()
                 };
+                print('更新使用者累積軌跡數量  $updateMemberDistanceTimeRequest');
                 await APIService.updateDistanceTimeMember(
                     content: updateMemberDistanceTimeRequest);
                 // server 更新使用者累積軌跡數量
@@ -514,16 +515,18 @@ class _StartActivityState extends State<StartActivity> {
         } else {
           print('不要儲存軌跡 result?[0] ${result?[0]}');
         }
-        // server 更新使用者累積距離、時間
+        // FIXME server 更新使用者累積距離、時間
         final totaltime = DateTime.parse(
                 activPolyline.userLocationList.last.currentTime)
             .difference(
                 DateTime.parse(activPolyline.userLocationList[0].currentTime));
         Map<String, String> updateMemberDistanceTimeRequest = {
           'uID': UserData.uid.toString(),
-          'total_distance': activPolyline.totalDistance.toStringAsFixed(3),
+          'total_distance':
+              (activPolyline.totalDistance * 1000).round().toString(),
           'total_time': totaltime.inMinutes.toString()
         };
+        print('更新使用者累積軌跡數量  $updateMemberDistanceTimeRequest');
         await APIService.updateDistanceTimeMember(
             content: updateMemberDistanceTimeRequest);
         // server 更新使用者累積活動數量
