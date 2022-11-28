@@ -157,7 +157,6 @@ class APIService {
     }
   }
 
-
   Future<bool> updateUserInfo(UpdateInfoRequestModel requestModel) async {
     String url = "$ip/api/member/update_member";
     final response = await http.post(Uri.parse(url),
