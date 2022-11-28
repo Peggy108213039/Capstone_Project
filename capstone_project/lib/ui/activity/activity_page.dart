@@ -180,7 +180,7 @@ class _ActivityPageState extends State<ActivityPage> {
           } else {
             return const Center(
               child: Text(
-                '目前無活動資料\n點右下角的按鈕新增一個活動吧',
+                '目前無活動資料\n點右上角的按鈕新增一個活動吧',
                 style: TextStyle(fontSize: 20),
               ),
             );
