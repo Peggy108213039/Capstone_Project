@@ -5,6 +5,7 @@ import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/services/notification_service.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:intl/intl.dart';
 
 class StreamSocket {
   static final StreamController<Object> _socketResponse =
@@ -238,6 +239,26 @@ class StreamSocket {
         "account_msg": UserData.userAccount,
         "activity_msg": activityMsg,
         "distance_msg": warningDistance,
+        "location_msg": {
+          "latitude": location.latitude.toString(),
+          "longitude": location.longitude.toString(),
+          "elevation": location.altitude.toString()
+        }
+      });
+    } catch (error) {
+      print('SOCKET ERROR: $error');
+    }
+  }
+
+  static Future<void> warningTimeTooLong(
+      {required String activityMsg, required UserLocation location}) async {
+    try {
+      _socket.emit('ctlmsg', {
+        "ctlmsg": "activity warning",
+        "wanring_msg": "too long",
+        "activity_msg": activityMsg,
+        "account_msg": UserData.userName.toString(),
+        "time_msg": DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
         "location_msg": {
           "latitude": location.latitude.toString(),
           "longitude": location.longitude.toString(),

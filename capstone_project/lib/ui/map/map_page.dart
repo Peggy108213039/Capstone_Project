@@ -110,6 +110,8 @@ class MapPageState extends State<MapPage> {
                 isPaused: mapIsPaused,
                 checkTime: 10, // FIXME
                 warningTime: 180, // FIXME
+                isActivity: false,
+                activityMsg: '',
               ),
             ],
           ),

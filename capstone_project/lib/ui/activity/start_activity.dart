@@ -242,6 +242,9 @@ class _StartActivityState extends State<StartActivity> {
                   checkTime: 10,
                   warningTime: int.parse(arguments['warning_time']) * 60,
                   // warningTime: 10, // FIXME: For test
+                  isActivity: true,
+                  activityMsg:
+                      '${arguments['aID']} ${arguments['activity_name']}',
                 ),
                 WarningDistanceText(
                   isStarted: activityIsStarted,

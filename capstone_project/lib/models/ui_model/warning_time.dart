@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:capstone_project/services/audio_player.dart';
+import 'package:capstone_project/services/stream_socket.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -12,13 +13,17 @@ class WarningTime extends StatefulWidget {
   final bool isPaused;
   final int checkTime;
   final int warningTime;
-  const WarningTime(
-      {Key? key,
-      required this.isStarted,
-      required this.isPaused,
-      required this.checkTime,
-      required this.warningTime})
-      : super(key: key);
+  final bool isActivity;
+  final String activityMsg;
+  const WarningTime({
+    Key? key,
+    required this.isStarted,
+    required this.isPaused,
+    required this.checkTime,
+    required this.warningTime,
+    required this.isActivity,
+    required this.activityMsg,
+  }) : super(key: key);
 
   @override
   State<WarningTime> createState() => _WarningTimeState();
@@ -32,6 +37,8 @@ class _WarningTimeState extends State<WarningTime> {
 
   late Timer checkTimer;
   late Timer sendWarningTimer;
+  late bool isActivity;
+  late String activityMsg;
 
   int stopTimes = 0;
   int distanceRange = 2; // distanceRange 公尺內都算在原地範圍內
@@ -50,6 +57,8 @@ class _WarningTimeState extends State<WarningTime> {
   void initState() {
     checkTime = widget.checkTime;
     warningTime = widget.warningTime;
+    isActivity = widget.isActivity;
+    activityMsg = widget.activityMsg;
     checkTimer = Timer.periodic(Duration(seconds: checkTime), (timer) {
       print('checkTimer ${timer.tick}');
       if (isStarted && !isPaused) {
@@ -67,6 +76,10 @@ class _WarningTimeState extends State<WarningTime> {
         if (stopTimes >= (warningTime / checkTime)) {
           isVisible.value = true;
           AudioPlayerService.playAudio(); // 播放警示音
+          if (isActivity) {
+            StreamSocket.warningTimeTooLong(
+                activityMsg: activityMsg, location: userLocation);
+          }
         }
         stopTimes = 0;
       }
