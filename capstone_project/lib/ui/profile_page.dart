@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:capstone_project/models/userInfo/getInfo.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:capstone_project/size_config.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/components/default_icons.dart';
 import 'package:capstone_project/services/http_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -64,9 +67,9 @@ class _ProfilePageOneState extends State<ProfilePage> {
                     const DefSettingIcon(enable: true,),
                   ],
                 ),
-                SizedBox(
-                  height: (height * 0.025),
-                ),
+                // SizedBox(
+                //   height: (height * 0.025),
+                // ),
                 SizedBox(
                   // decoration: const BoxDecoration(color: Colors.amber),
                   height: height * 0.45,
@@ -106,7 +109,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
                             left: 0,
                             right: 0,
                             child: SizedBox(
-                              height: innerHeight * 0.3,
+                              //height: innerHeight * 0.3,
                               width: innerWidth,
                               child: Column(
                                 children: [
@@ -120,17 +123,23 @@ class _ProfilePageOneState extends State<ProfilePage> {
                                     ),
                                   ),
                                   SizedBox(
-                                    height: (height * 0.025),
+                                    height: (height * 0.01),
                                   ),
-                                  Text(
-                                    // 使用者帳號
-                                    "@" + userAccount,
-                                    style: const TextStyle(
+                                  ScreenUtilInit(builder: ((context, child) {
+                                    return Text("@"+userAccount, style: TextStyle(
                                       color: darkGreen2,
-                                      fontSize: 25.0,
-                                      // fontFamily: 'popFonts'
-                                    ),
-                                  ),
+                                      fontSize: ScreenUtil().setSp(25)
+                                    ),);
+                                  })),
+                                  // Text(
+                                  //   // 使用者帳號
+                                  //   "@" + userAccount,
+                                  //   style: const TextStyle(
+                                  //     color: darkGreen2,
+                                  //     fontSize: 25.0,
+                                  //     // fontFamily: 'popFonts'
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                             ),
@@ -157,21 +166,17 @@ class _ProfilePageOneState extends State<ProfilePage> {
                     color: semiTransparentColor,
                   ),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width*0.05),
+                    padding: EdgeInsets.symmetric(horizontal: width*0.05, vertical: height*0.005),
                     child: Column(
                       children: [
-                        SizedBox(
-                          height: (height * 0.01),
-                        ),
-                        const Text(
-                          '累積紀錄',
-                          style: TextStyle(
+                        ScreenUtilInit(builder: ((context, child) {
+                          return Text("累積紀錄", style: TextStyle(
                             color: darkGreen2,
-                            fontSize: 22,
-                            // fontFamily: 'popFonts'
-                          ),
-                        ),
-                        const Divider(
+                            fontSize: ScreenUtil().setSp(22)
+                          ),);
+                        })),
+                        Divider(
+                          height: height*0.015,
                           thickness: 3,
                           color: darkGreen1,
                         ),
@@ -180,17 +185,19 @@ class _ProfilePageOneState extends State<ProfilePage> {
                           children: [
                             Column(
                               children: [
-                                Text(accDistance,
-                                    style: const TextStyle(
-                                        color: darkGreen2,
-                                        // fontFamily: 'popFonts',
-                                        fontSize: 25)),
-                                SizedBox(height: (height * 0.01)),
-                                const Text('公里',
-                                    style: TextStyle(
-                                        color: darkGreen2,
-                                        // fontFamily: 'popFonts',
-                                        fontSize: 21))
+                                ScreenUtilInit(builder: ((context, child) {
+                                  return Text(accDistance, style: TextStyle(
+                                    color: darkGreen2,
+                                    fontSize: ScreenUtil().setSp(25)
+                                  ),);
+                                })),
+                                SizedBox(height: (height * 0.005)),
+                                ScreenUtilInit(builder: ((context, child) {
+                                  return Text("公里", style: TextStyle(
+                                    color: darkGreen2,
+                                    fontSize: ScreenUtil().setSp(21)
+                                  ),);
+                                })),
                               ],
                             ),
                             Padding(
@@ -206,17 +213,19 @@ class _ProfilePageOneState extends State<ProfilePage> {
                             ),
                             Column(
                               children: [
-                                Text(accTrack,
-                                    style: const TextStyle(
-                                        color: darkGreen2,
-                                        // fontFamily: 'popFonts',
-                                        fontSize: 25)),
-                                SizedBox(height: (height * 0.01)),
-                                const Text('路徑',
-                                    style: TextStyle(
-                                        color: darkGreen2,
-                                        // fontFamily: 'popFonts',
-                                        fontSize: 21))
+                                ScreenUtilInit(builder: ((context, child) {
+                                  return Text(accTrack, style: TextStyle(
+                                    color: darkGreen2,
+                                    fontSize: ScreenUtil().setSp(24)
+                                  ),);
+                                })),
+                                SizedBox(height: (height * 0.005)),
+                                ScreenUtilInit(builder: ((context, child) {
+                                  return Text("軌跡", style: TextStyle(
+                                    color: darkGreen2,
+                                    fontSize: ScreenUtil().setSp(21)
+                                  ),);
+                                })),
                               ],
                             ),
                             Padding(
@@ -232,17 +241,19 @@ class _ProfilePageOneState extends State<ProfilePage> {
                             ),
                             Column(
                               children: [
-                                Text(accActivity,
-                                    style: const TextStyle(
-                                        color: darkGreen2,
-                                        // fontFamily: 'popFonts',
-                                        fontSize: 25)),
-                                SizedBox(height: (height * 0.01)),
-                                const Text('活動',
-                                    style: TextStyle(
-                                        color: darkGreen2,
-                                        // fontFamily: 'popFonts',
-                                        fontSize: 21))
+                                ScreenUtilInit(builder: ((context, child) {
+                                  return Text(accActivity, style: TextStyle(
+                                    color: darkGreen2,
+                                    fontSize: ScreenUtil().setSp(24)
+                                  ),);
+                                })),
+                                SizedBox(height: (height * 0.005)),
+                                ScreenUtilInit(builder: ((context, child) {
+                                  return Text("活動", style: TextStyle(
+                                    color: darkGreen2,
+                                    fontSize: ScreenUtil().setSp(21)
+                                  ),);
+                                })),
                               ],
                             ),
                           ],
