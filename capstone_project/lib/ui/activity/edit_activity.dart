@@ -321,97 +321,6 @@ class _EditActivityState extends State<EditActivity> {
         });
   }
 
-  // Widget buildActivPartner({required List initMemberList}) {
-  //   return Container(
-  //     margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-  //     decoration: BoxDecoration(
-  //         border: Border.all(width: 3, color: grassGreen),
-  //         borderRadius: BorderRadius.circular(15)),
-  //     child: FutureBuilder(
-  //         future: getFriendTable(initMemberList: initMemberList),
-  //         builder: (BuildContext context, AsyncSnapshot snapshot) {
-  //           if (snapshot.hasData) {
-  //             return MultiSelectBottomSheetField<FriendModel?>(
-  //               key: multiSelectKey,
-  //               items: friendSelectItems, // 朋友下拉式選單
-  //               initialValue: selectedPartner, // 初始值 : 選中的同行者
-  //               buttonText: const Text(
-  //                 "同行成員",
-  //                 style: TextStyle(color: Colors.white),
-  //               ),
-  //               buttonIcon: const Icon(Icons.arrow_drop_down),
-  //               decoration: const BoxDecoration(
-  //                   color: middleGreen,
-  //                   borderRadius: BorderRadius.all(Radius.circular(10))),
-  //               confirmText: const Text(
-  //                 '確認',
-  //                 style: TextStyle(color: Colors.white),
-  //               ),
-  //               cancelText: const Text(
-  //                 '取消',
-  //                 style: TextStyle(color: Colors.white),
-  //               ),
-  //               title: const Text(
-  //                 "選擇同行成員",
-  //                 style: TextStyle(
-  //                     color: lightGreen0, fontWeight: FontWeight.bold),
-  //               ),
-  //               initialChildSize: 0.38,
-  //               maxChildSize: 0.6,
-  //               selectedColor: Colors.white,
-  //               selectedItemsTextStyle: const TextStyle(color: middleGreen),
-  //               unselectedColor: Colors.white,
-  //               checkColor: Colors.white,
-  //               itemsTextStyle: const TextStyle(color: Colors.black),
-  //               backgroundColor: darkGreen1,
-  //               searchHint: '搜尋好友',
-  //               searchHintStyle: const TextStyle(color: Colors.white),
-  //               searchTextStyle: const TextStyle(color: Colors.white),
-  //               searchIcon: const Icon(
-  //                 Icons.search,
-  //                 color: Colors.white,
-  //               ),
-  //               closeSearchIcon: const Icon(
-  //                 Icons.close,
-  //                 color: Colors.white,
-  //               ),
-
-  //               listType: MultiSelectListType.CHIP,
-  //               separateSelectedItems: true,
-  //               searchable: true,
-  //               onConfirm: (values) {
-  //                 selectedPartner = values;
-  //               },
-  //               onSaved: (newValue) {
-  //                 selectedPartner = newValue!;
-  //               },
-  //               // validator: (value) {
-  //               //   if (value!.isEmpty) {
-  //               //     return '請選同行者';
-  //               //   }
-  //               // },
-
-  //               chipDisplay: MultiSelectChipDisplay(
-  //                 items: selectedPartner
-  //                     .map((member) => MultiSelectItem(member, member!.name))
-  //                     .toList(),
-  //                 chipColor: Colors.white,
-  //                 textStyle: const TextStyle(color: grassGreen),
-  //                 icon: const Icon(Icons.cancel_outlined, color: grassGreen),
-  //                 scroll: true,
-  //                 onTap: (value) {
-  //                   selectedPartner.remove(value);
-  //                   return selectedPartner;
-  //                 },
-  //               ),
-  //             );
-  //           } else {
-  //             return const Center(child: Text('沒有朋友資料'));
-  //           }
-  //         }),
-  //   );
-  // }
-
   Widget buildWarningDistance({required String initValue}) {
     warningDistance = initValue;
     return Container(
@@ -488,7 +397,6 @@ class _EditActivityState extends State<EditActivity> {
       'tID': activTrack,
       'warning_distance': warningDistance,
       'warning_time': warningTime,
-      // 'members': jsonEncode(members)
     };
     print('修改 server 活動資料 2 $newServerActivityData');
     // FIXME
@@ -504,7 +412,6 @@ class _EditActivityState extends State<EditActivity> {
         'tID': activTrack,
         'warning_distance': warningDistance,
         'warning_time': warningTime,
-        // 'members': members.join(', ')
       };
       print('修改後的活動資料  $newActivityData');
       await SqliteHelper.update(

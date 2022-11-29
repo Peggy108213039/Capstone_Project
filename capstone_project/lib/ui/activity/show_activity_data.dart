@@ -81,7 +81,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
 
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
-    frindsIDList = arguments['activityData']['members'].toString().split(', ');
+    frindsIDList = arguments['activityData']['members'].toString().split(',');
     getMemberList(frindsIDList);
 
     // 顯示 主辦人有 開始按鈕、編輯按鈕
