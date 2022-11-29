@@ -233,6 +233,8 @@ class _ActivityPageState extends State<ActivityPage> {
     final uidMemberDataReq = {'uID': uID};
     List uidMemberDataResponse =
         await APIService.selectUidMemberData(content: uidMemberDataReq);
+    activityMsg =
+        '${activityData[0]['aID']} ${activityData[0]['activity_name']}';
     Navigator.pushNamed(context, '/ShowActivityData', arguments: {
       'activityData': activityData[0],
       'activityHostData': uidMemberDataResponse[0]

@@ -46,7 +46,6 @@ class _StartActivityState extends State<StartActivity> {
   List frindsIDList = [];
   List<Polyline> memberPolylines = [];
   List<Marker> memberMarkers = [];
-  bool shareUserPosition = false;
 
   List<Marker> markers = []; // 標記拍照點
 
@@ -86,6 +85,7 @@ class _StartActivityState extends State<StartActivity> {
     activPolyline.clearList();
     activityIsStarted = false;
     activityIsPaused = false;
+    activityMsg = '';
     super.dispose();
   }
 
@@ -192,7 +192,7 @@ class _StartActivityState extends State<StartActivity> {
     print('===== 建立活動地圖頁面 START =====');
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
-    shareUserPosition = arguments['shareUserPosition'];
+    activitySharePosition = arguments['shareUserPosition'];
 
     // get Socket response
     final testSocketData = Provider.of<Object?>(context);
@@ -227,8 +227,7 @@ class _StartActivityState extends State<StartActivity> {
             isStarted: activityIsStarted,
             isPaused: activityIsPaused,
             markerList: markers,
-            sharePosition: shareUserPosition,
-            activityMsg: '${arguments['aID']} ${arguments['activity_name']}',
+            // activityMsg: '${arguments['aID']} ${arguments['activity_name']}',
             memberMarkers: memberMarkers,
             // memberPolylines: memberPolylines,
             warningDistance: double.parse(arguments['warning_distance']),
@@ -241,10 +240,9 @@ class _StartActivityState extends State<StartActivity> {
                   isPaused: activityIsPaused,
                   checkTime: 10,
                   warningTime: int.parse(arguments['warning_time']) * 60,
+                  // checkTime: 2, // FIXME: For test
                   // warningTime: 10, // FIXME: For test
                   isActivity: true,
-                  activityMsg:
-                      '${arguments['aID']} ${arguments['activity_name']}',
                 ),
                 WarningDistanceText(
                   isStarted: activityIsStarted,

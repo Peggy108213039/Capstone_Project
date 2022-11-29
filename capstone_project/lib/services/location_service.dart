@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/map/user_location.dart';
+import 'package:capstone_project/services/stream_socket.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'dart:math';
@@ -104,6 +105,14 @@ class LocationService {
         activPolyline.recordCoordinates(userLocation);
         caculateWarningDistance(
             warningDistance: activityWarningDistance, gpsList: activityGpsList);
+        // 傳自己的座標給 server
+        if (activitySharePosition) {
+          print(activityMsg);
+          StreamSocket.uploadUserLocation(
+              activityMsg: activityMsg,
+              warningDistance: activityWarningDistance,
+              location: userLocation);
+        }
       }
     }
   }
