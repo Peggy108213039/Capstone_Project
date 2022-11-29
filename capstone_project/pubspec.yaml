@@ -80,6 +80,7 @@ dependencies:
   audioplayers: 0.20.1
   awesome_notifications: ^0.7.4+1
   flutter_launcher_icons: ^0.11.0
+  flutter_screenutil: ^5.6.0
 
 flutter_icons:
   image_path_android: "assets/images/logo_icons/logo.png"

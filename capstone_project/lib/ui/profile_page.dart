@@ -1,5 +1,6 @@
 import 'package:capstone_project/models/userInfo/getInfo.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
+import 'package:capstone_project/size_config.dart';
 import 'package:flutter/material.dart';
 // basic setting
 import 'package:capstone_project/constants.dart';
@@ -33,15 +34,16 @@ class _ProfilePageOneState extends State<ProfilePage> {
     getMyInfo();
     userName = UserData.userName.toString(); // catch & print userinfo table
     userAccount = UserData.userAccount;
-    accDistance = UserData.totalDistance.toString();
+    accDistance = (UserData.totalDistance/1000).toString();
     accTrack = UserData.totalTrack.toString();
     accActivity = UserData.totalActivity.toString();
   }
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
+    SizeConfig().init(context);
+    double? width= SizeConfig.screenWidth;
+    double? height= SizeConfig.screenHeight;
     return Container(
       constraints: const BoxConstraints.expand(),
       decoration: const BoxDecoration(
@@ -52,7 +54,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
         body: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: (width * 0.035), vertical: (height * 0.05)),
+                horizontal: (width! * 0.035), vertical: (height! * 0.05)),
             child: Column(
               children: [
                 Row(
@@ -76,13 +78,34 @@ class _ProfilePageOneState extends State<ProfilePage> {
                       return Stack(
                         fit: StackFit.expand,
                         children: [
+                          Positioned( // 大頭貼
+                            top: innerHeight * 0.05,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: Container(
+                                width: innerWidth * 0.6,
+                                height: innerWidth * 0.6,
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  color: transparentColor,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 3,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Image(
+                                  image: defaultUserImage,
+                                ),
+                              ),
+                            ),
+                          ),
                           Positioned(
-                            bottom: innerHeight * 0,
+                            top: innerHeight * 0.7,
                             left: 0,
                             right: 0,
                             child: SizedBox(
-                              // decoration:
-                              //     BoxDecoration(color: Colors.green.shade400),
                               height: innerHeight * 0.3,
                               width: innerWidth,
                               child: Column(
@@ -112,30 +135,6 @@ class _ProfilePageOneState extends State<ProfilePage> {
                               ),
                             ),
                           ),
-                          Positioned(
-                            top: innerHeight * 0.05,
-                            left: 0,
-                            right: 0,
-                            child: Center(
-                              // 大頭貼
-                              child: Container(
-                                width: innerWidth * 0.6,
-                                height: innerWidth * 0.6,
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  color: transparentColor,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Image(
-                                  image: defaultUserImage,
-                                ),
-                              ),
-                            ),
-                          )
                         ],
                       );
                     },
@@ -158,7 +157,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
                     color: semiTransparentColor,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    padding: EdgeInsets.symmetric(horizontal: width*0.05),
                     child: Column(
                       children: [
                         SizedBox(
@@ -187,7 +186,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
                                         // fontFamily: 'popFonts',
                                         fontSize: 25)),
                                 SizedBox(height: (height * 0.01)),
-                                const Text('距離',
+                                const Text('公里',
                                     style: TextStyle(
                                         color: darkGreen2,
                                         // fontFamily: 'popFonts',
@@ -265,10 +264,8 @@ class _ProfilePageOneState extends State<ProfilePage> {
     noteList = await SqliteHelper.queryAll(tableName: "notification");
     if(noteList!.isNotEmpty) {
       showBadge = true;
-      print("是否顯示 bagde: $showBadge");
     } else {
       showBadge = false;
-      print("是否顯示 badge: $showBadge");
     }
   } 
 }

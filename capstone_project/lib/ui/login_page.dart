@@ -77,14 +77,14 @@ class _LoginPageState extends State<LoginPage> {
                       padding: const EdgeInsets.symmetric(vertical: 20.0),
                       child: TextFormField(
                         decoration: const InputDecoration(
-                          hintText: "Your account number",
+                          hintText: "",
                           prefixIcon: Icon(Icons.person),
-                          labelText: "Account",
+                          labelText: "帳號",
                         ),
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         onSaved: (input) => requestModel.account = input!,
                         validator: (input) => /*!*/ input!.contains("@")
-                            ? "Email ID should be Valid"
+                            ? "此帳號不存在"
                             : null,
                         // check if account contains @
                       ),
@@ -95,12 +95,11 @@ class _LoginPageState extends State<LoginPage> {
                         keyboardType: TextInputType.text,
                         onSaved: (input) => requestModel.password = input!,
                         validator: (input) => input!.length < 3
-                            ? "Password should be more than 6 char"
+                            ? "請輸入有效密碼"
                             : null,
                         obscureText: hidePassword,
                         decoration: InputDecoration(
-                          labelText: "Password",
-                          hintText: "Your password number",
+                          labelText: "密碼",
                           prefixIcon: const Icon(Icons.lock),
                           suffixIcon: IconButton(
                             onPressed: () {
@@ -150,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                                 isApiCallProcess = false;
                               });
                               // Login Failed Hint Box
-                              Fluttertoast.showToast(msg: "Login Failed");
+                              Fluttertoast.showToast(msg: "登入失敗，請重新登入");
                             }
                           });
                         }

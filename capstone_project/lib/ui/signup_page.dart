@@ -91,7 +91,7 @@ class _SignupPageState extends State<SignupPage> {
                         ;
                       },
                       decoration: const InputDecoration(
-                        labelText: "User Name",
+                        labelText: "姓名",
                       ),
                     ),
                   ),
@@ -109,7 +109,7 @@ class _SignupPageState extends State<SignupPage> {
                       },
                       decoration: const InputDecoration(
                         //prefixIcon: Icon(Icons.person),
-                        labelText: "Account",
+                        labelText: "帳號",
                         //hintText: "Your birthday",
                       ),
                     ),
@@ -127,7 +127,7 @@ class _SignupPageState extends State<SignupPage> {
                         }
                       },
                       decoration: const InputDecoration(
-                        labelText: "Mail",
+                        labelText: "信箱",
                       ),
                     ),
                   ),
@@ -145,7 +145,7 @@ class _SignupPageState extends State<SignupPage> {
                       },
                       decoration: const InputDecoration(
                         //prefixIcon: Icon(Icons.person),
-                        labelText: "Phone Number",
+                        labelText: "電話號碼",
                         //hintText: "Your account number",
                       ),
                     ),
@@ -162,7 +162,7 @@ class _SignupPageState extends State<SignupPage> {
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.lock),
                         suffixIcon: Icon(Icons.remove_red_eye),
-                        labelText: "Password",
+                        labelText: "密碼",
                         //hintText: "Your password",
                       ),
                     ),
@@ -177,8 +177,8 @@ class _SignupPageState extends State<SignupPage> {
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.lock),
                         suffixIcon: Icon(Icons.remove_red_eye),
-                        labelText: "Check Password",
-                        hintText: "Input your password again",
+                        labelText: "確認密碼",
+                        hintText: "",
                       ),
                     ),
                   ),
@@ -202,9 +202,7 @@ class _SignupPageState extends State<SignupPage> {
                             setState(() {
                               isApiCallProcess = false;
                             });
-                            Fluttertoast.showToast(msg: "SignUp Successful");
-                            Fluttertoast.showToast(
-                                msg: "Please Login after Signup Successful");
+                            Fluttertoast.showToast(msg: "註冊成功，請重新登入");
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -212,7 +210,7 @@ class _SignupPageState extends State<SignupPage> {
                               ),
                             );
                           } else {
-                            Fluttertoast.showToast(msg: "SignUp Failed");
+                            Fluttertoast.showToast(msg: "註冊失敗，請重新註冊");
                             Navigator.push(
                               context,
                               MaterialPageRoute(

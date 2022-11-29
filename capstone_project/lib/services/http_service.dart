@@ -71,7 +71,7 @@ class APIService {
     final response =
         await http.post(Uri.parse(url), body: requestModel.toJson());
     var tmpResponse = LoginResponseModel.fromJson(json.decode(response.body));
-    if (tmpResponse.result != "LOGIN FAILED") {
+    if (tmpResponse.result != "Login fail") {
       UserData(
         response.headers['set-cookie']!,
         tmpResponse.uID,
@@ -107,7 +107,7 @@ class APIService {
     var tmpResponse = SignUpResponseModel.fromJson(json.decode(response.body));
     print("註冊RESPONSE $response");
     if ((response.statusCode == 200 || response.statusCode == 400) ||
-        (tmpResponse.result == "create account")) {
+        (tmpResponse.result == "Create account")) {
       // UserData(
       //   response.headers['set-cookie']!,
       //   int.parse(tmpResponse.uID),
