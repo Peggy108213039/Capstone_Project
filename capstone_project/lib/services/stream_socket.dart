@@ -136,7 +136,7 @@ class StreamSocket {
                   1,
                   'main_channel',
                   '同行者距離過遠',
-                  '${activityData['account_msg_1']} 和 ${activityData['account_msg_2']} 距離過遠\n兩人相差的距離 : ${activityData['long_distance']}');
+                  '${activityData['account_msg_1']} 和 ${activityData['account_msg_2']} 距離過遠\n兩人相差的距離 : ${double.parse(activityData['long_distance']).toStringAsFixed(2)}');
             }
             // FIXME  某人停留時間過久
             if (wanringMsg == "too long") {
