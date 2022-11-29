@@ -238,17 +238,19 @@ class _StartActivityState extends State<StartActivity> {
                 WarningTime(
                   isStarted: activityIsStarted,
                   isPaused: activityIsPaused,
-                  checkTime: 10,
-                  warningTime: int.parse(arguments['warning_time']) * 60,
-                  // checkTime: 2, // FIXME: For test
-                  // warningTime: 10, // FIXME: For test
+                  // checkTime: 10,
+                  // warningTime: int.parse(arguments['warning_time']) * 60,
+                  checkTime: 10, // FIXME: For test
+                  warningTime: 180, // FIXME: For test
                   isActivity: true,
                 ),
                 WarningDistanceText(
                   isStarted: activityIsStarted,
                   isPaused: activityIsPaused,
                   gpsList: gpsList,
-                  warningDistance: double.parse(arguments['warning_distance']),
+                  activWarnDistance:
+                      double.parse(arguments['warning_distance']),
+                  trackWarningDistance: 20,
                 ),
               ],
             ),

@@ -11,14 +11,16 @@ import 'package:capstone_project/models/map/user_location.dart';
 class WarningDistanceText extends StatefulWidget {
   final bool isStarted;
   final bool isPaused;
-  final double warningDistance;
+  final double activWarnDistance; // 活動成員最遠距離
+  final double trackWarningDistance; // 偏離軌跡最遠距離
   final List<LatLng> gpsList;
   const WarningDistanceText({
     Key? key,
     required this.isStarted,
     required this.isPaused,
     required this.gpsList,
-    required this.warningDistance,
+    required this.activWarnDistance,
+    required this.trackWarningDistance,
   }) : super(key: key);
 
   @override
@@ -35,15 +37,16 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
       currentTime: UserLocation.getCurrentTime());
   UserLocation userLocation = defaultLocation;
   late List<LatLng> gpsList;
-  late double warningDistance;
+  // late double activWarnDistance;
+  late double trackWarningDistance;
 
   bool isVisible = false;
   String warningDistanceString = '';
 
   @override
   void initState() {
-    warningDistance = widget.warningDistance;
-    activityWarningDistance = warningDistance;
+    activityWarningDistance = widget.activWarnDistance;
+    trackWarningDistance = widget.trackWarningDistance;
     gpsList = widget.gpsList;
     activityGpsList = gpsList;
     super.initState();
@@ -67,7 +70,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
   }
 
   List inSafeDistance(
-      {required double warningDistance,
+      {required double memberWarningDistance,
       required LatLng currentPoint,
       required List<LatLng> pointList}) {
     List<double> distanceList = [];
@@ -77,7 +80,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
         double tempDistance =
             caculateDistance(point1: currentPoint, point2: pointList[i]);
         distanceList.add(tempDistance);
-        if (tempDistance * 1000 < warningDistance) {
+        if (tempDistance * 1000 < memberWarningDistance) {
           return [true, tempDistance];
         }
       }
@@ -92,7 +95,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
   void caculateWarningDistance(
       {required double warningDistance, required List<LatLng> gpsList}) async {
     List result = inSafeDistance(
-        warningDistance: warningDistance,
+        memberWarningDistance: warningDistance,
         currentPoint: LatLng(userLocation.latitude, userLocation.longitude),
         pointList: gpsList);
     bool inSafe = result[0];
@@ -120,7 +123,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
 
     if (isStarted && !isPaused) {
       caculateWarningDistance(
-          warningDistance: warningDistance, gpsList: gpsList);
+          warningDistance: trackWarningDistance, gpsList: gpsList);
     }
     if (!isStarted && !isPaused) {
       isVisible = false;
