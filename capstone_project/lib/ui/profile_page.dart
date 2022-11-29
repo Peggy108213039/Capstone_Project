@@ -85,7 +85,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
                             child: Center(
                               child: Container(
                                 width: innerWidth * 0.6,
-                                height: innerWidth * 0.6,
+                                height: innerHeight * 0.6,
                                 padding: const EdgeInsets.all(2),
                                 decoration: BoxDecoration(
                                   color: transparentColor,
