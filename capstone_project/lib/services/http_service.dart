@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'package:capstone_project/models/userInfo/getInfo.dart';
-import 'package:intl/intl.dart';
 import 'package:capstone_project/models/activity/activity_model.dart';
 import 'package:capstone_project/services/file_provider.dart';
 import 'package:path/path.dart';
-import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
@@ -318,7 +316,7 @@ class APIService {
         headers: {'cookie': UserData.token}, body: content);
     final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print('刪除活動 $responseString');
+      print('刪除活動');
       return [true, responseString];
     } else {
       print(responseString);
@@ -337,7 +335,6 @@ class APIService {
       return [true, responseString];
     } else {
       print('開始活動失敗');
-      print(responseString);
       return [false, responseString];
     }
   }
@@ -351,11 +348,9 @@ class APIService {
     final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
       print('結束活動成功');
-      print(responseString);
       return [true, responseString];
     } else {
       print('結束活動失敗');
-      print(responseString);
       return [false, responseString];
     }
   }
@@ -367,7 +362,7 @@ class APIService {
         headers: {'cookie': UserData.token}, body: content);
     final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print('更新活動 $responseString');
+      print('更新活動');
       return [true, responseString];
     } else {
       print(responseString);
@@ -395,8 +390,11 @@ class APIService {
           await SqliteHelper.queryAllTrackDataList(columns: ['tID'])
               .then((sqliteTidList) async {
             print('server 活動 長度 ${serverActivities.length}');
+            print('serverActivities   $serverActivities');
             List<String> hasDownloadTrackList = []; // 檢查是否已下載過
             for (var activity in serverActivities) {
+              print(
+                  'server activity  ${activity['members'].runtimeType}  ${activity['members']}');
               // 把 server 活動資料加進 sqlite
               final Activity newLocalActivityData = Activity(
                   aID: activity['aID'].toString(),
@@ -410,7 +408,7 @@ class APIService {
                   tID: activity['tID'].toString(),
                   warning_distance: activity['warning_distance'].toString(),
                   warning_time: activity['warning_time'].toString(),
-                  members: '');
+                  members: activity['members'].toString());
               await SqliteHelper.insert(
                       tableName: 'activity',
                       insertData: newLocalActivityData.toMap())
@@ -537,9 +535,7 @@ class APIService {
         headers: {'cookie': UserData.token}, body: content);
     final serverTracks = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      // print(serverTracks);
       for (var _track in serverTracks) {
-        print('_track $_track');
         // 將 sqlite 軌跡的資料更新成跟 server 一樣
         // 下載軌跡
         String savePath = '${trackDir.path}/${_track['track_name']}';
@@ -628,7 +624,7 @@ class APIService {
       } else {
         uploadSuccess = true;
       }
-      print('上傳軌跡 $responseString');
+      print('上傳軌跡');
     } else {
       uploadSuccess = false;
       print(responseString);
