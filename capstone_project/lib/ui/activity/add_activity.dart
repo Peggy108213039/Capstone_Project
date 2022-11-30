@@ -93,19 +93,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
       Navigator.of(context).pop(true);
       return;
     }
-    // if (queryFriendTable.isEmpty) {
-    //   noFriendListDialog = MyAlertDialog(
-    //       context: context,
-    //       titleText: '沒有朋友清單',
-    //       titleFontSize: 30,
-    //       contentText: '請到朋友頁面新增好友',
-    //       contentFontSize: 20,
-    //       btn1Text: '確認',
-    //       btn2Text: '');
-    //   await noFriendListDialog.show();
-    //   Navigator.of(context).pop(true);
-    //   return;
-    // }
     setState(() {
       activTrack = queryTrackTable![0]['tID'].toString();
       for (var element in queryTrackTable) {
@@ -414,8 +401,10 @@ class _AddActivityPageState extends State<AddActivityPage> {
         activity_name: activName,
         activity_time: timeinput.text,
         tID: activTrack,
-        warning_distance: warningDistance,
-        warning_time: warningTime,
+        // warning_distance: warningDistance,
+        // warning_time: warningTime,
+        warning_distance: '0',
+        warning_time: '0',
         members: members);
     // 插入 server 資料庫
     List result =
@@ -471,8 +460,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
                   buildActivTime(),
                   buildActivTrack(),
                   buildActivPartner(),
-                  buildWarningDistance(),
-                  buildWarningTime(),
+                  // buildWarningDistance(),
+                  // buildWarningTime(),
                   mySpace(30),
                   SizedBox(
                     height: 45,

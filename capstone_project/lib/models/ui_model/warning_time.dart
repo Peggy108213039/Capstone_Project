@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/services/audio_player.dart';
 import 'package:capstone_project/services/stream_socket.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class WarningTime extends StatefulWidget {
   final int checkTime;
   final int warningTime;
   final bool isActivity;
-  final String activityMsg;
+  // final String activityMsg;
   const WarningTime({
     Key? key,
     required this.isStarted,
@@ -22,7 +23,7 @@ class WarningTime extends StatefulWidget {
     required this.checkTime,
     required this.warningTime,
     required this.isActivity,
-    required this.activityMsg,
+    // required this.activityMsg,
   }) : super(key: key);
 
   @override
@@ -38,7 +39,7 @@ class _WarningTimeState extends State<WarningTime> {
   late Timer checkTimer;
   late Timer sendWarningTimer;
   late bool isActivity;
-  late String activityMsg;
+  // late String activityMsg;
 
   int stopTimes = 0;
   int distanceRange = 2; // distanceRange 公尺內都算在原地範圍內
@@ -58,7 +59,7 @@ class _WarningTimeState extends State<WarningTime> {
     checkTime = widget.checkTime;
     warningTime = widget.warningTime;
     isActivity = widget.isActivity;
-    activityMsg = widget.activityMsg;
+    // activityMsg = widget.activityMsg;
     checkTimer = Timer.periodic(Duration(seconds: checkTime), (timer) {
       print('checkTimer ${timer.tick}');
       if (isStarted && !isPaused) {
@@ -70,16 +71,19 @@ class _WarningTimeState extends State<WarningTime> {
         previousLocation = userLocation;
       }
     });
-    sendWarningTimer = Timer.periodic(Duration(seconds: warningTime), (timer) {
+    sendWarningTimer =
+        Timer.periodic(Duration(seconds: warningTime), (timer) async {
       print('sendWarningTimer ${timer.tick}  stopTimes $stopTimes');
       if (isStarted && !isPaused) {
         if (stopTimes >= (warningTime / checkTime)) {
           isVisible.value = true;
           AudioPlayerService.playAudio(); // 播放警示音
-          if (isActivity) {
-            StreamSocket.warningTimeTooLong(
-                activityMsg: activityMsg, location: userLocation);
-          }
+          print('是不是活動   isActivity  $isActivity');
+          // if (isActivity) {
+          //   print('傳 SOCKET 訊息');
+          //   await StreamSocket.warningTimeTooLong(
+          //       activityMsg: activityMsg, location: userLocation);
+          // }
         }
         stopTimes = 0;
       }

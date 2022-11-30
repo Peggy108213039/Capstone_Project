@@ -72,6 +72,7 @@ bool hasTrackCheckTable = false;
 List serverTrackData = [];
 
 // 開始活動
+bool activitySharePosition = false;
 bool activityIsStarted = false;
 bool activityIsPaused = false;
 bool activityIsBackground = false;
@@ -81,6 +82,7 @@ PolylineCoordinates activPolyline = PolylineCoordinates(); // 紀錄使用者的
 List<Map<String, dynamic>> activityPolyLineList = []; // 紀錄同行者的 polyline
 late double activityWarningDistance; // 活動的警告距離
 late List<LatLng> activityGpsList; // 活動匯入的軌跡
+String activityMsg = '';
 
 // 地圖
 bool mapIsStarted = false;

@@ -14,8 +14,8 @@ class ActivityMap extends StatefulWidget {
   final bool isStarted;
   final bool isPaused;
   final List<Marker> markerList; // 標記拍照點
-  final bool sharePosition; // 使用者是否想要分享位置
-  final String activityMsg; // socket 的 activityMsg
+  // final bool sharePosition; // 使用者是否想要分享位置
+  // final String activityMsg; // socket 的 activityMsg
   final List<Marker> memberMarkers;
   // final List<Polyline> memberPolylines;
   final double warningDistance;
@@ -25,8 +25,8 @@ class ActivityMap extends StatefulWidget {
       required this.isStarted,
       required this.isPaused,
       required this.markerList,
-      required this.sharePosition,
-      required this.activityMsg,
+      // required this.sharePosition,
+      // required this.activityMsg,
       required this.memberMarkers,
       // required this.memberPolylines,
       required this.warningDistance})
@@ -42,8 +42,8 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   late bool isStarted;
   late bool isPaused;
   late List<Marker> markerList;
-  late bool sharePosition;
-  late String activityMsg;
+  // late bool sharePosition;
+  // late String activityMsg;
   late List<Marker> memberMarkers;
   // late List<Polyline> memberPolylines;
   late double warningDistance;
@@ -60,8 +60,8 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     gpsList = widget.gpsList;
-    sharePosition = widget.sharePosition;
-    activityMsg = widget.activityMsg;
+    // sharePosition = widget.sharePosition;
+    // activityMsg = widget.activityMsg;
     warningDistance = widget.warningDistance;
     initCamera();
     super.initState();
@@ -122,11 +122,9 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   void getUserTrack({required List<LatLng> gpsList}) async {
     if (isStarted && !isPaused) {
       activPolyline.recordCoordinates(userLocation);
-      print('polyline 我的軌跡 ${activPolyline.list.length}');
 
-      // FIXME 傳自己的座標給 server
-      if (sharePosition) {
-        print(activityMsg);
+      // 傳自己的座標給 server
+      if (activitySharePosition) {
         StreamSocket.uploadUserLocation(
             activityMsg: activityMsg,
             warningDistance: warningDistance,
@@ -157,7 +155,6 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     if (isStarted && !isPaused) {
       getUserTrack(gpsList: gpsList);
     }
-    print('活動地圖使用者位置  userLocation ${userLocation.toLatLng()}');
 
     return Scaffold(
       body: FlutterMap(

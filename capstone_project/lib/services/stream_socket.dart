@@ -22,15 +22,12 @@ class StreamSocket {
     print('CONNECT AND LISTEN');
     try {
       _socket.connect();
-      print("CONNECTING");
       _socket.onConnect((_) {
-        print('CONNECTION ESTABLISHED');
+        print('============\nSOCKET 連線 成功\n============');
       });
-      print('============\nSOCKET 連線\n============');
       // 監聽頻道
       _socket.on('account', (accountData) async {
-        print(
-            'SOCKET ACCOUNT CHANNEL MSG : $accountData  ${accountData.runtimeType}');
+        print('SOCKET ACCOUNT 頻道訊息 : $accountData  ${accountData.runtimeType}');
         if (accountData.runtimeType != String &&
             accountData['ctlmsg'] != null) {
           final String ctlMsg = accountData['ctlmsg'];
@@ -123,35 +120,35 @@ class StreamSocket {
             await SqliteHelper.insert(
                 tableName: 'notification', insertData: insertData);
           }
-          if (ctlMsg == "activity warning") {
-            final String wanringMsg = accountData['wanring_msg'];
-            // FIXME  某人距離過遠
-            if (wanringMsg == "too far") {
-              // FIXME 在 client 顯示 UI 某人距離過遠
-              await NotificationService().showNotification(
-                  1,
-                  'main_channel',
-                  '同行者距離過遠',
-                  '${accountData['account_msg_1']} 和 ${accountData['account_msg_2']} 距離過遠\n兩人相差的距離 : ${accountData['long_distance']}');
-            }
-            // FIXME  某人停留時間過久
-            if (wanringMsg == "too long") {
-              // print('停留時間過久 accountData $accountData');
-              await NotificationService().showNotification(
-                  1,
-                  'main_channel',
-                  '同行者停留時間過久',
-                  '${accountData['account_msg']} 停留時間過久\n${accountData['location_msg']}');
-            }
-          }
         }
         _socketResponse.add(accountData);
       });
-      _socket.on('activity', (activityData) {
-        if (activityData.runtimeType != String) {}
+      _socket.on('activity', (activityData) async {
+        print('SOCKET 活動頻道訊息 : $activityData');
+        // if (activityData.runtimeType != String) {
+        //   final String ctlMsg = activityData['ctlmsg'];
+        //   if (ctlMsg == "activity warning") {
+        //     final String wanringMsg = activityData['wanring_msg'];
+        //     // 某人距離過遠
+        //     if (wanringMsg == "too far") {
+        //       // 在 client 顯示 UI 某人距離過遠
+        //       await NotificationService().showNotification(
+        //           1,
+        //           'main_channel',
+        //           '同行者距離過遠',
+        //           '${activityData['account_msg_1']} 和 ${activityData['account_msg_2']} 距離過遠\n兩人相差的距離 : ${double.parse(activityData['long_distance']).toStringAsFixed(2)}');
+        //     }
+        //     // 某人停留時間過久
+        //     if (wanringMsg == "too long") {
+        //       await NotificationService().showNotification(
+        //           1,
+        //           'main_channel',
+        //           '${activityData['account_msg']} 停留時間過久',
+        //           '${activityData['account_msg']} 目前位置\n經度: ${activityData['location_msg']['longitude']}\n緯度: ${activityData['location_msg']['latitude']}\n高度: ${activityData['location_msg']['elevation']}');
+        //     }
+        //   }
+        // }
         _socketResponse.add(activityData);
-        print('SOCKET ACTIVITY CHANNEL MSG : $activityData');
-        // 直接在這裡寫在 sqlite
       });
     } catch (error) {
       print('ERROR :\n$error');

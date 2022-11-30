@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/map/user_location.dart';
+import 'package:capstone_project/services/stream_socket.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'dart:math';
@@ -8,7 +9,7 @@ import 'package:capstone_project/services/audio_player.dart';
 
 class LocationService {
   // static int sleepTime = 10;
-  // static double updateDistancce = 3; // 每 3 公尺更新一次距離
+  static double updateDistancce = 2; // 每 2 公尺更新一次距離
   static int updateInterval = 3000; // 每 3 秒更新一次距離
 
   // 使用者目前位置
@@ -40,10 +41,9 @@ class LocationService {
         // 在背景程式使用定位服務
         await location.enableBackgroundMode(enable: true);
         await location.changeSettings(
-          accuracy: LocationAccuracy.high,
-          interval: updateInterval,
-          // distanceFilter: updateDistancce
-        );
+            accuracy: LocationAccuracy.high,
+            interval: updateInterval,
+            distanceFilter: updateDistancce);
         locationSubscription =
             location.onLocationChanged.listen((locationData) {
           if (!isFirstLocated) {
@@ -104,6 +104,14 @@ class LocationService {
         activPolyline.recordCoordinates(userLocation);
         caculateWarningDistance(
             warningDistance: activityWarningDistance, gpsList: activityGpsList);
+        // 傳自己的座標給 server
+        if (activitySharePosition) {
+          print(activityMsg);
+          StreamSocket.uploadUserLocation(
+              activityMsg: activityMsg,
+              warningDistance: activityWarningDistance,
+              location: userLocation);
+        }
       }
     }
   }

@@ -108,10 +108,11 @@ class MapPageState extends State<MapPage> {
               WarningTime(
                 isStarted: mapIsStarted,
                 isPaused: mapIsPaused,
-                checkTime: 10, // FIXME
-                warningTime: 180, // FIXME
+                checkTime: 10,
+                warningTime: 180,
+                // checkTime: 2, // For test
+                // warningTime: 10, // For test
                 isActivity: false,
-                activityMsg: '',
               ),
             ],
           ),
