@@ -134,6 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                               //SqliteHelper.initDatabase();
                               SqliteHelper.clear(tableName: "notification");
                               StreamSocket.connectAndListen(); // Socket connect
+                              StreamSocket.loginSend();
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

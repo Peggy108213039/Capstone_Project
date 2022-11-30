@@ -97,9 +97,10 @@ class _ProfilePageOneState extends State<ProfilePage> {
                                     width: 3,
                                   ),
                                   shape: BoxShape.circle,
-                                ),
-                                child: const Image(
-                                  image: defaultUserImage,
+                                  image: const DecorationImage(
+                                    fit: BoxFit.fill,
+                                    image: defaultUserImage
+                                  )
                                 ),
                               ),
                             ),

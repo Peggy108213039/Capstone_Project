@@ -62,7 +62,7 @@ class InfoBox extends StatelessWidget {
                 shape: BoxShape.circle,
                 image: const DecorationImage(
                   fit: BoxFit.fill,
-                  image: AssetImage("assets/images/user.png"),
+                  image: defaultUserImage,
                 ),
               ),
             ),

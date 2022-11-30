@@ -1,6 +1,11 @@
+import 'dart:io';
 import 'package:capstone_project/bottom_bar.dart';
 import 'package:capstone_project/components/default_buttons.dart';
+import 'package:capstone_project/models/ui_model/alert_dialog_model.dart';
+import 'package:capstone_project/services/file_provider.dart';
+import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:capstone_project/ui/setting/setting_page.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/loadingAnimation.dart';
 // basic setting
@@ -22,9 +27,13 @@ class UpdateMyInfoPage extends StatefulWidget {
 class _UpdateMyInfoPageOneState extends State<UpdateMyInfoPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
+  final FileProvider fileProvider = FileProvider();
   // 更新資料的 model
   late UpdateInfoRequestModel requestModel;
   bool isApiCallProcess = false;
+
+  late MyAlertDialog noFileAlertDialog;
+  late MyAlertDialog reChooseAlertDialog;
 
   @override
   void initState() {
@@ -73,17 +82,22 @@ class _UpdateMyInfoPageOneState extends State<UpdateMyInfoPage> {
                       ],
                     ),
                     const VerticalSpacing(percent: 0.05,),
-                    Container( // 大頭貼
-                      width: getProportionateScreenWidth(0.53),
-                      height: getProportionateScreenHeight(0.25),
-                      decoration: const BoxDecoration(
-                        color: unselectedColor,
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.fill,
-                          image: AssetImage("assets/images/user.png"),
+                    GestureDetector(
+                      onTap: (){
+                        addMyPhoto(context);
+                      },
+                      child: Container(
+                        width: getProportionateScreenWidth(0.53),
+                        height: getProportionateScreenHeight(0.25),
+                        decoration: const BoxDecoration(
+                          color: unselectedColor,
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            fit: BoxFit.fill,
+                              image: defaultUserImage,
+                          ),
                         ),
-                      ),
+                      )
                     ),
                     const VerticalSpacing(percent: 0.05,),
                     Container(
@@ -163,6 +177,118 @@ class _UpdateMyInfoPageOneState extends State<UpdateMyInfoPage> {
       return true;
     } else {
       return false;
+    }
+  }
+    // 匯入軌跡
+  void addMyPhoto(BuildContext context) async {
+    // 抓手機上任何類型的檔案
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+    );
+
+    if (result == null) {
+      noFileAlertDialog = MyAlertDialog(
+          context: context,
+          titleText: '沒有選擇檔案匯入',
+          titleFontSize: 30,
+          contentText: '',
+          contentFontSize: 20,
+          btn1Text: '返回',
+          btn2Text: '');
+      noFileAlertDialog.show();
+      return;
+    }
+
+    final PlatformFile file = result.files.single;
+    final String? importFilePath = file.path;
+    final fileType = file.extension; // 檔案類型
+    late bool? toAdd;
+
+    if (fileType != 'jpg') {
+      reChooseAlertDialog = MyAlertDialog(
+          context: context,
+          titleText: '請重新選擇檔案',
+          titleFontSize: 30,
+          contentText: '你選擇的檔案類型不是 .jpg \n請重新選擇',
+          contentFontSize: 20,
+          btn1Text: '返回',
+          btn2Text: '');
+      reChooseAlertDialog.show();
+      return;
+    } else {
+      // late Track newTrackData;
+      late File newTrackFile;
+      // kml 轉 gpx
+      if (fileType == 'jpg' && importFilePath != null) {
+        String result =
+            await fileProvider.readFileAsString(file: File(importFilePath));
+        // String gpxFilePath = '${trackDir!.path}/$trackName';
+        // // 匯入 kml 檔案到 app 下
+        // newTrackFile = await fileProvider.writeFileAsString(
+        //     content: gpxFile, path: gpxFilePath);
+      }
+      // 要新增的軌跡資料
+      // ===================
+      // String result = await fileProvider.readFileAsString(file: newTrackFile);
+      // ===================
+
+    //   if (insertTrackResponse[0]) {
+    //     String tID = insertTrackResponse[1]["tID"].toString();
+    //     Map<String, String> trackID = {'tID': tID};
+    //     List uploadTrackResponse =
+    //         await APIService.uploadTrack(newTrackFile, trackID);
+    //     print(uploadTrackResponse);
+    //     if (uploadTrackResponse[0]) {
+    //       Track newClientTrackData = Track(
+    //           tID: tID,
+    //           uID: UserData.uid.toString(),
+    //           track_name: fileProvider.getFileName(file: newTrackFile),
+    //           track_locate: newTrackFile.path,
+    //           start: DateFormat('yyyy-MM-dd hh:mm').format(startTime),
+    //           finish: DateFormat('yyyy-MM-dd hh:mm').format(finishTime),
+    //           total_distance: distance.toString(),
+    //           time: currentDate,
+    //           track_type: '0');
+    //       List insertClientTrackResult = await SqliteHelper.insert(
+    //           tableName: 'track', insertData: newClientTrackData.toMap());
+    //       if (!insertClientTrackResult[0]) {
+    //         insertClientTrackFailDialog = MyAlertDialog(
+    //             context: context,
+    //             titleText: '本機端新增軌跡失敗',
+    //             titleFontSize: 30,
+    //             contentText: insertClientTrackResult[1].toString(),
+    //             contentFontSize: 20,
+    //             btn1Text: '確認',
+    //             btn2Text: '');
+    //         insertClientTrackFailDialog.show();
+    //       } else {
+    //         hasTrackCheckTable = false;
+    //       }
+    //     } else {
+    //       uploadServerTrackFailDialog = MyAlertDialog(
+    //           context: context,
+    //           titleText: '上傳軌跡失敗',
+    //           titleFontSize: 30,
+    //           contentText: uploadTrackResponse[1].toString(),
+    //           contentFontSize: 20,
+    //           btn1Text: '確認',
+    //           btn2Text: '');
+    //       uploadServerTrackFailDialog.show();
+    //     }
+    //   } else {
+    //     insertServerTrackFailDialog = MyAlertDialog(
+    //         context: context,
+    //         titleText: 'server 新增軌跡失敗',
+    //         titleFontSize: 30,
+    //         contentText: insertTrackResponse[1].toString(),
+    //         contentFontSize: 20,
+    //         btn1Text: '確認',
+    //         btn2Text: '');
+    //     insertServerTrackFailDialog.show();
+    //   }
+    //   setState(() {});
+    // }
+    // return; // 如果沒有要匯入就 return    }
     }
   }
 }
