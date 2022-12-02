@@ -10,7 +10,7 @@ import 'package:capstone_project/services/audio_player.dart';
 class LocationService {
   // static int sleepTime = 10;
   static double updateDistancce = 2; // 每 2 公尺更新一次距離
-  static int updateInterval = 5000; // 每 5 秒更新一次距離
+  static int updateInterval = 3000; // 每 5 秒更新一次距離
 
   // 使用者目前位置
   static late UserLocation currentLocation;
