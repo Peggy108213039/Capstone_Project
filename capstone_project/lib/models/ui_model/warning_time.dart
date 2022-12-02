@@ -79,11 +79,11 @@ class _WarningTimeState extends State<WarningTime> {
           isVisible.value = true;
           AudioPlayerService.playAudio(); // 播放警示音
           print('是不是活動   isActivity  $isActivity');
-          // if (isActivity) {
-          //   print('傳 SOCKET 訊息');
-          //   await StreamSocket.warningTimeTooLong(
-          //       activityMsg: activityMsg, location: userLocation);
-          // }
+          if (isActivity) {
+            print('傳 SOCKET 訊息');
+            await StreamSocket.warningTimeTooLong(
+                activityMsg: activityMsg, location: userLocation);
+          }
         }
         stopTimes = 0;
       }

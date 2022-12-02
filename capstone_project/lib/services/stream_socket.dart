@@ -1,9 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
+import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:capstone_project/services/http_service.dart';
 import 'package:capstone_project/services/notification_service.dart';
+import 'package:capstone_project/services/polyline_coordinates_model.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:intl/intl.dart';
 
@@ -97,6 +103,8 @@ class StreamSocket {
           }
           if (ctlMsg == 'friend request') {
             var who = accountData['account_msg'];
+            await NotificationService()
+                .showNotification(2, 'main_channel', '$who 向你發送好友邀請', '');
             var insertData = {
               "ctlmsg": "friend request",
               "account_msg": who,
@@ -110,6 +118,8 @@ class StreamSocket {
           }
           if (ctlMsg == 'friend response') {
             var who = accountData['account_msg'].toString();
+            await NotificationService()
+                .showNotification(2, 'main_channel', '$who 接受了你的好友邀請', '');
             var insertData = {
               "ctlmsg": "friend response",
               "account_msg": who,
@@ -125,29 +135,35 @@ class StreamSocket {
       });
       _socket.on('activity', (activityData) async {
         print('SOCKET 活動頻道訊息 : $activityData');
-        // if (activityData.runtimeType != String) {
-        //   final String ctlMsg = activityData['ctlmsg'];
-        //   if (ctlMsg == "activity warning") {
-        //     final String wanringMsg = activityData['wanring_msg'];
-        //     // 某人距離過遠
-        //     if (wanringMsg == "too far") {
-        //       // 在 client 顯示 UI 某人距離過遠
-        //       await NotificationService().showNotification(
-        //           1,
-        //           'main_channel',
-        //           '同行者距離過遠',
-        //           '${activityData['account_msg_1']} 和 ${activityData['account_msg_2']} 距離過遠\n兩人相差的距離 : ${double.parse(activityData['long_distance']).toStringAsFixed(2)}');
-        //     }
-        //     // 某人停留時間過久
-        //     if (wanringMsg == "too long") {
-        //       await NotificationService().showNotification(
-        //           1,
-        //           'main_channel',
-        //           '${activityData['account_msg']} 停留時間過久',
-        //           '${activityData['account_msg']} 目前位置\n經度: ${activityData['location_msg']['longitude']}\n緯度: ${activityData['location_msg']['latitude']}\n高度: ${activityData['location_msg']['elevation']}');
-        //     }
-        //   }
-        // }
+        if (activityData.runtimeType != String) {
+          final String ctlMsg = activityData['ctlmsg'];
+          if (ctlMsg == "activity warning") {
+            final String wanringMsg = activityData['wanring_msg'];
+            // 某人距離過遠
+            if (wanringMsg == "too far") {
+              // 在 client 顯示 UI 某人距離過遠
+              await NotificationService().showNotification(
+                  3,
+                  'main_channel',
+                  '${activityData['account_msg_1']} 和 ${activityData['account_msg_2']} 距離過遠',
+                  '相差的距離 : ${double.parse(activityData['long_distance'].toString()).toStringAsFixed(2)} 公尺');
+            }
+            // 某人停留時間過久
+            if (wanringMsg == "too long") {
+              activityMemberStopTooLongText =
+                  '${activityData['account_msg']} 停留時間過久，目前位置:\n經度: ${activityData['location_msg']['longitude']}\n緯度: ${activityData['location_msg']['latitude']}\n高度: ${activityData['location_msg']['elevation']}';
+              showActivityMemberStopTooLongText.value = true;
+              await NotificationService().showNotification(
+                  4,
+                  'main_channel',
+                  '${activityData['account_msg']} 停留時間過久',
+                  '目前位置 經度: ${activityData['location_msg']['longitude']} 緯度: ${activityData['location_msg']['latitude']} 高度: ${activityData['location_msg']['elevation']}');
+            }
+          }
+          if (ctlMsg == "broadcast location") {
+            getMemberLocation(socketData: activityData);
+          }
+        }
         _socketResponse.add(activityData);
       });
     } catch (error) {
@@ -257,5 +273,79 @@ class StreamSocket {
     _socket.disconnect();
     _socket.dispose();
     print("SOCKET IO CLIENT CLOSE CONNECTION");
+  }
+
+  static void getMemberLocation({required Object? socketData}) {
+    // List<Polyline> polylineList = [];
+    final tmpSocketData = jsonDecode(jsonEncode(socketData!));
+    print('socketData $tmpSocketData  type ${tmpSocketData.runtimeType}');
+    // List<Polyline>
+    // if (tmpSocketData.runtimeType != String &&
+    //     tmpSocketData['ctlmsg'] != null) {
+    // final String ctlMsg = tmpSocketData['ctlmsg'];
+    // FIXME client 收到同行者的軌跡
+    // if (ctlMsg == "broadcast location") {
+    // 檢查 memberName 有沒有在 activityFrindsIDList 裡
+    // 沒有就新增一個 PolylineCoordinates
+    String memberName = tmpSocketData['account_msg'].toString();
+    int randomColor = Random().nextInt(Colors.primaries.length);
+    if (!activityFrindsIDList.contains(memberName)) {
+      activityFrindsIDList.add(memberName);
+      // PolylineCoordinates tempPolyline = PolylineCoordinates();
+      activityPolyLineList.add({
+        "account": memberName,
+        // "polyline": tempPolyline,
+        "color": randomColor
+      });
+      activirtMemberMarkers.add(Marker(
+          width: 15,
+          height: 15,
+          point: LatLng(double.parse(tmpSocketData['location_msg']['latitude']),
+              double.parse(tmpSocketData['location_msg']['longitude'])),
+          builder: (context) => Container(
+                decoration: BoxDecoration(
+                    color: Colors.primaries[randomColor],
+                    shape: BoxShape.circle,
+                    border: Border.all(width: 3, color: Colors.white)),
+              )));
+    }
+    // 將 socket 收到的位置記錄起來
+    for (int i = 0; i < activityPolyLineList.length; i++) {
+      if (tmpSocketData['account_msg'] == activityPolyLineList[i]['account']) {
+        // activityPolyLineList[i]['polyline'].recordCoordinates(UserLocation(
+        //     latitude:
+        //         double.parse(tmpSocketData['location_msg']['latitude']),
+        //     longitude:
+        //         double.parse(tmpSocketData['location_msg']['longitude']),
+        //     altitude:
+        //         double.parse(tmpSocketData['location_msg']['elevation']),
+        //     currentTime: UserLocation.getCurrentTime()));
+        activirtMemberMarkers[i] = Marker(
+            width: 15,
+            height: 15,
+            point: LatLng(
+                double.parse(tmpSocketData['location_msg']['latitude']),
+                double.parse(tmpSocketData['location_msg']['longitude'])),
+            builder: (context) => Container(
+                  decoration: BoxDecoration(
+                      color: Colors.primaries[activityPolyLineList[i]['color']],
+                      shape: BoxShape.circle,
+                      border: Border.all(width: 3, color: Colors.white)),
+                ));
+      }
+    }
+    // 回傳 List<polyline>
+    // if (activityPolyLineList.isNotEmpty) {
+    //   for (int i = 0; i < activityPolyLineList.length; i++) {
+    //     polylineList.add(Polyline(
+    //       points: activityPolyLineList[i]['polyline'].list,
+    //       color: Colors.primaries[activityPolyLineList[i]['color']],
+    //       strokeWidth: 4,
+    //     ));
+    //   }
+    // }
+    print('activityPolyLineList $activityPolyLineList');
+    // }
+    // }
   }
 }

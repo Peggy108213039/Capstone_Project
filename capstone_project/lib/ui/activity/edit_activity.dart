@@ -395,10 +395,10 @@ class _EditActivityState extends State<EditActivity> {
       'activity_name': activName,
       'activity_time': timeinput.text,
       'tID': activTrack,
-      // 'warning_distance': warningDistance,
-      // 'warning_time': warningTime,
-      'warning_distance': '0',
-      'warning_time': '0',
+      'warning_distance': warningDistance,
+      'warning_time': warningTime,
+      // 'warning_distance': '0',
+      // 'warning_time': '0',
     };
     print('修改 server 活動資料 2 $newServerActivityData');
     // FIXME
@@ -412,10 +412,10 @@ class _EditActivityState extends State<EditActivity> {
         'activity_name': activName,
         'activity_time': timeinput.text,
         'tID': activTrack,
-        // 'warning_distance': warningDistance,
-        // 'warning_time': warningTime,
-        'warning_distance': '0',
-        'warning_time': '0',
+        'warning_distance': warningDistance,
+        'warning_time': warningTime,
+        // 'warning_distance': '0',
+        // 'warning_time': '0',
       };
       print('修改後的活動資料  $newActivityData');
       await SqliteHelper.update(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:capstone_project/services/notification_service.dart';
+import 'package:capstone_project/ui/activity/warning_member_too_long_text.dart';
 import 'package:intl/intl.dart';
 import 'package:capstone_project/constants.dart';
 import 'package:capstone_project/models/track/track_model.dart';
@@ -43,9 +44,9 @@ class _StartActivityState extends State<StartActivity> {
   late Directory? trackDir; // 軌跡資料夾
   final FileProvider fileProvider = FileProvider();
   late List<LatLng> gpsList;
-  List frindsIDList = [];
+  // List frindsIDList = [];
   List<Polyline> memberPolylines = [];
-  List<Marker> memberMarkers = [];
+  // List<Marker> memberMarkers = [];
 
   List<Marker> markers = []; // 標記拍照點
 
@@ -83,108 +84,18 @@ class _StartActivityState extends State<StartActivity> {
     print('===== 刪掉 dispose =====');
     clearPolylineList();
     activPolyline.clearList();
+    activityFrindsIDList.clear();
+    activirtMemberMarkers.clear();
     activityIsStarted = false;
     activityIsPaused = false;
     activityMsg = '';
+    activityMemberStopTooLongText = '';
+    showActivityMemberStopTooLongText.value = false;
     super.dispose();
   }
 
   void clearPolylineList() {
     activityPolyLineList.clear();
-  }
-
-  List<Polyline> socketSituation({required Object? socketData}) {
-    List<Polyline> polylineList = [];
-    final tmpSocketData = jsonDecode(jsonEncode(socketData!));
-    print('socketData $tmpSocketData  type ${tmpSocketData.runtimeType}');
-    // List<Polyline>
-    if (tmpSocketData.runtimeType != String &&
-        tmpSocketData['ctlmsg'] != null) {
-      final String ctlMsg = tmpSocketData['ctlmsg'];
-      // FIXME client 收到同行者的軌跡
-      if (ctlMsg == "broadcast location") {
-        // 檢查 memberName 有沒有在 frindsIDList 裡
-        // 沒有就新增一個 PolylineCoordinates
-        String memberName = tmpSocketData['account_msg'].toString();
-        int randomColor = Random().nextInt(Colors.primaries.length);
-        if (!frindsIDList.contains(memberName)) {
-          frindsIDList.add(memberName);
-          PolylineCoordinates tempPolyline = PolylineCoordinates();
-          activityPolyLineList.add({
-            "account": memberName,
-            "polyline": tempPolyline,
-            "color": randomColor
-          });
-          memberMarkers.add(Marker(
-              width: 15,
-              height: 15,
-              point: LatLng(
-                  double.parse(tmpSocketData['location_msg']['latitude']),
-                  double.parse(tmpSocketData['location_msg']['longitude'])),
-              builder: (context) => Container(
-                    decoration: BoxDecoration(
-                        color: Colors.primaries[randomColor],
-                        shape: BoxShape.circle,
-                        border: Border.all(width: 3, color: Colors.white)),
-                  )));
-        }
-        // 將 socket 收到的位置記錄起來
-        for (int i = 0; i < activityPolyLineList.length; i++) {
-          if (tmpSocketData['account_msg'] ==
-              activityPolyLineList[i]['account']) {
-            activityPolyLineList[i]['polyline'].recordCoordinates(UserLocation(
-                latitude:
-                    double.parse(tmpSocketData['location_msg']['latitude']),
-                longitude:
-                    double.parse(tmpSocketData['location_msg']['longitude']),
-                altitude:
-                    double.parse(tmpSocketData['location_msg']['elevation']),
-                currentTime: UserLocation.getCurrentTime()));
-            memberMarkers[i] = Marker(
-                width: 15,
-                height: 15,
-                point: LatLng(
-                    double.parse(tmpSocketData['location_msg']['latitude']),
-                    double.parse(tmpSocketData['location_msg']['longitude'])),
-                builder: (context) => Container(
-                      decoration: BoxDecoration(
-                          color: Colors
-                              .primaries[activityPolyLineList[i]['color']],
-                          shape: BoxShape.circle,
-                          border: Border.all(width: 3, color: Colors.white)),
-                    ));
-          }
-        }
-        // 回傳 List<polyline>
-        if (activityPolyLineList.isNotEmpty) {
-          for (int i = 0; i < activityPolyLineList.length; i++) {
-            polylineList.add(Polyline(
-              points: activityPolyLineList[i]['polyline'].list,
-              color: Colors.primaries[activityPolyLineList[i]['color']],
-              strokeWidth: 4,
-            ));
-          }
-        }
-        print('activityPolyLineList $activityPolyLineList');
-      }
-      // if (ctlMsg == "activity warning") {
-      //   final String wanringMsg = tmpSocketData['wanring_msg'];
-      //   // FIXME  某人距離過遠
-      //   if (wanringMsg == "too far") {
-      //     print('距離過遠 tmpSocketData $tmpSocketData');
-      //     // FIXME 在 client 顯示 UI 某人距離過遠
-      //     NotificationService().showNotification(1, 'main_channel', '同行者距離過遠',
-      //         '${tmpSocketData['account_msg_1']} 和 ${tmpSocketData['account_msg_2']} 距離過遠\n兩人相差的距離 : ${tmpSocketData['long_distance']}');
-      //   }
-      //   // FIXME  某人停留時間過久
-      //   if (wanringMsg == "too long") {
-      //     print('停留時間過久 tmpSocketData $tmpSocketData');
-      //     NotificationService().showNotification(1, 'main_channel', '同行者停留時間過久',
-      //         '${tmpSocketData['account_msg']} 停留時間過久\n${tmpSocketData['location_msg']}');
-      //   }
-      // }
-    }
-    return polylineList;
   }
 
   @override
@@ -194,22 +105,14 @@ class _StartActivityState extends State<StartActivity> {
         <String, dynamic>{}) as Map;
     activitySharePosition = arguments['shareUserPosition'];
 
-    // get Socket response
-    final testSocketData = Provider.of<Object?>(context);
-    memberPolylines = socketSituation(socketData: testSocketData);
-
     if (!activityIsStarted && !activityIsPaused) {
       markers.clear();
     }
-    // print('===============');
-    // print('成員資料   activityPolyLineList\n$activityPolyLineList');
-    // print('成員軌跡   memberPolylines\n$memberPolylines');
-    // print('成員標記   memberMarkers\n$memberMarkers');
-    // print('===============');
 
     // 抓使用者手機螢幕的高
     double height = MediaQuery.of(context).size.height;
-
+    print(
+        'showActivityMemberStopTooLongText $showActivityMemberStopTooLongText');
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -228,7 +131,7 @@ class _StartActivityState extends State<StartActivity> {
             isPaused: activityIsPaused,
             markerList: markers,
             // activityMsg: '${arguments['aID']} ${arguments['activity_name']}',
-            memberMarkers: memberMarkers,
+            memberMarkers: activirtMemberMarkers,
             // memberPolylines: memberPolylines,
             warningDistance: double.parse(arguments['warning_distance']),
           ),
@@ -238,10 +141,10 @@ class _StartActivityState extends State<StartActivity> {
                 WarningTime(
                   isStarted: activityIsStarted,
                   isPaused: activityIsPaused,
-                  // checkTime: 10,
-                  // warningTime: int.parse(arguments['warning_time']) * 60,
-                  checkTime: 10, // FIXME: For test
-                  warningTime: 180, // FIXME: For test
+                  checkTime: 10,
+                  warningTime: int.parse(arguments['warning_time']) * 60,
+                  // checkTime: 10, // FIXME: For test
+                  // warningTime: 180, // FIXME: For test
                   isActivity: true,
                 ),
                 WarningDistanceText(
@@ -251,6 +154,10 @@ class _StartActivityState extends State<StartActivity> {
                   activWarnDistance:
                       double.parse(arguments['warning_distance']),
                   trackWarningDistance: 20,
+                ),
+                WarningMemberTooLongText(
+                  isStarted: activityIsStarted,
+                  isPaused: activityIsPaused,
                 ),
               ],
             ),

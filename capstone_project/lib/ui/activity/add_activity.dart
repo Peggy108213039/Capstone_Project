@@ -401,10 +401,10 @@ class _AddActivityPageState extends State<AddActivityPage> {
         activity_name: activName,
         activity_time: timeinput.text,
         tID: activTrack,
-        // warning_distance: warningDistance,
-        // warning_time: warningTime,
-        warning_distance: '0',
-        warning_time: '0',
+        warning_distance: warningDistance,
+        warning_time: warningTime,
+        // warning_distance: '0',
+        // warning_time: '0',
         members: members);
     // 插入 server 資料庫
     List result =
@@ -460,8 +460,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
                   buildActivTime(),
                   buildActivTrack(),
                   buildActivPartner(),
-                  // buildWarningDistance(),
-                  // buildWarningTime(),
+                  buildWarningDistance(),
+                  buildWarningTime(),
                   mySpace(30),
                   SizedBox(
                     height: 45,

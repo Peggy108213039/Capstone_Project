@@ -40,7 +40,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
   // late double activWarnDistance;
   late double trackWarningDistance;
 
-  bool isVisible = false;
+  ValueNotifier<bool> isVisible = ValueNotifier<bool>(false); // 是否顯示警告訊息
   String warningDistanceString = '';
 
   @override
@@ -100,7 +100,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
         pointList: gpsList);
     bool inSafe = result[0];
     if (!inSafe) {
-      isVisible = true;
+      isVisible.value = true;
       double minDistance = result[1];
       if (minDistance < 1) {
         double distance = double.parse((minDistance * 1000).toStringAsFixed(2));
@@ -110,7 +110,7 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
         warningDistanceString = '偏離軌跡\n距離軌跡 $distance 公里';
       }
     } else {
-      isVisible = false;
+      isVisible.value = false;
       warningDistanceString = '';
     }
   }
@@ -126,24 +126,27 @@ class _WarningDistanceTextState extends State<WarningDistanceText> {
           warningDistance: trackWarningDistance, gpsList: gpsList);
     }
     if (!isStarted && !isPaused) {
-      isVisible = false;
+      isVisible.value = false;
     }
 
-    return Visibility(
-      visible: isVisible,
-      child: Container(
-          width: 200,
-          height: 80,
-          margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-          decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 255, 229, 150),
-              borderRadius: BorderRadius.all(Radius.circular(15))),
-          child: Center(
-            child: Text(
-              warningDistanceString,
-              style: const TextStyle(color: Colors.black, fontSize: 15),
-            ),
-          )),
+    return ValueListenableBuilder(
+      valueListenable: isVisible,
+      builder: (BuildContext context, bool value, Widget? child) => Visibility(
+        visible: value,
+        child: Container(
+            width: 200,
+            height: 80,
+            margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+            decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 255, 229, 150),
+                borderRadius: BorderRadius.all(Radius.circular(15))),
+            child: Center(
+              child: Text(
+                warningDistanceString,
+                style: const TextStyle(color: Colors.black, fontSize: 15),
+              ),
+            )),
+      ),
     );
   }
 }

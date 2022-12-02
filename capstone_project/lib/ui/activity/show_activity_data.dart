@@ -178,21 +178,21 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                   subText: '',
                   subTextSize: 0,
                   width: width),
-              // buildText(
-              //     title: '最遠距離',
-              //     content:
-              //         '${arguments['activityData']['warning_distance']} 公尺',
-              //     fontSize: 20,
-              //     subText: '補充說明 : 同行成員中，第一位成員與最後一位成員的距離不得超過此距離',
-              //     subTextSize: 12,
-              //     width: width),
-              // buildText(
-              //     title: '停留時間',
-              //     content: '${arguments['activityData']['warning_time']} 分鐘',
-              //     fontSize: 20,
-              //     subText: '補充說明 : 同行成員中，任何一位成員停留於原地時間不得超過此時間',
-              //     subTextSize: 12,
-              //     width: width),
+              buildText(
+                  title: '最遠距離',
+                  content:
+                      '${arguments['activityData']['warning_distance']} 公尺',
+                  fontSize: 20,
+                  subText: '補充說明 : 同行成員中，第一位成員與最後一位成員的距離不得超過此距離',
+                  subTextSize: 12,
+                  width: width),
+              buildText(
+                  title: '停留時間',
+                  content: '${arguments['activityData']['warning_time']} 分鐘',
+                  fontSize: 20,
+                  subText: '補充說明 : 同行成員中，任何一位成員停留於原地時間不得超過此時間',
+                  subTextSize: 12,
+                  width: width),
               mySpace(15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

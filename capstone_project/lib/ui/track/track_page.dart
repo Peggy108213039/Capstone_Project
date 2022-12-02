@@ -442,12 +442,17 @@ class _TrackPageState extends State<TrackPage> {
                               style: TextStyle(color: Colors.grey.shade300),
                             ),
                           ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => _pushDelete(
-                                context: context, deleteTrackData: [list[idx]]),
-                            color: Colors.white,
-                            tooltip: '刪除軌跡',
+                          trailing: Visibility(
+                            visible: (list[idx]['uID'] ==
+                                UserData.uid.toString()), // 軌跡擁有者才有 刪除軌跡按鈕
+                            child: IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => _pushDelete(
+                                  context: context,
+                                  deleteTrackData: [list[idx]]),
+                              color: Colors.white,
+                              tooltip: '刪除軌跡',
+                            ),
                           ),
                           onTap: () => _checkTrackData(
                               context: context, trackData: [list[idx]]),

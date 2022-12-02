@@ -2,6 +2,7 @@
 import 'package:capstone_project/models/map/user_location.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/services/polyline_coordinates_model.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 const PrimaryDarkGreen = Color.fromARGB(255, 71, 79, 41);
@@ -82,7 +83,12 @@ PolylineCoordinates activPolyline = PolylineCoordinates(); // 紀錄使用者的
 List<Map<String, dynamic>> activityPolyLineList = []; // 紀錄同行者的 polyline
 late double activityWarningDistance; // 活動的警告距離
 late List<LatLng> activityGpsList; // 活動匯入的軌跡
+List activityFrindsIDList = []; // 檢查活動成員是否已加進 activityFrindsIDList 裡
+List<Marker> activirtMemberMarkers = []; // 活動同行者的位置標記
 String activityMsg = '';
+ValueNotifier<bool> showActivityMemberStopTooLongText =
+    ValueNotifier<bool>(false); // 是否顯示警告訊息
+String activityMemberStopTooLongText = '';
 
 // 地圖
 bool mapIsStarted = false;
