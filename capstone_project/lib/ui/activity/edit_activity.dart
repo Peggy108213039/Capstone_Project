@@ -22,8 +22,8 @@ class _EditActivityState extends State<EditActivity> {
 
   String activName = '';
   String activTrack = '';
-  String warningDistance = '50';
-  var warningTime = '3';
+  String warningDistance = '30';
+  var warningTime = '1';
 
   // DateTime? activTime;
   TextEditingController timeinput = TextEditingController();
@@ -36,6 +36,7 @@ class _EditActivityState extends State<EditActivity> {
   List<FriendModel?> selectedPartner = []; // 選中的同行者
 
   List<DropdownMenuItem<String>> warnDistance = const [
+    DropdownMenuItem(child: Text("30 公尺"), value: "30"),
     DropdownMenuItem(child: Text("50 公尺"), value: "50"),
     DropdownMenuItem(child: Text("100 公尺"), value: "100"),
     DropdownMenuItem(child: Text("150 公尺"), value: "150"),
@@ -45,6 +46,7 @@ class _EditActivityState extends State<EditActivity> {
     DropdownMenuItem(child: Text("500 公尺"), value: "500"),
   ];
   List<DropdownMenuItem<String>> warnTimeList = const [
+    DropdownMenuItem(child: Text("1 分鐘"), value: "1"),
     DropdownMenuItem(child: Text("3 分鐘"), value: "3"),
     DropdownMenuItem(child: Text("5 分鐘"), value: "5"),
     DropdownMenuItem(child: Text("10 分鐘"), value: "10"),
@@ -52,8 +54,6 @@ class _EditActivityState extends State<EditActivity> {
     DropdownMenuItem(child: Text("20 分鐘"), value: "20"),
     DropdownMenuItem(child: Text("25 分鐘"), value: "25"),
     DropdownMenuItem(child: Text("30 分鐘"), value: "30"),
-    DropdownMenuItem(child: Text("45 分鐘"), value: "45"),
-    DropdownMenuItem(child: Text("60 分鐘"), value: "60"),
   ];
 
   @override
