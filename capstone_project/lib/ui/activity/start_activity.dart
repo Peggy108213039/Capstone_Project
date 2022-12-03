@@ -88,6 +88,8 @@ class _StartActivityState extends State<StartActivity> {
     activirtMemberMarkers.clear();
     activityIsStarted = false;
     activityIsPaused = false;
+    userStoppedInActivity = false;
+    memberMarkersUpdate = false;
     activityMsg = '';
     activityMemberStopTooLongText = '';
     showActivityMemberStopTooLongText.value = false;
@@ -131,7 +133,7 @@ class _StartActivityState extends State<StartActivity> {
             isPaused: activityIsPaused,
             markerList: markers,
             // activityMsg: '${arguments['aID']} ${arguments['activity_name']}',
-            memberMarkers: activirtMemberMarkers,
+            // memberMarkers: activirtMemberMarkers,
             // memberPolylines: memberPolylines,
             warningDistance: double.parse(arguments['warning_distance']),
           ),

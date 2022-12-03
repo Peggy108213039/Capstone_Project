@@ -84,6 +84,8 @@ List<Map<String, dynamic>> activityPolyLineList = []; // 紀錄同行者的 poly
 late double activityWarningDistance; // 活動的警告距離
 late List<LatLng> activityGpsList; // 活動匯入的軌跡
 List activityFrindsIDList = []; // 檢查活動成員是否已加進 activityFrindsIDList 裡
+bool userStoppedInActivity = false; // 使用者是否在活動中停止不動
+bool memberMarkersUpdate = false; // memberMarker 是否在活動中有更新
 List<Marker> activirtMemberMarkers = []; // 活動同行者的位置標記
 String activityMsg = '';
 ValueNotifier<bool> showActivityMemberStopTooLongText =

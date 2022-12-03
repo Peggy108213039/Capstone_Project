@@ -64,6 +64,9 @@ class _WarningTimeState extends State<WarningTime> {
       print('checkTimer ${timer.tick}');
       if (isStarted && !isPaused) {
         bool isMoved = checkMoved();
+        if (isActivity) {
+          userStoppedInActivity = !isMoved;
+        }
         if (!isMoved) {
           stopTimes++;
           print('checkTimer  stopTimes $stopTimes');

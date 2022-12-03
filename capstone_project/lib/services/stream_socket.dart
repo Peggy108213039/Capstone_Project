@@ -332,6 +332,7 @@ class StreamSocket {
                       shape: BoxShape.circle,
                       border: Border.all(width: 3, color: Colors.white)),
                 ));
+        memberMarkersUpdate = true;
       }
     }
     // 回傳 List<polyline>

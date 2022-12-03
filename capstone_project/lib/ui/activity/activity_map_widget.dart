@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:capstone_project/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -16,7 +18,7 @@ class ActivityMap extends StatefulWidget {
   final List<Marker> markerList; // 標記拍照點
   // final bool sharePosition; // 使用者是否想要分享位置
   // final String activityMsg; // socket 的 activityMsg
-  final List<Marker> memberMarkers;
+  // final List<Marker> memberMarkers;
   // final List<Polyline> memberPolylines;
   final double warningDistance;
   const ActivityMap(
@@ -27,7 +29,7 @@ class ActivityMap extends StatefulWidget {
       required this.markerList,
       // required this.sharePosition,
       // required this.activityMsg,
-      required this.memberMarkers,
+      // required this.memberMarkers,
       // required this.memberPolylines,
       required this.warningDistance})
       : super(key: key);
@@ -44,11 +46,12 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   late List<Marker> markerList;
   // late bool sharePosition;
   // late String activityMsg;
-  late List<Marker> memberMarkers;
+  // late List<Marker> memberMarkers;
   // late List<Polyline> memberPolylines;
   late double warningDistance;
-
   double zoomLevel = 16;
+  int checkTime = 3;
+  late Timer checkTimer; // 每 checkTime 秒檢查一次使用者是否要更新同行者位置
 
   // button style
   final raisedBtnStyle = ElevatedButton.styleFrom(
@@ -62,6 +65,15 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     gpsList = widget.gpsList;
     // sharePosition = widget.sharePosition;
     // activityMsg = widget.activityMsg;
+    checkTimer = Timer.periodic(Duration(seconds: checkTime), (timer) {
+      if (activityIsStarted && !activityIsPaused) {
+        if (userStoppedInActivity && memberMarkersUpdate) {
+          setState(() {
+            memberMarkersUpdate = false;
+          });
+        }
+      }
+    });
     warningDistance = widget.warningDistance;
     initCamera();
     super.initState();
@@ -139,13 +151,16 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     isPaused = widget.isPaused;
     userLocation = Provider.of<UserLocation>(context);
     markerList = widget.markerList;
-    memberMarkers = widget.memberMarkers;
+    // memberMarkers = widget.memberMarkers;
     // memberPolylines = widget.memberPolylines;
-
+    print(
+        '使用者是否移動  $userStoppedInActivity   \n同行者標記是否更新  $memberMarkersUpdate');
+    print('重新畫活動地圖  UI');
     // 去抓使用者手機螢幕的高
     double height = MediaQuery.of(context).size.height;
 
     print('activityMsg $activityMsg');
+    print('memberMarkers  $activirtMemberMarkers');
 
     // FIXME 地圖畫面自動跳到使用者當前位置
     // if (userLocation != currentLocation) {
@@ -184,7 +199,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
           ]),
           MarkerLayerOptions(
               markers: markerList +
-                  memberMarkers +
+                  activirtMemberMarkers +
                   [
                     Marker(
                       point:
