@@ -83,6 +83,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     mapController!.dispose();
+    checkTimer.cancel();
     super.dispose();
   }
 
