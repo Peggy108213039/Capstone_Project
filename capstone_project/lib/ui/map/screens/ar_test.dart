@@ -32,6 +32,15 @@ class _ArScreenState extends State<ArScreen> {
     super.dispose();
   }
 
+  int _counter = 0;
+  void _incrementCounter(){
+    setState(() {
+      _counter++;
+      dispose();
+      initState();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final arguments = (ModalRoute
@@ -43,12 +52,13 @@ class _ArScreenState extends State<ArScreen> {
     print('=== AR gpsList ===');
     print(arguments['gpsList']);
     print('============');
+    String titleText = "AR Screen" + _counter.toString();
     RouteProvider.get_GPS_route(arguments['gpsList']);
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: middleGreen,
       appBar: AppBar(
-        title: const Text('AR Screen'),
+        title: Text(titleText),
         backgroundColor: middleGreen,
         shadowColor: transparentColor,
         shape: const RoundedRectangleBorder(
@@ -70,6 +80,11 @@ class _ArScreenState extends State<ArScreen> {
               ),
             ],
           )),
+      floatingActionButton:  FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Refresh',
+        child: Icon(Icons.refresh),
+      ),
     );
   }
 
@@ -106,6 +121,10 @@ class RouteProvider{
   static String route_string = "";
 
   static void get_GPS_route(List<LatLng> gps){
+    if(route_string !="")
+    {
+      route_string = "";
+    }
     print("========Get GPS!!===========");
 
     int len = gps.length;
