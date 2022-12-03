@@ -40,8 +40,8 @@ class _ActivityPageState extends State<ActivityPage> {
     if (activTable == null) {
       return;
     }
-    // print('活動資料表    $activTable');
-    // print('活動葉面 sqlite 活動資廖表\n${activTable!.length}');
+    print('sqlite 活動資料表    $activTable');
+    print('活動葉面 sqlite 活動資廖表   ${activTable!.length}');
     return activTable;
   }
 

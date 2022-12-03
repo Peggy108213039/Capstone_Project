@@ -26,7 +26,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
   String activName = '';
   String activTrack = '';
   String warningDistance = '30';
-  var warningTime = '1';
+  var warningTime = '30';
 
   TextEditingController timeinput = TextEditingController();
   final ValueNotifier<bool> timeValidate = ValueNotifier<bool>(false);
@@ -51,14 +51,15 @@ class _AddActivityPageState extends State<AddActivityPage> {
     DropdownMenuItem(child: Text("500 公尺"), value: "500"),
   ];
   List<DropdownMenuItem<String>> warnTimeList = const [
-    DropdownMenuItem(child: Text("1 分鐘"), value: "1"),
-    DropdownMenuItem(child: Text("3 分鐘"), value: "3"),
-    DropdownMenuItem(child: Text("5 分鐘"), value: "5"),
-    DropdownMenuItem(child: Text("10 分鐘"), value: "10"),
-    DropdownMenuItem(child: Text("15 分鐘"), value: "15"),
-    DropdownMenuItem(child: Text("20 分鐘"), value: "20"),
-    DropdownMenuItem(child: Text("25 分鐘"), value: "25"),
-    DropdownMenuItem(child: Text("30 分鐘"), value: "30"),
+    DropdownMenuItem(child: Text("30 秒"), value: "30"),
+    DropdownMenuItem(child: Text("1 分鐘"), value: "60"),
+    DropdownMenuItem(child: Text("3 分鐘"), value: "180"),
+    DropdownMenuItem(child: Text("5 分鐘"), value: "300"),
+    DropdownMenuItem(child: Text("10 分鐘"), value: "600"),
+    DropdownMenuItem(child: Text("15 分鐘"), value: "900"),
+    DropdownMenuItem(child: Text("20 分鐘"), value: "1200"),
+    DropdownMenuItem(child: Text("25 分鐘"), value: "1500"),
+    DropdownMenuItem(child: Text("30 分鐘"), value: "1800"),
   ];
 
   @override

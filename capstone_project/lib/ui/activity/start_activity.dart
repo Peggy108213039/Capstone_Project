@@ -144,7 +144,7 @@ class _StartActivityState extends State<StartActivity> {
                   isStarted: activityIsStarted,
                   isPaused: activityIsPaused,
                   checkTime: 10,
-                  warningTime: int.parse(arguments['warning_time']) * 60,
+                  warningTime: int.parse(arguments['warning_time']),
                   // checkTime: 10, // FIXME: For test
                   // warningTime: 180, // FIXME: For test
                   isActivity: true,

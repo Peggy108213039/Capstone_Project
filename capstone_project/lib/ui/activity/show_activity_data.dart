@@ -102,6 +102,15 @@ class _ShowActivityDataState extends State<ShowActivityData> {
       editBtnIsVisible = false;
     }
 
+    String warningTimeText = '';
+    double warningTime =
+        double.parse(arguments['activityData']['warning_time']) / 60.0;
+    if (warningTime < 1) {
+      warningTimeText = '${(warningTime * 60).toStringAsFixed(0)} 秒';
+    } else {
+      warningTimeText = '${warningTime.toStringAsFixed(0)} 分鐘';
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: darkGreen1,
@@ -188,7 +197,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
                   width: width),
               buildText(
                   title: '停留時間',
-                  content: '${arguments['activityData']['warning_time']} 分鐘',
+                  content: warningTimeText,
                   fontSize: 20,
                   subText: '補充說明 : 同行成員中，任何一位成員停留於原地時間不得超過此時間',
                   subTextSize: 12,
