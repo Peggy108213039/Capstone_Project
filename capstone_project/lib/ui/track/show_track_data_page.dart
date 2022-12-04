@@ -203,11 +203,11 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                             child: Elevation(
                               elevationPointList,
                               color: Colors.green.shade100,
-                              elevationGradientColors: ElevationGradientColors(
-                                  // gradient 坡度
-                                  gt10: Colors.green,
-                                  gt20: Colors.orangeAccent,
-                                  gt30: Colors.redAccent),
+                              // elevationGradientColors: ElevationGradientColors(
+                              //     // gradient 坡度
+                              //     gt10: Colors.green,
+                              //     gt20: Colors.orangeAccent,
+                              //     gt30: Colors.redAccent),
                             )),
                       ),
                       const Positioned(
