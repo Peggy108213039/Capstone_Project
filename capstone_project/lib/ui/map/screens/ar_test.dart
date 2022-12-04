@@ -52,7 +52,7 @@ class _ArScreenState extends State<ArScreen> {
     print('=== AR gpsList ===');
     print(arguments['gpsList']);
     print('============');
-    String titleText = "AR Screen" + _counter.toString();
+    String titleText = "AR Screen";
     RouteProvider.get_GPS_route(arguments['gpsList']);
     return Scaffold(
       key: _scaffoldKey,
@@ -80,11 +80,11 @@ class _ArScreenState extends State<ArScreen> {
               ),
             ],
           )),
-      floatingActionButton:  FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Refresh',
-        child: Icon(Icons.refresh),
-      ),
+      // floatingActionButton:  FloatingActionButton(
+      //   onPressed: _incrementCounter,
+      //   tooltip: 'Refresh',
+      //   child: Icon(Icons.refresh),
+      // ),
     );
   }
 
