@@ -37,13 +37,17 @@ class _WarningMemberTooLongTextState extends State<WarningMemberTooLongText> {
             ),
             onPressed: () {
               showActivityMemberStopTooLongText.value = false;
+              activityMemberStopTooLongText.value = '';
             },
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 6, 0, 6),
-                child: Text(
-                  activityMemberStopTooLongText,
-                  style: const TextStyle(color: Colors.black, fontSize: 15),
+                child: ValueListenableBuilder(
+                  valueListenable: activityMemberStopTooLongText,
+                  builder: (context, String value, child) => Text(
+                    value,
+                    style: const TextStyle(color: Colors.black, fontSize: 15),
+                  ),
                 ),
               ),
             ),

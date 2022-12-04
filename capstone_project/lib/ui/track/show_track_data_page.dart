@@ -195,7 +195,7 @@ class _ShowTrackDataPageState extends State<ShowTrackDataPage> {
                                 (ElevationHoverNotification notification) {
                               setState(() {
                                 hoverPoint = notification.position;
-                                print('hoverPoint');
+                                // print('hoverPoint');
                               });
 
                               return true;

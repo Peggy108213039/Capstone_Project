@@ -33,7 +33,7 @@ class StreamSocket {
       });
       // 監聽頻道
       _socket.on('account', (accountData) async {
-        print('SOCKET ACCOUNT 頻道訊息 : $accountData  ${accountData.runtimeType}');
+        // print('SOCKET ACCOUNT 頻道訊息 : $accountData  ${accountData.runtimeType}');
         if (accountData.runtimeType != String &&
             accountData['ctlmsg'] != null) {
           final String ctlMsg = accountData['ctlmsg'];
@@ -134,7 +134,7 @@ class StreamSocket {
         _socketResponse.add(accountData);
       });
       _socket.on('activity', (activityData) async {
-        print('SOCKET 活動頻道訊息 : $activityData');
+        // print('SOCKET 活動頻道訊息 : $activityData');
         if (activityData.runtimeType != String) {
           final String ctlMsg = activityData['ctlmsg'];
           if (ctlMsg == "activity warning") {
@@ -150,8 +150,8 @@ class StreamSocket {
             }
             // 某人停留時間過久
             if (wanringMsg == "too long") {
-              activityMemberStopTooLongText =
-                  '${activityData['account_msg']} 停留時間過久，目前位置:\n經度: ${activityData['location_msg']['longitude']}\n緯度: ${activityData['location_msg']['latitude']}\n高度: ${activityData['location_msg']['elevation']}';
+              activityMemberStopTooLongText.value +=
+                  '${activityData['account_msg']} 停留時間過久，目前位置:\n經度: ${activityData['location_msg']['longitude']}\n緯度: ${activityData['location_msg']['latitude']}\n高度: ${activityData['location_msg']['elevation']}\n\n';
               showActivityMemberStopTooLongText.value = true;
               await NotificationService().showNotification(
                   4,
@@ -278,7 +278,7 @@ class StreamSocket {
   static void getMemberLocation({required Object? socketData}) {
     // List<Polyline> polylineList = [];
     final tmpSocketData = jsonDecode(jsonEncode(socketData!));
-    print('socketData $tmpSocketData  type ${tmpSocketData.runtimeType}');
+    // print('socketData $tmpSocketData  type ${tmpSocketData.runtimeType}');
     // List<Polyline>
     // if (tmpSocketData.runtimeType != String &&
     //     tmpSocketData['ctlmsg'] != null) {
@@ -345,7 +345,7 @@ class StreamSocket {
     //     ));
     //   }
     // }
-    print('activityPolyLineList $activityPolyLineList');
+    // print('activityPolyLineList $activityPolyLineList');
     // }
     // }
   }

@@ -299,7 +299,7 @@ class _TrackPageState extends State<TrackPage> {
       Map<String, dynamic> gpxResult = GPXService.getGPSList(content: result);
       List<LatLng> latLngList = gpxResult['latLngList']; // LatLng (沒有高度)
       List<DateTime> timeList = gpxResult['timeList'];
-      double distance = latLngListDistance(latLngList);
+      double distance = (latLngListDistance(latLngList) * 1000);
       DateTime startTime = DateTime.utc(0);
       DateTime finishTime = DateTime.utc(0);
       if (timeList.isNotEmpty) {
@@ -316,7 +316,7 @@ class _TrackPageState extends State<TrackPage> {
           track_locate: newTrackFile.path,
           start: DateFormat('yyyy-MM-dd hh:mm').format(startTime),
           finish: DateFormat('yyyy-MM-dd hh:mm').format(finishTime),
-          total_distance: distance.toString(),
+          total_distance: distance.toStringAsFixed(0),
           time: currentDate,
           track_type: '0');
       print(newServerTrackData);
@@ -338,7 +338,7 @@ class _TrackPageState extends State<TrackPage> {
               track_locate: newTrackFile.path,
               start: DateFormat('yyyy-MM-dd hh:mm').format(startTime),
               finish: DateFormat('yyyy-MM-dd hh:mm').format(finishTime),
-              total_distance: distance.toString(),
+              total_distance: distance.toStringAsFixed(0),
               time: currentDate,
               track_type: '0');
           List insertClientTrackResult = await SqliteHelper.insert(

@@ -36,8 +36,8 @@ class _WarningTimeState extends State<WarningTime> {
   late int checkTime; // 每 checkTime 秒計算一次使用者是否都待在原地
   late int warningTime; // 如果 warningTime 秒內都待在原地，就發出警告
 
-  late Timer checkTimer;
-  late Timer sendWarningTimer;
+  Timer? checkTimer;
+  Timer? sendWarningTimer;
   late bool isActivity;
   // late String activityMsg;
 
@@ -59,45 +59,51 @@ class _WarningTimeState extends State<WarningTime> {
     checkTime = widget.checkTime;
     warningTime = widget.warningTime;
     isActivity = widget.isActivity;
+    print('警告時間 warningTime : $warningTime     檢查時間 checkTime : $checkTime');
     // activityMsg = widget.activityMsg;
     checkTimer = Timer.periodic(Duration(seconds: checkTime), (timer) {
-      print('checkTimer ${timer.tick}');
-      if (isStarted && !isPaused) {
-        bool isMoved = checkMoved();
-        if (isActivity) {
-          userStoppedInActivity = !isMoved;
-        }
-        if (!isMoved) {
-          stopTimes++;
-          print('checkTimer  stopTimes $stopTimes');
-        }
-        previousLocation = userLocation;
-      }
-    });
-    sendWarningTimer =
-        Timer.periodic(Duration(seconds: warningTime), (timer) async {
-      print('sendWarningTimer ${timer.tick}  stopTimes $stopTimes');
-      if (isStarted && !isPaused) {
-        if (stopTimes >= (warningTime / checkTime)) {
-          isVisible.value = true;
-          AudioPlayerService.playAudio(); // 播放警示音
-          print('是不是活動   isActivity  $isActivity');
+        if (isStarted && !isPaused) {
+          bool isMoved = checkMoved();
           if (isActivity) {
-            print('傳 SOCKET 訊息');
-            await StreamSocket.warningTimeTooLong(
-                activityMsg: activityMsg, location: userLocation);
+            // print('checkTimer ${timer.tick} 是否移動 $isMoved');
+            userStoppedInActivity = !isMoved;
+          }
+          if (!isMoved) {
+            stopTimes++;
+            print(
+                'checkTimer ${timer.tick} 是否移動 $isMoved stopTimes $stopTimes ');
+          }
+          previousLocation = userLocation;
+        }
+      });
+      sendWarningTimer =
+          Timer.periodic(Duration(seconds: warningTime), (timer) async {
+        print('警告計時器 ${timer.tick}  stopTimes $stopTimes');
+        if (isStarted && !isPaused) {
+          if (stopTimes >= (warningTime / checkTime)) {
+            stopTimes = 0;
+            isVisible.value = true;
+            AudioPlayerService.playAudio(); // 播放警示音
+            // print('是不是活動   isActivity  $isActivity');
+            if (isActivity) {
+              print('傳 SOCKET 訊息');
+              await StreamSocket.warningTimeTooLong(
+                  activityMsg: activityMsg, location: userLocation);
+            }
           }
         }
-        stopTimes = 0;
-      }
-    });
+      });
     super.initState();
   }
 
   @override
   void dispose() {
-    checkTimer.cancel();
-    sendWarningTimer.cancel();
+    if (checkTimer!.isActive) {
+      checkTimer!.cancel();
+    }
+    if (sendWarningTimer!.isActive) {
+      sendWarningTimer!.cancel();
+    }
     super.dispose();
   }
 
@@ -133,6 +139,8 @@ class _WarningTimeState extends State<WarningTime> {
     isPaused = widget.isPaused;
     userLocation = Provider.of<UserLocation>(context);
 
+    print(
+        'isStarted $isStarted isPaused $isPaused  warningTime   $warningTime checkTime  $checkTime');
     if (!isStarted && !isPaused) {
       isVisible.value = false;
     }

@@ -44,7 +44,7 @@ const introBackgroundImage =
 const activityListImage =
     AssetImage('assets/images/background/activity_list_bg.png');
 const trackListImage = AssetImage('assets/images/background/track_list_bg.png');
-const defaultUserImage = AssetImage("assets/images/user1.png");
+const defaultUserImage = AssetImage("assets/images/pei_yu.png");
 
 // logo image
 const appNameImg = AssetImage('assets/images/logo_icons/appName.png');
@@ -90,7 +90,7 @@ List<Marker> activirtMemberMarkers = []; // 活動同行者的位置標記
 String activityMsg = '';
 ValueNotifier<bool> showActivityMemberStopTooLongText =
     ValueNotifier<bool>(false); // 是否顯示警告訊息
-String activityMemberStopTooLongText = '';
+ValueNotifier<String> activityMemberStopTooLongText = ValueNotifier<String>('');
 
 // 地圖
 bool mapIsStarted = false;

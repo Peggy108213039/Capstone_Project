@@ -36,26 +36,16 @@ class _TrackDataState extends State<TrackData> {
     final String durationTime = durationFormat(totaltime); // 步行總時間
     final int timeSecond = totaltime.inSeconds; // (秒)
     final double totalDistance =
-        double.parse(trackData?[0]['total_distance']); // (公里)
+        double.parse(trackData?[0]['total_distance']); // (公尺)
     if (timeSecond == 0) {
       velocity = 0.toString();
     } else {
       double _velocity = 0.0;
       double _distance = 0;
-      // 如果總距離小於 1 公里，總距離單位轉成 1 公尺
-      if (totalDistance < 1) {
-        _distance = (totalDistance * 1000); // 公尺
-        distanceUnit = '公尺';
-        timeUnit = '分鐘';
-        // 公尺/分鐘
-        _velocity = (_distance / timeSecond * 60);
-        print(' 公尺/分鐘 distance $distance timeSecond $timeSecond');
-      } else {
-        _distance = totalDistance; // 公里
-        // 公里/小時
-        _velocity = (_distance / timeSecond * 60 * 60);
-        print(' 公里/小時 distance $distance timeSecond $timeSecond');
-      }
+      _distance = totalDistance / 1000; // 公尺轉公里
+      // 公里/小時
+      _velocity = (_distance / timeSecond * 60 * 60);
+      // print(' 公里/小時 distance $distance timeSecond $timeSecond');
       distance = _distance.toStringAsFixed(2);
       velocity = _velocity.toStringAsFixed(2);
     }
@@ -101,7 +91,9 @@ class _TrackDataState extends State<TrackData> {
           children: [
             // Text(
             //   s1,
-            //   style: TextStyle(color: Colors.grey, fontSize: wordSize2),
+            //   style: TextStyle(
+            //       color: const Color.fromARGB(200, 255, 255, 255),
+            //       fontSize: wordSize2),
             // ),
             Text(
               s2,

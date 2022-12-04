@@ -108,10 +108,10 @@ class MapPageState extends State<MapPage> {
               WarningTime(
                 isStarted: mapIsStarted,
                 isPaused: mapIsPaused,
-                checkTime: 10,
-                warningTime: 180,
-                // checkTime: 2, // For test
-                // warningTime: 10, // For test
+                // checkTime: 10,
+                // warningTime: 180,
+                checkTime: 10, // For test
+                warningTime: 30, // For test
                 isActivity: false,
               ),
             ],
@@ -255,7 +255,8 @@ class MapPageState extends State<MapPage> {
                 track_locate: newFilePath,
                 start: mapPolyline.userLocationList[0].currentTime,
                 finish: mapPolyline.userLocationList.last.currentTime,
-                total_distance: mapPolyline.totalDistance.toStringAsFixed(3),
+                total_distance:
+                    (mapPolyline.totalDistance * 1000).toStringAsFixed(0),
                 time: UserLocation.getCurrentTime(),
                 track_type: '1');
             List insertTrackResponse =
@@ -274,7 +275,7 @@ class MapPageState extends State<MapPage> {
                     start: mapPolyline.userLocationList[0].currentTime,
                     finish: mapPolyline.userLocationList.last.currentTime,
                     total_distance:
-                        mapPolyline.totalDistance.toStringAsFixed(3),
+                        (mapPolyline.totalDistance * 1000).toStringAsFixed(0),
                     time: UserLocation.getCurrentTime(),
                     track_type: '1');
                 List insertClientTrackResult = await SqliteHelper.insert(

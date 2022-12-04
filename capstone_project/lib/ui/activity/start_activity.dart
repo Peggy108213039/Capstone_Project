@@ -91,7 +91,7 @@ class _StartActivityState extends State<StartActivity> {
     userStoppedInActivity = false;
     memberMarkersUpdate = false;
     activityMsg = '';
-    activityMemberStopTooLongText = '';
+    activityMemberStopTooLongText.value = '';
     showActivityMemberStopTooLongText.value = false;
     super.dispose();
   }
@@ -351,7 +351,8 @@ class _StartActivityState extends State<StartActivity> {
                 track_locate: newFilePath,
                 start: activPolyline.userLocationList[0].currentTime,
                 finish: activPolyline.userLocationList.last.currentTime,
-                total_distance: activPolyline.totalDistance.toStringAsFixed(3),
+                total_distance:
+                    (activPolyline.totalDistance * 1000).toStringAsFixed(0),
                 time: UserLocation.getCurrentTime(),
                 track_type: '2');
             List insertTrackResponse =
@@ -370,7 +371,7 @@ class _StartActivityState extends State<StartActivity> {
                   start: activPolyline.userLocationList[0].currentTime,
                   finish: activPolyline.userLocationList.last.currentTime,
                   total_distance:
-                      activPolyline.totalDistance.toStringAsFixed(3),
+                      (activPolyline.totalDistance * 1000).toStringAsFixed(0),
                   time: UserLocation.getCurrentTime(),
                   track_type: '2',
                 );
