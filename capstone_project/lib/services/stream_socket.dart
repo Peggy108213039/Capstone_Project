@@ -22,7 +22,7 @@ class StreamSocket {
       'http://163.22.17.247:3000',
       IO.OptionBuilder()
           .setAuth({'account': UserData.userAccount}).setTransports(
-              ['websocket']).build());
+              ['polling', 'websocket']).build());
 
   static connectAndListen() async {
     print('CONNECT AND LISTEN');
