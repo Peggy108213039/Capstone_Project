@@ -180,10 +180,20 @@ class StreamSocket {
       }
       _socket.emit('ctlmsg',
           {'ctlmsg': 'join account room', 'account_msg': UserData.userAccount});
+      _socket.emit('ctlmsg', {'ctlmsg': 'check', 'account_msg': UserData.userAccount});
     } catch (error) {
       print('ERROR: $error');
     }
   }
+
+  // static checkInRoom() async {
+  //   try {
+  //     _socket.onConnect((data) => null);
+  //     _socket.emit('ctlmsg', {'ctlmsg': 'check', 'account_msg': UserData.userAccount});
+  //   } catch (error) {
+  //     print("ERROR: $error");
+  //   }
+  // }
 
   // emit invitation msg to server
   Future<void> joinActivityRoom(String activityName) async {
@@ -202,6 +212,7 @@ class StreamSocket {
   // emit invitation msg to server
   Future<void> friendRequest(String friendAccount) async {
     try {
+      print("socket 連線狀態: ${_socket.connected}");
       if(!_socket.active){
         _socket.onReconnect((data) => _socket.connect());
         print("socket 重新連線");

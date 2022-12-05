@@ -1,6 +1,5 @@
 // import 'package:my_capstone_project/ui/notification_page.dart';
 // import 'package:my_capstone_project/ui/login_page.dart';
-import 'dart:ffi';
 
 import 'package:capstone_project/services/sqlite_helper.dart';
 import 'package:flutter/material.dart';
