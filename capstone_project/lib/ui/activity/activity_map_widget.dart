@@ -49,7 +49,7 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
   // late List<Marker> memberMarkers;
   // late List<Polyline> memberPolylines;
   late double warningDistance;
-  double zoomLevel = 16;
+  double zoomLevel = 17;
   int checkTime = 3;
   late Timer checkTimer; // 每 checkTime 秒檢查一次使用者是否要更新同行者位置
 

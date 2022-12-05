@@ -288,7 +288,12 @@ class StreamSocket {
     // 檢查 memberName 有沒有在 activityFrindsIDList 裡
     // 沒有就新增一個 PolylineCoordinates
     String memberName = tmpSocketData['account_msg'].toString();
-    int randomColor = Random().nextInt(Colors.primaries.length);
+    // int randomColor = Random().nextInt(Colors.primaries.length);
+    List randomColor = [
+      Random().nextInt(255),
+      Random().nextInt(255),
+      Random().nextInt(255)
+    ];
     if (!activityFrindsIDList.contains(memberName)) {
       activityFrindsIDList.add(memberName);
       // PolylineCoordinates tempPolyline = PolylineCoordinates();
@@ -304,7 +309,11 @@ class StreamSocket {
               double.parse(tmpSocketData['location_msg']['longitude'])),
           builder: (context) => Container(
                 decoration: BoxDecoration(
-                    color: Colors.primaries[randomColor],
+                    color: Color.fromRGBO(
+                        activityPolyLineList.last['color'][0],
+                        activityPolyLineList.last['color'][1],
+                        activityPolyLineList.last['color'][2],
+                        1),
                     shape: BoxShape.circle,
                     border: Border.all(width: 3, color: Colors.white)),
               )));
@@ -328,7 +337,12 @@ class StreamSocket {
                 double.parse(tmpSocketData['location_msg']['longitude'])),
             builder: (context) => Container(
                   decoration: BoxDecoration(
-                      color: Colors.primaries[activityPolyLineList[i]['color']],
+                      // activityPolyLineList[i]['color']
+                      color: Color.fromRGBO(
+                          activityPolyLineList[i]['color'][0],
+                          activityPolyLineList[i]['color'][1],
+                          activityPolyLineList[i]['color'][2],
+                          1),
                       shape: BoxShape.circle,
                       border: Border.all(width: 3, color: Colors.white)),
                 ));

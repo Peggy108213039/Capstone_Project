@@ -383,7 +383,7 @@ class _ShowActivityDataState extends State<ShowActivityData> {
         context: context,
         titleText: '是否要分享位置給同行者？',
         titleFontSize: 25,
-        contentText: '分享後，同行者可以看到你的軌跡\n若沒分享，同行者看不到你的軌跡',
+        contentText: '分享後，同行者可以看到你的位置\n若沒分享，同行者看不到你的位置',
         contentFontSize: 18,
         btn1Text: '要分享',
         btn2Text: '不要分享');
