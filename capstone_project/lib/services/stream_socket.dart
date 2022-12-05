@@ -22,7 +22,7 @@ class StreamSocket {
       'http://163.22.17.247:3000',
       IO.OptionBuilder()
           .setAuth({'account': UserData.userAccount}).setTransports(
-              ['polling', 'websocket']).build());
+              ['websocket']).build());
 
   static connectAndListen() async {
     print('CONNECT AND LISTEN');
@@ -30,6 +30,7 @@ class StreamSocket {
       _socket.connect();
       _socket.onConnect((_) {
         print('============\nSOCKET 連線 成功\n============');
+
       });
       // 監聽頻道
       _socket.on('account', (accountData) async {
@@ -173,6 +174,10 @@ class StreamSocket {
 
   static loginSend() async {
     try {
+      if(!_socket.active){
+        _socket.onReconnect((data) => _socket.connect());
+        print("socket 重新連線");
+      }
       _socket.emit('ctlmsg',
           {'ctlmsg': 'join account room', 'account_msg': UserData.userAccount});
     } catch (error) {
@@ -197,6 +202,11 @@ class StreamSocket {
   // emit invitation msg to server
   Future<void> friendRequest(String friendAccount) async {
     try {
+      if(!_socket.active){
+        _socket.onReconnect((data) => _socket.connect());
+        print("socket 重新連線");
+      }
+
       _socket.emit('ctlmsg', {
         'ctlmsg': 'friend request',
         'account_msg': UserData.userAccount, // 發邀請者的 account
