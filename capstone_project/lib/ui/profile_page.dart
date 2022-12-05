@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:capstone_project/models/userInfo/getInfo.dart';
 import 'package:capstone_project/services/sqlite_helper.dart';
+import 'package:capstone_project/services/stream_socket.dart';
 import 'package:capstone_project/size_config.dart';
 import 'package:flutter/material.dart';
 // basic setting
@@ -33,6 +34,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
 
   @override
   void initState() {
+    StreamSocket.loginSend();
     super.initState();
     getMyInfo();
     userName = UserData.userName.toString(); // catch & print userinfo table

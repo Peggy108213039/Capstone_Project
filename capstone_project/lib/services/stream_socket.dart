@@ -203,7 +203,7 @@ class StreamSocket {
         'activity_msg': activityName,
         'account_msg': UserData.userAccount
       });
-      print('JOIN ACCOUNT ROOM');
+      print('JOIN ACTIVITY ROOM');
     } catch (error) {
       print('SOCKET ERROR: $error');
     }
