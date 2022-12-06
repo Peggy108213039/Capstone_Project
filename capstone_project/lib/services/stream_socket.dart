@@ -30,7 +30,6 @@ class StreamSocket {
       _socket.connect();
       _socket.onConnect((_) {
         print('============\nSOCKET 連線 成功\n============');
-
       });
       // 監聽頻道
       _socket.on('account', (accountData) async {
@@ -174,13 +173,14 @@ class StreamSocket {
 
   static loginSend() async {
     try {
-      if(!_socket.active){
+      if (!_socket.active) {
         _socket.onReconnect((data) => _socket.connect());
         print("socket 重新連線");
       }
       _socket.emit('ctlmsg',
           {'ctlmsg': 'join account room', 'account_msg': UserData.userAccount});
-      _socket.emit('ctlmsg', {'ctlmsg': 'check', 'account_msg': UserData.userAccount});
+      _socket.emit(
+          'ctlmsg', {'ctlmsg': 'check', 'account_msg': UserData.userAccount});
     } catch (error) {
       print('ERROR: $error');
     }
@@ -213,7 +213,7 @@ class StreamSocket {
   Future<void> friendRequest(String friendAccount) async {
     try {
       print("socket 連線狀態: ${_socket.connected}");
-      if(!_socket.active){
+      if (!_socket.active) {
         _socket.onReconnect((data) => _socket.connect());
         print("socket 重新連線");
       }
@@ -309,12 +309,13 @@ class StreamSocket {
     // 檢查 memberName 有沒有在 activityFrindsIDList 裡
     // 沒有就新增一個 PolylineCoordinates
     String memberName = tmpSocketData['account_msg'].toString();
-    // int randomColor = Random().nextInt(Colors.primaries.length);
-    List randomColor = [
-      Random().nextInt(255),
-      Random().nextInt(255),
-      Random().nextInt(255)
-    ];
+    Color randomColor = Colors.green;
+    // List randomColor = [
+    //   Random().nextInt(255),
+    //   Random().nextInt(255),
+    //   Random().nextInt(255)
+    // ];
+
     if (!activityFrindsIDList.contains(memberName)) {
       activityFrindsIDList.add(memberName);
       // PolylineCoordinates tempPolyline = PolylineCoordinates();
@@ -330,11 +331,12 @@ class StreamSocket {
               double.parse(tmpSocketData['location_msg']['longitude'])),
           builder: (context) => Container(
                 decoration: BoxDecoration(
-                    color: Color.fromRGBO(
-                        activityPolyLineList.last['color'][0],
-                        activityPolyLineList.last['color'][1],
-                        activityPolyLineList.last['color'][2],
-                        1),
+                    color: activityPolyLineList.last['color'],
+                    // Color.fromRGBO(
+                    //     activityPolyLineList.last['color'][0],
+                    //     activityPolyLineList.last['color'][1],
+                    //     activityPolyLineList.last['color'][2],
+                    //     1),
                     shape: BoxShape.circle,
                     border: Border.all(width: 3, color: Colors.white)),
               )));
@@ -359,11 +361,12 @@ class StreamSocket {
             builder: (context) => Container(
                   decoration: BoxDecoration(
                       // activityPolyLineList[i]['color']
-                      color: Color.fromRGBO(
-                          activityPolyLineList[i]['color'][0],
-                          activityPolyLineList[i]['color'][1],
-                          activityPolyLineList[i]['color'][2],
-                          1),
+                      color: activityPolyLineList.last['color'],
+                      // Color.fromRGBO(
+                      //     activityPolyLineList[i]['color'][0],
+                      //     activityPolyLineList[i]['color'][1],
+                      //     activityPolyLineList[i]['color'][2],
+                      //     1),
                       shape: BoxShape.circle,
                       border: Border.all(width: 3, color: Colors.white)),
                 ));
