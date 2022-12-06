@@ -10,7 +10,9 @@ class AudioPlayerService {
         await rootBundle.load(alarmAudioPath); //load audio from assets
     Uint8List audiobytes =
         bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
-    if (player.state != PlayerState.PLAYING) {
+    // print('player 的狀態 1 ${player.state}');
+    if (player.state == PlayerState.COMPLETED) {
+      // print('player 的狀態 2 ${player.state}');
       int result = await player.playBytes(audiobytes);
       if (result == 1) {
         //play success
@@ -21,9 +23,4 @@ class AudioPlayerService {
     }
     await player.resume();
   }
-
-  // static void close() {
-  //   print('關閉 player');
-  //   player.dispose();
-  // }
 }

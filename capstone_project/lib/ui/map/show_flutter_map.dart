@@ -69,7 +69,7 @@ class _ShowFlutterMapState extends State<ShowFlutterMap>
     } else {
       mapIsBackground = false;
     }
-    print('地圖在背景 mapIsBackground');
+    print('地圖在背景 $mapIsBackground');
   }
 
   // 抓使用者目前位置

@@ -9,8 +9,8 @@ import 'package:capstone_project/services/audio_player.dart';
 
 class LocationService {
   // static int sleepTime = 10;
-  static double updateDistancce = 2; // 每 2 公尺更新一次距離
-  static int updateInterval = 3000; // 每 5 秒更新一次距離
+  // static double updateDistancce = 2; // 每 2 公尺更新一次距離
+  static int updateInterval = 3000; // 每 3 秒更新一次距離
 
   // 使用者目前位置
   static late UserLocation currentLocation;
@@ -39,11 +39,12 @@ class LocationService {
     if (_permissionGranted == PermissionStatus.granted) {
       try {
         // 在背景程式使用定位服務
-        await location.enableBackgroundMode(enable: true);
+        // await location.enableBackgroundMode(enable: true);
         await location.changeSettings(
-            accuracy: LocationAccuracy.high,
-            interval: updateInterval,
-            distanceFilter: updateDistancce);
+          accuracy: LocationAccuracy.high,
+          interval: updateInterval,
+          // distanceFilter: updateDistancce
+        );
         locationSubscription =
             location.onLocationChanged.listen((locationData) {
           if (!isFirstLocated) {
@@ -91,8 +92,6 @@ class LocationService {
           altitude: locationData.altitude!,
           currentTime: UserLocation.getCurrentTime()));
     }
-    // print(
-    //     '使用者位置 經度 : ${locationData.latitude!} 緯度 : ${locationData.longitude!}');
     if (mapIsBackground) {
       if (mapIsStarted && !mapIsPaused) {
         mapPolyline.recordCoordinates(userLocation);
@@ -106,7 +105,6 @@ class LocationService {
             warningDistance: activityWarningDistance, gpsList: activityGpsList);
         // 傳自己的座標給 server
         if (activitySharePosition) {
-          print(activityMsg);
           StreamSocket.uploadUserLocation(
               activityMsg: activityMsg,
               warningDistance: activityWarningDistance,
