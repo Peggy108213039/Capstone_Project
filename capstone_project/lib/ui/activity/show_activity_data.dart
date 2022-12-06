@@ -268,6 +268,8 @@ class _ShowActivityDataState extends State<ShowActivityData> {
       print('FALSE 不是活動創辦人');
     }
     bool? shareUserPosition = await sharePosition();
+    activityMsg =
+        '${arguments['activityData']['aID']} ${arguments['activityData']['activity_name']}';
     Navigator.pushNamed(context, '/StartActivity', arguments: {
       'aID': arguments['activityData']['aID'],
       'uID': arguments['activityData']['uID'],
