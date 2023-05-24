@@ -152,8 +152,6 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
     isPaused = widget.isPaused;
     userLocation = Provider.of<UserLocation>(context);
     markerList = widget.markerList;
-    // memberMarkers = widget.memberMarkers;
-    // memberPolylines = widget.memberPolylines;
     print(
         '使用者是否移動  $userStoppedInActivity   \n同行者標記是否更新  $memberMarkersUpdate');
     print('重新畫活動地圖  UI');
@@ -162,11 +160,6 @@ class _ActivityMapState extends State<ActivityMap> with WidgetsBindingObserver {
 
     print('activityMsg $activityMsg');
     print('memberMarkers  $activirtMemberMarkers');
-
-    // FIXME 地圖畫面自動跳到使用者當前位置
-    // if (userLocation != currentLocation) {
-    //   moveCamera(userLocation: userLocation, currentLocation: currentLocation);
-    // }
 
     if (isStarted && !isPaused) {
       getUserTrack(gpsList: gpsList);

@@ -143,10 +143,10 @@ class _StartActivityState extends State<StartActivity> {
                 WarningTime(
                   isStarted: activityIsStarted,
                   isPaused: activityIsPaused,
-                  checkTime: 10,
-                  warningTime: int.parse(arguments['warning_time']),
-                  // checkTime: 10, // FIXME: For test
-                  // warningTime: 180, // FIXME: For test
+                  // checkTime: 10,
+                  // warningTime: int.parse(arguments['warning_time']),
+                  checkTime: 5, // FIXME: For test
+                  warningTime: 10, // FIXME: For test
                   isActivity: true,
                 ),
                 WarningDistanceText(

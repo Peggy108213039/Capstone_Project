@@ -377,7 +377,6 @@ class APIService {
     String url =
         "http://163.22.17.247:3000/api/activity/select_account_activity";
     await SqliteHelper.clear(tableName: "activity").then((value) async {
-      // final response =
       await http
           .post(Uri.parse(url),
               headers: {'cookie': UserData.token}, body: content)
@@ -386,21 +385,18 @@ class APIService {
 
         if (response.statusCode == 200 || response.statusCode == 400) {
           // 抓 sqlite 所有軌跡的 tID
-          // List sqliteTidList =
           await SqliteHelper.queryAllTrackDataList(columns: ['tID'])
               .then((sqliteTidList) async {
-            print('server 活動 長度 ${serverActivities.length}');
-            print('serverActivities   $serverActivities');
             List<String> hasDownloadTrackList = []; // 檢查是否已下載過
             for (var activity in serverActivities) {
-              print(
-                  'server activity  ${activity['members'].runtimeType}  ${activity['members']}');
               // 把 server 活動資料加進 sqlite
               final Activity newLocalActivityData = Activity(
                   aID: activity['aID'].toString(),
                   uID: activity['uID'].toString(),
                   activity_name: activity['activity_name'].toString(),
-                  activity_time: activity['activity_time'].toString(),
+                  activity_time: DateTime.parse(activity['activity_time'])
+                      .toLocal()
+                      .toString(),
                   start_activity_time:
                       activity['start_activity_time'].toString(),
                   finish_activity_time:

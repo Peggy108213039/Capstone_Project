@@ -225,6 +225,9 @@ class _EditActivityState extends State<EditActivity> {
           valueListenable: timeValidate,
           builder: (context, bool? value, child) {
             timeinput.text = dateFormat.format(initValue);
+            if (initValue.isBefore(DateTime.now())) {
+              initValue = DateTime.now();
+            }
             return TextField(
               style: const TextStyle(color: darkGreen2),
               controller: timeinput, //editing controller of this TextField

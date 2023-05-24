@@ -44,7 +44,7 @@ const introBackgroundImage =
 const activityListImage =
     AssetImage('assets/images/background/activity_list_bg.png');
 const trackListImage = AssetImage('assets/images/background/track_list_bg.png');
-const defaultUserImage = AssetImage("assets/images/pei_yu.png");
+const defaultUserImage = AssetImage("assets/images/chin_yuan.png");
 
 // logo image
 const appNameImg = AssetImage('assets/images/logo_icons/appName.png');

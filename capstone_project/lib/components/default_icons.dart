@@ -49,11 +49,9 @@ class DefCheckIcon extends StatelessWidget {
 }
 
 class DefNotificationIcon extends StatelessWidget {
-  const DefNotificationIcon({
-    Key? key,
-    required this.enable,
-    required this.show
-  }) : super(key: key);
+  const DefNotificationIcon(
+      {Key? key, required this.enable, required this.show})
+      : super(key: key);
   final bool enable;
   final bool show;
 
@@ -70,25 +68,30 @@ class DefNotificationIcon extends StatelessWidget {
       );
     } else {
       return Badge(
-        showBadge: show,
-        position: BadgePosition.topEnd(top: 1, end: 3),
-        badgeColor: Colors.red,
-        badgeContent: const Text("9", style: TextStyle(color: unselectedColor),),
-        child: IconButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NotificationPage(),
+          showBadge: show,
+          position: BadgePosition.topEnd(top: 1, end: 3),
+          badgeStyle: const BadgeStyle(
+            badgeColor: Colors.red,
+          ),
+          badgeContent: const Text(
+            "9",
+            style: TextStyle(color: unselectedColor),
+          ),
+          child: IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationPage(),
+                ),
+              );
+            },
+            icon: const ImageIcon(
+              AssetImage("assets/images/other_icons/notification.png"),
+              color: darkGreen2,
+              size: 30.0,
             ),
-          );
-        },
-        icon: const ImageIcon(
-          AssetImage("assets/images/other_icons/notification.png"),
-          color: darkGreen2,
-          size: 30.0,
-        ),
-      ));
+          ));
     }
   }
 }

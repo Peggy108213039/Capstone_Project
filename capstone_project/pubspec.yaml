@@ -51,10 +51,10 @@ dependencies:
   web_socket_channel: ^2.1.0
   # flutter_session: ^0.1.
   flutter_app_badger: ^1.5.0 #note_number
-  badges: ^2.0.3 #ring_note_number
+  badges: ^3.0.2 #ring_note_number
   # pick file from storage
-  file_picker: ^4.6.1
-  open_file: ^3.2.1
+  file_picker: ^5.2.5
+  # open_file: ^3.2.1
   # download and save file
   dio: ^4.0.6
   path_provider: ^2.0.11
@@ -71,16 +71,18 @@ dependencies:
   image_picker: ^0.8.5+3
   gallery_saver: ^2.3.2
   flutter_archive: ^5.0.0 # 解壓縮的套件
-  dart_numerics: ^0.0.6
-  pointer_interceptor: ^0.9.3+2
+  dart_numerics: ^0.0.6 
+  # pointer_interceptor: ^0.9.3+2 
   flutter_unity_widget: ^2022.2.0
   cached_network_image: ^3.2.2
   multi_select_flutter: ^4.1.2
-  expandable_text: ^2.3.0
-  audioplayers: 0.20.1
+  # expandable_text: ^2.3.0 
+  audioplayers: ^3.0.1
   awesome_notifications: ^0.7.4+1
-  flutter_launcher_icons: ^0.11.0
-  flutter_screenutil: ^5.6.0
+  # flutter_launcher_icons: ^0.11.0 
+  flutter_screenutil: ^5.6.0 
+  intl: ^0.17.0
+  open_file_plus: ^3.3.0
 
 flutter_icons:
   image_path_android: "assets/images/logo_icons/logo.png"
