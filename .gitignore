@@ -616,3 +616,5 @@ windows/
 .flutter-plugins-dependencies
 pubspec.lock
 build/
+android/.gradle/
+android/unityLibrary/

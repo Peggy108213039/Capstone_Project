@@ -1,6 +1,9 @@
 # Capstone_Project
-畢業專題會不會做到沒辦法畢業呢 T T
+
+A new Flutter project.
 
 ## Installation
-1. `git clone https://github.com/Peggy108213039/Capstone_Project.git` 
-2. `flutter packages get`
+
+1. `git clone https://github.com/Peggy108213039/Capstone_Project.git`
+2. `flutter clean`
+3. `flutter pub get`
