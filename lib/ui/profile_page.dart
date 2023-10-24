@@ -22,9 +22,10 @@ class _ProfilePageOneState extends State<ProfilePage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   APIService apiService = APIService();
-  late getInfoRequestModel requestModel = getInfoRequestModel(uID: UserData.uid.toString());
+  late getInfoRequestModel requestModel =
+      getInfoRequestModel(uID: UserData.uid.toString());
   late List<Map<String, dynamic>>? noteList = [];
-  late bool showBadge = false; 
+  late bool showBadge = false;
 
   String userName = ''; // catch & print userinfo table
   String userAccount = '';
@@ -39,7 +40,7 @@ class _ProfilePageOneState extends State<ProfilePage> {
     getMyInfo();
     userName = UserData.userName.toString(); // catch & print userinfo table
     userAccount = UserData.userAccount;
-    accDistance = (UserData.totalDistance/1000).toString();
+    accDistance = (UserData.totalDistance / 1000).toString();
     accTrack = UserData.totalTrack.toString();
     accActivity = UserData.totalActivity.toString();
   }
@@ -47,8 +48,6 @@ class _ProfilePageOneState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    double? width= SizeConfig.screenWidth;
-    double? height= SizeConfig.screenHeight;
     return Container(
       constraints: const BoxConstraints.expand(),
       decoration: const BoxDecoration(
@@ -59,210 +58,167 @@ class _ProfilePageOneState extends State<ProfilePage> {
         body: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: (width! * 0.035), vertical: (height! * 0.05)),
+                horizontal: (SizeConfig.screenWidth! * 0.035),
+                vertical: (SizeConfig.screenHeight! * 0.05)),
             child: Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    DefNotificationIcon(enable: true,show: showBadge,),
-                    const DefSettingIcon(enable: true,),
-                  ],
-                ),
-                // SizedBox(
-                //   height: (height * 0.025),
-                // ),
-                SizedBox(
-                  // decoration: const BoxDecoration(color: Colors.amber),
-                  height: height * 0.45,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      double innerHeight = constraints.maxHeight;
-                      double innerWidth = constraints.maxWidth;
-                      // Stack
-                      return Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Positioned( // 大頭貼
-                            top: innerHeight * 0.05,
-                            left: 0,
-                            right: 0,
-                            child: Center(
-                              child: Container(
-                                width: innerWidth * 0.6,
-                                height: innerHeight * 0.6,
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  color: transparentColor,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                  shape: BoxShape.circle,
-                                  image: const DecorationImage(
-                                    fit: BoxFit.fill,
-                                    image: defaultUserImage
-                                  )
-                                ),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: innerHeight * 0.7,
-                            left: 0,
-                            right: 0,
-                            child: SizedBox(
-                              //height: innerHeight * 0.3,
-                              width: innerWidth,
-                              child: Column(
-                                children: [
-                                  Text(
-                                    // 使用者名稱
-                                    userName,
-                                    style: const TextStyle(
-                                      color: darkGreen2,
-                                      fontSize: 35.0,
-                                      // fontFamily: 'popFonts'
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: (height * 0.01),
-                                  ),
-                                  ScreenUtilInit(builder: ((context, child) {
-                                    return Text("@"+userAccount, style: TextStyle(
-                                      color: darkGreen2,
-                                      fontSize: ScreenUtil().setSp(25)
-                                    ),);
-                                  })),
-                                  // Text(
-                                  //   // 使用者帳號
-                                  //   "@" + userAccount,
-                                  //   style: const TextStyle(
-                                  //     color: darkGreen2,
-                                  //     fontSize: 25.0,
-                                  //     // fontFamily: 'popFonts'
-                                  //   ),
-                                  // ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(
-                  height: (height * 0.025),
                 ),
                 Container(
-                  height: height * 0.2,
-                  width: width,
+                  margin: EdgeInsets.fromLTRB(0, SizeConfig.screenHeight! * 0.1,
+                      0, SizeConfig.screenHeight! * 0.02),
+                  width: SizeConfig.screenHeight! * 0.3,
+                  height: SizeConfig.screenHeight! * 0.3,
+                  decoration: BoxDecoration(
+                      color: transparentColor,
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 3,
+                      ),
+                      shape: BoxShape.circle,
+                      image: const DecorationImage(
+                          fit: BoxFit.fill, image: defaultUserImage)),
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(
+                      0,
+                      SizeConfig.screenHeight! * 0.01,
+                      0,
+                      SizeConfig.screenHeight! * 0.02),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        // 使用者名稱
+                        userName,
+                        style: const TextStyle(
+                          color: darkGreen2,
+                          fontSize: 35.0,
+                        ),
+                      ),
+                      SizedBox(
+                        height: (SizeConfig.screenHeight! * 0.005),
+                      ),
+                      Text(
+                        "@$userAccount",
+                        style: const TextStyle(color: darkGreen2, fontSize: 25),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(
+                      0,
+                      SizeConfig.screenHeight! * 0.01,
+                      0,
+                      SizeConfig.screenHeight! * 0.01),
+                  padding: EdgeInsets.fromLTRB(
+                      0,
+                      SizeConfig.screenHeight! * 0.02,
+                      0,
+                      SizeConfig.screenHeight! * 0.02),
+                  width: SizeConfig.screenWidth! * 0.9,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                        topLeft:
-                            Radius.elliptical(width * 0.1, height * 0.5 * 0.1),
-                        bottomRight:
-                            Radius.elliptical(width * 0.1, height * 0.5 * 0.1),
+                        topLeft: Radius.elliptical(
+                            SizeConfig.screenWidth! * 0.1,
+                            SizeConfig.screenHeight! * 0.5 * 0.1),
+                        bottomRight: Radius.elliptical(
+                            SizeConfig.screenWidth! * 0.1,
+                            SizeConfig.screenHeight! * 0.5 * 0.1),
                         topRight: const Radius.circular(10.0),
                         bottomLeft: const Radius.circular(10.0)),
                     color: semiTransparentColor,
                   ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width*0.05, vertical: height*0.005),
-                    child: Column(
-                      children: [
-                        ScreenUtilInit(builder: ((context, child) {
-                          return Text("累積紀錄", style: TextStyle(
-                            color: darkGreen2,
-                            fontSize: ScreenUtil().setSp(22)
-                          ),);
-                        })),
-                        Divider(
-                          height: height*0.015,
-                          thickness: 3,
-                          color: darkGreen1,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Column(
-                              children: [
-                                ScreenUtilInit(builder: ((context, child) {
-                                  return Text(accDistance, style: TextStyle(
-                                    color: darkGreen2,
-                                    fontSize: ScreenUtil().setSp(25)
-                                  ),);
-                                })),
-                                SizedBox(height: (height * 0.005)),
-                                ScreenUtilInit(builder: ((context, child) {
-                                  return Text("公里", style: TextStyle(
-                                    color: darkGreen2,
-                                    fontSize: ScreenUtil().setSp(21)
-                                  ),);
-                                })),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 25, vertical: 8),
-                              child: Container(
-                                height: (height * 0.1),
-                                width: 4.5,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: darkGreen1),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "累積紀錄",
+                        style: TextStyle(color: darkGreen2, fontSize: 22),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(
+                            0,
+                            SizeConfig.screenHeight! * 0.01,
+                            0,
+                            SizeConfig.screenHeight! * 0.01),
+                        height: 3,
+                        width: (SizeConfig.screenHeight! * 0.4),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: darkGreen1),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                accDistance,
+                                style: const TextStyle(
+                                    color: darkGreen2, fontSize: 25),
                               ),
-                            ),
-                            Column(
-                              children: [
-                                ScreenUtilInit(builder: ((context, child) {
-                                  return Text(accTrack, style: TextStyle(
-                                    color: darkGreen2,
-                                    fontSize: ScreenUtil().setSp(24)
-                                  ),);
-                                })),
-                                SizedBox(height: (height * 0.005)),
-                                ScreenUtilInit(builder: ((context, child) {
-                                  return Text("軌跡", style: TextStyle(
-                                    color: darkGreen2,
-                                    fontSize: ScreenUtil().setSp(21)
-                                  ),);
-                                })),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 25, vertical: 8),
-                              child: Container(
-                                height: (height * 0.1),
-                                width: 4.5,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: darkGreen1),
+                              const Text(
+                                "公里",
+                                style:
+                                    TextStyle(color: darkGreen2, fontSize: 21),
                               ),
-                            ),
-                            Column(
-                              children: [
-                                ScreenUtilInit(builder: ((context, child) {
-                                  return Text(accActivity, style: TextStyle(
-                                    color: darkGreen2,
-                                    fontSize: ScreenUtil().setSp(24)
-                                  ),);
-                                })),
-                                SizedBox(height: (height * 0.005)),
-                                ScreenUtilInit(builder: ((context, child) {
-                                  return Text("活動", style: TextStyle(
-                                    color: darkGreen2,
-                                    fontSize: ScreenUtil().setSp(21)
-                                  ),);
-                                })),
-                              ],
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
+                            ],
+                          ),
+                          Container(
+                            height: (SizeConfig.screenHeight! * 0.1),
+                            width: 4.5,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                color: darkGreen1),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                accTrack,
+                                style: const TextStyle(
+                                    color: darkGreen2, fontSize: 24),
+                              ),
+                              const Text(
+                                "軌跡",
+                                style:
+                                    TextStyle(color: darkGreen2, fontSize: 21),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            height: (SizeConfig.screenHeight! * 0.1),
+                            width: 4.5,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                color: darkGreen1),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                accActivity,
+                                style: const TextStyle(
+                                    color: darkGreen2, fontSize: 24),
+                              ),
+                              const Text(
+                                "活動",
+                                style:
+                                    TextStyle(color: darkGreen2, fontSize: 21),
+                              )
+                            ],
+                          ),
+                        ],
+                      )
+                    ],
                   ),
                 )
               ],
@@ -276,10 +232,10 @@ class _ProfilePageOneState extends State<ProfilePage> {
   getMyInfo() async {
     await apiService.getMyInfo(requestModel);
     noteList = await SqliteHelper.queryAll(tableName: "notification");
-    if(noteList!.isNotEmpty) {
+    if (noteList!.isNotEmpty) {
       showBadge = true;
     } else {
       showBadge = false;
     }
-  } 
+  }
 }
