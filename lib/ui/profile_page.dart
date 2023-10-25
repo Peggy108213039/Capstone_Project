@@ -64,10 +64,22 @@ class _ProfilePageOneState extends State<ProfilePage> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    DefNotificationIcon(
+                      enable: true,
+                      show: showBadge,
+                    ),
+                    const DefSettingIcon(
+                      enable: true,
+                    ),
+                  ],
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0, SizeConfig.screenHeight! * 0.1,
-                      0, SizeConfig.screenHeight! * 0.02),
+                  margin: EdgeInsets.fromLTRB(
+                      0,
+                      SizeConfig.screenHeight! * 0.05,
+                      0,
+                      SizeConfig.screenHeight! * 0.02),
                   width: SizeConfig.screenHeight! * 0.3,
                   height: SizeConfig.screenHeight! * 0.3,
                   decoration: BoxDecoration(
